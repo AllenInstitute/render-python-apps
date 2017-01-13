@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+'''
+Build and import render-tilespec formatted data from trakem2 xml
+
+TODO:
+    only preserves Affine Transformations stored in attribute
+    Requires input stack -- cannot import from standalone trakEM2 projfile
+'''
 import os
 import sys
 import json
