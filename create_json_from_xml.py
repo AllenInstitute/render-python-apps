@@ -1,18 +1,24 @@
-import xml.etree.ElementTree as ET
-
-import sys
-sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
-
-from renderapi import Render
-from tilespec import TileSpec,Transform,AffineModel
 import os
+import sys
 import json
 import argparse
+import logging
+import xml.etree.ElementTree as ET
 
-def num2str(num,digits):
-    mystr=str(num)
-    if digits>len(mystr):
-        prefix = "0"* (digits-len(mystr))
+try:
+    from renderapi import Render
+    from tilespec import TileSpec, Transform, AffineModel
+except ImportError as e:
+    logging.warning(e)
+    sys.path.insert(0, '/data/array_tomography/ImageProcessing/render-python/')
+    from renderapi import Render
+    from tilespec import TileSpec, Transform, AffineModel
+
+
+def num2str(num, digits):
+    mystr = str(num)
+    if digits > len(mystr):
+        prefix = "0" * (digits-len(mystr))
         mystr = prefix + mystr
     return mystr
 
@@ -37,41 +43,45 @@ if __name__ == '__main__':
     p.add_argument('--host',                help="host name of the render server",default="ibs-forrestc-ux1.corp.alleninstitute.org")
     p.add_argument('--port',                help="port for render server",default=8080)
     p.add_argument('--java_home',           help="directory for java jdk",default='/pipeline/renderdev/deploy/jdk1.8.0_73')
-    
+
+    p.add_argument('--client_scripts',      help="location of client scripts")
     p.add_argument('--verbose',             help="verbose output",default=False)
     a = p.parse_args()
-    
-    render = Render(a.host, a.port, a.Owner, a.Project)
+
+    render = Render(a.host, a.port, a.Owner, a.Project, a.client_scripts)
 
     xmlroot = ET.parse(a.inputfile)
     layerset = xmlroot.find('t2_layer_set')
     layers = [t for t in layerset.getchildren() if t.tag == 't2_layer']
 
     if not os.path.exists(a.outputDir):
-	os.mkdir (a.outputDir)
+        os.makedirs(a.outputDir)
 
     jsonfiles = []
-    for i,layer in enumerate(layers):
-	finaltilespecs = []
+    for i, layer in enumerate(layers):
+        finaltilespecs = []
         z = float(layer.get('z'))
-	print a.inputStack
-	print z
-        original_tilespecs=render.get_tile_specs_from_z(a.inputStack,z)
-	
+        print a.inputStack
+        print z
+        original_tilespecs = render.get_tile_specs_from_z(a.inputStack, z)
+
         patches = layer.findall('t2_patch')
         #print(len(patches))
-        for k,patch in enumerate(patches):
-            tem2tileid=patch.get('title')
+        for k, patch in enumerate(patches):
+            tem2tileid = patch.get('title')
             print tem2tileid
-            tilespecs=[ts for ts in original_tilespecs if tem2tileid == ts.tileId]
+            tilespecs = [ts for ts in original_tilespecs
+                         if tem2tileid == ts.tileId]
             assert len(tilespecs)>0,"did not find matching tile in render stack"
             ts = tilespecs[0]
-            tem2tforms=patch.find('ict_transform_list')
+            tem2tforms = patch.find('ict_transform_list')
             tform1 = patch.get('transform').lstrip('matrix(').rstrip(')').split(',')
-            form1 = map(float,tform1)
-            form1 = AffineModel(tform1[0],tform1[1],tform1[2],tform1[3],tform1[4],tform1[5])
+            form1 = map(float, tform1)
+            form1 = AffineModel(
+                tform1[0], tform1[1], tform1[2],
+                tform1[3], tform1[4], tform1[5])
             #print tform1
-            tforms=[form1]
+            tforms = [form1]
 
 	    #this was the part i had commented out:
             #for tem2tform in tem2tforms.getchildren():
@@ -79,29 +89,19 @@ if __name__ == '__main__':
             #    ds=tem2tform.get('data')
             #    tforms.append(Transform(cls,ds))
             #tforms.append(tform1)
-	    #######################################	
+	    #######################################
 
-            ts.tforms=tforms
+            ts.tforms = tforms
             finaltilespecs.append(ts)
-	    
+    #print finaltilespecs[0].to_dict()
+    fname = a.outputDir + "/layer" + num2str(i, 4) + ".json"
+    jsonfiles.append(fname)
+    json_text = json.dumps([t.to_dict() for t in finaltilespecs], indent=4)
 
-	#print finaltilespecs[0].to_dict()
-
-	fname=a.outputDir+"/layer"+num2str(i,4)+".json"
-	jsonfiles.append(fname)
-	json_text=json.dumps([t.to_dict() for t in finaltilespecs],indent=4)
-	fd=open(fname, "w")
+    with open(fname, 'w') as fd:
         fd.write(json_text)
-        fd.close()
 
     render.create_stack(a.outputStack)
     #render.import_jsonfiles_one_by_one(a.outputStack,jsonfiles)
-    render.import_jsonfiles_parallel(a.outputStack,jsonfiles)
-
-
-
-   
-
-
-		
-
+    render.import_jsonfiles_parallel(
+        a.outputStack, jsonfiles, client_scripts=render.DEFAULT_CLIENT_SCRIPTS)
