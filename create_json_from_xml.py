@@ -117,12 +117,12 @@ if __name__ == '__main__':
             ts.tforms = tforms
             finaltilespecs.append(ts)
     #print finaltilespecs[0].to_dict()
-    fname = a.outputDir + "/layer" + num2str(i, 4) + ".json"
-    jsonfiles.append(fname)
-    json_text = json.dumps([t.to_dict() for t in finaltilespecs], indent=4)
+        fname = a.outputDir + "/layer" + num2str(i, 4) + ".json"
+        jsonfiles.append(fname)
+        json_text = json.dumps([t.to_dict() for t in finaltilespecs], indent=4)
 
-    with open(fname, 'w') as fd:
-        fd.write(json_text)
+        with open(fname, 'w') as fd:
+            fd.write(json_text)
 
     render.create_stack(a.outputStack)
     #render.import_jsonfiles_one_by_one(a.outputStack,jsonfiles)
