@@ -15,6 +15,10 @@ except ImportError as e:
     from tilespec import TileSpec, Transform, AffineModel
 
 
+class ConversionError(Exception):
+    pass
+
+
 def num2str(num, digits):
     mystr = str(num)
     if digits > len(mystr):
@@ -45,6 +49,8 @@ if __name__ == '__main__':
     p.add_argument('--java_home',           help="directory for java jdk",default='/pipeline/renderdev/deploy/jdk1.8.0_73')
 
     p.add_argument('--client_scripts',      help="location of client scripts")
+    p.add_argument('-i', '--ignore_invisible', action='store_true',
+                   help='do not upload invisible tiles in trakEM2 project')
     p.add_argument('--verbose',             help="verbose output",default=False)
     a = p.parse_args()
 
@@ -54,7 +60,7 @@ if __name__ == '__main__':
     layerset = xmlroot.find('t2_layer_set')
     layers = [t for t in layerset.getchildren() if t.tag == 't2_layer']
 
-    if not os.path.exists(a.outputDir):
+    if not os.path.isdir(a.outputDir):
         os.makedirs(a.outputDir)
 
     jsonfiles = []
@@ -69,10 +75,19 @@ if __name__ == '__main__':
         #print(len(patches))
         for k, patch in enumerate(patches):
             tem2tileid = patch.get('title')
+            if a.ignore_invisible:
+                if bool(patch.get('visible') == 'false'):
+                    logging.debug(
+                        'skipping invisible patch {}'.format(tem2tileid))
+                    continue
             print tem2tileid
             tilespecs = [ts for ts in original_tilespecs
                          if tem2tileid == ts.tileId]
-            assert len(tilespecs)>0,"did not find matching tile in render stack"
+            if not len(tilespecs):
+                raise ConversionError(
+                    'did not find matching tiles for layer z={}, patch {} in '
+                    'render stack!'.format(str(z), tem2tileid))
+            # assert len(tilespecs)>0,"did not find matching tile in render stack"
             ts = tilespecs[0]
             tem2tforms = patch.find('ict_transform_list')
             tform1 = patch.get('transform').lstrip('matrix(').rstrip(')').split(',')
