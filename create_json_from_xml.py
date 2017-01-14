@@ -80,7 +80,6 @@ if __name__ == '__main__':
         original_tilespecs = render.get_tile_specs_from_z(a.inputStack, z)
 
         patches = layer.findall('t2_patch')
-        #print(len(patches))
         for k, patch in enumerate(patches):
             tem2tileid = patch.get('title')
             if a.ignore_invisible:
@@ -88,35 +87,47 @@ if __name__ == '__main__':
                     logging.debug(
                         'skipping invisible patch {}'.format(tem2tileid))
                     continue
-            print tem2tileid
+
             tilespecs = [ts for ts in original_tilespecs
                          if tem2tileid == ts.tileId]
             if not len(tilespecs):
                 raise ConversionError(
                     'did not find matching tiles for layer z={}, patch {} in '
                     'render stack!'.format(str(z), tem2tileid))
-            # assert len(tilespecs)>0,"did not find matching tile in render stack"
             ts = tilespecs[0]
-            tem2tforms = patch.find('ict_transform_list')
-            tform1 = patch.get('transform').lstrip('matrix(').rstrip(')').split(',')
-            form1 = map(float, tform1)
+
+            # TODO unwrap all transform lists
+            tem2tforms = (patch.find('ict_transform_list').getchildren()
+                          if patch.find('ict_transform_list')
+                          else [patch.find('ict_transform')])
+
+            # there is an Affine Transform defined in patch attributes
+            tform1 = patch.get('transform').lstrip(
+                'matrix(').rstrip(')').split(',')
+            form1 = map(float, tform1)  # Should this def form1 or tform1?
             form1 = AffineModel(
                 tform1[0], tform1[1], tform1[2],
                 tform1[3], tform1[4], tform1[5])
-            #print tform1
-            tforms = [form1]
 
-	    #this was the part i had commented out:
-            #for tem2tform in tem2tforms.getchildren():
-            #    cls=tem2tform.get('class')
+            tforms = [form1] + [Transform(className=tform.get('class'),
+                                          dataString=tform.get('data'))
+                                for tform in tem2tforms]
+
+            # TODO hack need lenscorrection.NonLinearTransform to come first
+            # Does boolean sort necessarily preserve order within values?
+            tforms = sorted(tforms, key=lambda x: x.className !=
+                            'lenscorrection.NonLinearTransform')
+
+            # this was the part i had commented out:
+            # for tem2tform in tem2tforms.getchildren():
+            #     cls=tem2tform.get('class')
             #    ds=tem2tform.get('data')
             #    tforms.append(Transform(cls,ds))
-            #tforms.append(tform1)
-	    #######################################
+            # tforms.append(tform1)
 
             ts.tforms = tforms
             finaltilespecs.append(ts)
-    #print finaltilespecs[0].to_dict()
+
         fname = a.outputDir + "/layer" + num2str(i, 4) + ".json"
         jsonfiles.append(fname)
         json_text = json.dumps([t.to_dict() for t in finaltilespecs], indent=4)
@@ -125,6 +136,5 @@ if __name__ == '__main__':
             fd.write(json_text)
 
     render.create_stack(a.outputStack)
-    #render.import_jsonfiles_one_by_one(a.outputStack,jsonfiles)
     render.import_jsonfiles_parallel(
         a.outputStack, jsonfiles, client_scripts=render.DEFAULT_CLIENT_SCRIPTS)
