@@ -79,7 +79,8 @@ if __name__ == '__main__':
     for i, layer in enumerate(layers):
         finaltilespecs = []
         z = float(layer.get('z'))
-        original_tilespecs = render.get_tile_specs_from_z(a.inputStack, z)
+        if a.inputStack:
+            original_tilespecs = render.get_tile_specs_from_z(a.inputStack, z)
 
         patches = layer.findall('t2_patch')
         for k, patch in enumerate(patches):
