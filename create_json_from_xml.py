@@ -2,9 +2,6 @@
 '''
 Build and import render-tilespec formatted data from trakem2 xml
 
-TODO:
-    only preserves Affine Transformations stored in attribute
-    Requires input stack -- cannot import from standalone trakEM2 projfile
 '''
 import os
 import sys
@@ -82,8 +79,6 @@ if __name__ == '__main__':
     for i, layer in enumerate(layers):
         finaltilespecs = []
         z = float(layer.get('z'))
-        print a.inputStack
-        print z
         original_tilespecs = render.get_tile_specs_from_z(a.inputStack, z)
 
         patches = layer.findall('t2_patch')
@@ -95,13 +90,20 @@ if __name__ == '__main__':
                         'skipping invisible patch {}'.format(tem2tileid))
                     continue
 
-            tilespecs = [ts for ts in original_tilespecs
-                         if tem2tileid == ts.tileId]
-            if not len(tilespecs):
-                raise ConversionError(
-                    'did not find matching tiles for layer z={}, patch {} in '
-                    'render stack!'.format(str(z), tem2tileid))
-            ts = tilespecs[0]
+            if a.inputStack:
+                tilespecs = [ts for ts in original_tilespecs
+                             if tem2tileid == ts.tileId]
+                if not len(tilespecs):
+                    raise ConversionError(
+                        'did not find matching tiles for layer '
+                        'z={}, patch {} in render stack!'.format(
+                            str(z), tem2tileid))
+                ts = tilespecs[0]
+            else:
+                ts = TileSpec(z=z, width=patch.get('o_width'),
+                              height=patch.get('o_height'),
+                              imageUrl=patch.get('file_path'),
+                              tileId=patch.get('title'))
 
             # TODO unwrap all transform lists
             tem2tforms = (patch.find('ict_transform_list').getchildren()
@@ -135,7 +137,8 @@ if __name__ == '__main__':
             ts.tforms = tforms
             finaltilespecs.append(ts)
 
-        fname = a.outputDir + "/layer" + num2str(i, 4) + ".json"
+        fname = os.path.join(a.outputDir, "layer{}.json".format(
+            str(i).zfill(str(len(layers)))))
         jsonfiles.append(fname)
         json_text = json.dumps([t.to_dict() for t in finaltilespecs], indent=4)
 
