@@ -36,30 +36,37 @@ def num2str(num, digits):
 
 if __name__ == '__main__':
 
-    #inputfile='/nas/data/M247514_Rorb_1/scripts/test/out_edit2.xml'
-    #inputOwner = 'Forrest'
-    #inputProject = 'M247514_Rorb_1'
-    #inputStack = 'REGFLATDAPI_1'
-    #outputStack = 'ALIGNEDDAPI_1'
-    #outputDir = '/nas/data/M247514_Rorb_1/processed/aligned_tilespecs'
-    #host = 'ibs-forrestc-ux1.corp.alleninstitute.org'
-    #port = 8081
+    # inputfile='/nas/data/M247514_Rorb_1/scripts/test/out_edit2.xml'
+    # inputOwner = 'Forrest'
+    # inputProject = 'M247514_Rorb_1'
+    # inputStack = 'REGFLATDAPI_1'
+    # outputStack = 'ALIGNEDDAPI_1'
+    # outputDir = '/nas/data/M247514_Rorb_1/processed/aligned_tilespecs'
+    # host = 'ibs-forrestc-ux1.corp.alleninstitute.org'
+    # port = 8081
 
-    p = argparse.ArgumentParser(description="Take an xml file and upload to render")
-    p.add_argument('--inputfile',           help="Name of input xml file",default=None)
-    p.add_argument('--Owner',          help="name of project owner to read project from",default = "Forrest")
-    p.add_argument('--Project',        help="name of the input Project")
-    p.add_argument('--inputStack',         help='name of input stack ')
-    p.add_argument('--outputStack',         help='name of stack to upload to render')
-    p.add_argument('--outputDir',           help="name of the output directory", default='.')
-    p.add_argument('--host',                help="host name of the render server",default="ibs-forrestc-ux1.corp.alleninstitute.org")
-    p.add_argument('--port',                help="port for render server",default=8080)
-    p.add_argument('--java_home',           help="directory for java jdk",default='/pipeline/renderdev/deploy/jdk1.8.0_73')
+    p = argparse.ArgumentParser(
+        description="Take an xml file and upload to render")
+    p.add_argument('--inputfile', default=None, help="Name of input xml file")
+    p.add_argument('--Owner', default="Forrest",
+                   help="name of project owner to read project from")
+    p.add_argument('--Project', help="name of the input Project")
+    p.add_argument('--inputStack', help='name of input stack ')
+    p.add_argument('--outputStack', help='name of stack to upload to render')
+    p.add_argument('--outputDir', default=os.getcwd(),
+                   help="name of the output directory")
+    p.add_argument('--host',
+                   default="ibs-forrestc-ux1.corp.alleninstitute.org",
+                   help="host name of the render server")
+    p.add_argument('--port', default=8080, help="port for render server",)
+    p.add_argument('--java_home',
+                   default='/pipeline/renderdev/deploy/jdk1.8.0_73',
+                   help="directory for java jdk")
 
-    p.add_argument('--client_scripts',      help="location of client scripts")
+    p.add_argument('--client_scripts', help="location of client scripts")
     p.add_argument('-i', '--ignore_invisible', action='store_true',
                    help='do not upload invisible tiles in trakEM2 project')
-    p.add_argument('--verbose',             help="verbose output",default=False)
+    p.add_argument('--verbose', default=False, help="verbose output")
     a = p.parse_args()
 
     render = Render(a.host, a.port, a.Owner, a.Project, a.client_scripts)
