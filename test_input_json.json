@@ -1,0 +1,16 @@
+{
+	"inputStack":"EM_fix",
+	"minX":190000,
+	"minY":90000,
+	"maxX":225424,
+	"maxY":123142,
+	"host":"ibs-forrestc-ux1",
+	"port":8080,
+	"owner":"Forrest",
+	"project":"M247514_Rorb_1",
+	"minZ":0,
+	"maxZ":50,
+	"doChunk":false,
+	"chunkSize":50,
+	"outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/TEMprojects/"
+}
