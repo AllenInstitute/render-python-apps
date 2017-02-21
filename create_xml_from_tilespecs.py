@@ -3,7 +3,7 @@ import os
 import sys
 sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
 #sys.path.insert(0,'/nas3/data/M270907_Scnn1aTg2Tdt_13/scripts_ff/')
-from renderapi import Render
+import renderapi
 import argparse
 from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs
 
@@ -50,22 +50,24 @@ if __name__ == '__main__':
         createlayerset(outfile)
         #add layers
         render = Render(args.host,args.port,args.owner,args.project)
+        r = renderapi.connect(host=args.host, port=args.port, owner=args.owner,
+project=args.project, client_scripts=args.client_scripts)
         for layerid in range(x.first, x.last):
             print "This is layerid:"        
             print layerid
             if layerid not in badsections:
-                r = render.get_tile_specs_from_z(args.inputStack[0],layerid)
+                tilespecs = render.tilespecs.get_tile_specs_from_z(args.inputStack[0],layerid)
             else:
-                r = None
-            print r
+                tilespecs = None
+            
             #r = renderapi_sharmi.get_tile_specs_from_z(args.inputStack[0],layerid)
-            if (r is None):
+            if (tilespecs is None):
                 print "r is none!"
             else:
                 print badsections
                 if layerid not in badsections:
                     print "Now adding layer: %d "%layerid
-                    createlayer_fromtilespecs(r, outfile,layerid)
+                    createlayer_fromtilespecs(tilespecs, outfile,layerid)
                 layerid = layerid + 1
                 
         #footers
