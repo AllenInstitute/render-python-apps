@@ -4,7 +4,8 @@ import sys
 #sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
 #sys.path.insert(0,'/nas3/data/M270907_Scnn1aTg2Tdt_13/scripts_ff/')
 import renderapi
-
+import logging
+from renderapi.utils import stripLogger
 import argparse
 from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import  json
@@ -34,6 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('--badSections',nargs='*',help='section zs to leave out',type=int,required=False,default = [])
     parser.add_argument('--client_scripts',help='client scripts directory',type=str,required=False,
         default ="/pipeline/render/render-ws-java-client/src/main/scripts")
+    parser.add_argument('--verbose','-v',help='turn on verbose output',required=False,action='store_true')
     args = parser.parse_args()
     if args.inputJson is not None:
         jsonstring = open(args.inputJson,'r').read()
@@ -43,6 +45,12 @@ if __name__ == '__main__':
         args = merge_two_dicts(mainargs,jsonargs)
     else:
         args = vars(args)
+    print 'args verbose',args['verbose']
+    if args['verbose']:
+        # strip logger of handlers in case logger is set up within import block
+        stripLogger(logging.getLogger())
+        logging.basicConfig(level=logging.DEBUG,stream=sys.stdout)
+        logging.debug('verbose mode enabled!')
 
     if args['doChunk']:
         allchunks = createchunks(args['firstSection'],args['lastSection'],args['sectionsPerChunk'])
@@ -58,7 +66,7 @@ if __name__ == '__main__':
     headerfile = "header.xml"
     r = renderapi.render.connect(host=args['host'], port=args['port'], owner=args['owner'],
 project=args['project'], client_scripts=args['client_scripts'])
-    print r
+
     #render = Render(args['host'],args['port'],args['owner'],args['project'],args)
     #stackmetadata=render.get_stack_metadata_by_owner(args['owner'])
     #stackmetadata=[smd for smd in stackmetadata if ((smd['stackId']['project']==args['project']) and (smd['stackId']['stack']==args['inputStack']))]
@@ -93,7 +101,7 @@ project=args['project'], client_scripts=args['client_scripts'])
                     args['minY'],
                     args['maxY'],
                     render=r)
-                print "Now adding layer: %d \n %d tiles"%(layerid,len(r))
+                print "Now adding layer: %d \n %d tiles"%(layerid,len(tilespecs))
                 createlayer_fromtilespecs(tilespecs, outfile,layerid,shiftx=-args['minX'],shifty=-args['minY'])
             else:
                	tilespecs = None
