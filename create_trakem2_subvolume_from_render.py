@@ -3,7 +3,7 @@ import os
 import sys
 sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
 #sys.path.insert(0,'/nas3/data/M270907_Scnn1aTg2Tdt_13/scripts_ff/')
-from renderapi import Render
+import renderapi
 import argparse
 from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import  json
@@ -31,14 +31,17 @@ if __name__ == '__main__':
     parser.add_argument('--chunkSize',help="input stack",type=str,required=False)
     parser.add_argument('--outputXMLdir',help="input stack",type=str,required=False)
     parser.add_argument('--badSections',nargs='*',help='section zs to leave out',type=int,required=False,default = [])
-    
+    parser.add_argument('--client_scripts',help='client scripts directory',type=str,required=False,
+        default ="/pipeline/render/render-ws-java-client/src/main/scripts")
     args = parser.parse_args()
-
-    jsonstring = open(args.inputJson,'r').read()
-    jsonargs = json.loads(jsonstring)
-    mainargs = vars(args)
-    #print mainargs
-    args = merge_two_dicts(mainargs,jsonargs)
+    if args.inputJson is not None:
+        jsonstring = open(args.inputJson,'r').read()
+        jsonargs = json.loads(jsonstring)
+        mainargs = vars(args)
+        #print mainargs
+        args = merge_two_dicts(mainargs,jsonargs)
+    else:
+        args = vars(args)
 
     if args['doChunk']:
         allchunks = createchunks(args['firstSection'],args['lastSection'],args['sectionsPerChunk'])
@@ -52,7 +55,9 @@ if __name__ == '__main__':
 
     layersetfile = "layerset.xml"
     headerfile = "header.xml"
-    render = Render(args['host'],args['port'],args['owner'],args['project'])
+    r = renderapi.connect(host=args['host'], port=args['port'], owner=args['owner'],
+project=args['project'], client_scripts=args['client_scripts'])
+    #render = Render(args['host'],args['port'],args['owner'],args['project'],args)
     #stackmetadata=render.get_stack_metadata_by_owner(args['owner'])
     #stackmetadata=[smd for smd in stackmetadata if ((smd['stackId']['project']==args['project']) and (smd['stackId']['stack']==args['inputStack']))]
     #stackbounds = stackmetadata[0]['stats']['stackBounds']
@@ -78,12 +83,18 @@ if __name__ == '__main__':
             print "This is layerid:"        
             print layerid
             if layerid not in args['badSections']:
-                r = render.get_tile_specs_from_minmax_box(args['inputStack'],layerid,args['minX'],args['maxX'],args['minY'],args['maxY'])
-#                r = render.get_tile_specs_from_z(args['inputStack'],layerid)
+                tilespecs = render.tilespec.get_tile_specs_from_minmax_box(
+                    args['inputStack'],
+                    layerid,
+                    args['minX'],
+                    args['maxX'],
+                    args['minY'],
+                    args['maxY'],
+                    render=r)
                 print "Now adding layer: %d \n %d tiles"%(layerid,len(r))
-                createlayer_fromtilespecs(r, outfile,layerid,shiftx=-args['minX'],shifty=-args['minY'])
+                createlayer_fromtilespecs(tilespecs, outfile,layerid,shiftx=-args['minX'],shifty=-args['minY'])
             else:
-               	r = None
+               	tilespecs = None
                 
         #footers
         print outfile
