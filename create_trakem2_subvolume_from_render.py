@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
-sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
+#sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
 #sys.path.insert(0,'/nas3/data/M270907_Scnn1aTg2Tdt_13/scripts_ff/')
 import renderapi
 
