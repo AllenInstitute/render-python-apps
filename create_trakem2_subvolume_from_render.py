@@ -3,7 +3,7 @@ import os
 import sys
 sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
 #sys.path.insert(0,'/nas3/data/M270907_Scnn1aTg2Tdt_13/scripts_ff/')
-import renderapi
+import render-python
 import argparse
 from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import  json
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     layersetfile = "layerset.xml"
     headerfile = "header.xml"
-    r = renderapi.render.connect(host=args['host'], port=args['port'], owner=args['owner'],
+    r = render-python.render.connect(host=args['host'], port=args['port'], owner=args['owner'],
 project=args['project'], client_scripts=args['client_scripts'])
     #render = Render(args['host'],args['port'],args['owner'],args['project'],args)
     #stackmetadata=render.get_stack_metadata_by_owner(args['owner'])
