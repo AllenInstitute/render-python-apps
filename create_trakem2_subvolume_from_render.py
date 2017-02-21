@@ -58,6 +58,7 @@ if __name__ == '__main__':
     headerfile = "header.xml"
     r = renderapi.render.connect(host=args['host'], port=args['port'], owner=args['owner'],
 project=args['project'], client_scripts=args['client_scripts'])
+    print r
     #render = Render(args['host'],args['port'],args['owner'],args['project'],args)
     #stackmetadata=render.get_stack_metadata_by_owner(args['owner'])
     #stackmetadata=[smd for smd in stackmetadata if ((smd['stackId']['project']==args['project']) and (smd['stackId']['stack']==args['inputStack']))]
@@ -84,7 +85,7 @@ project=args['project'], client_scripts=args['client_scripts'])
             print "This is layerid:"        
             print layerid
             if layerid not in args['badSections']:
-                tilespecs = render.tilespec.get_tile_specs_from_minmax_box(
+                tilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(
                     args['inputStack'],
                     layerid,
                     args['minX'],

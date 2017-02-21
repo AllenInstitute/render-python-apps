@@ -2,7 +2,7 @@
 import math
 import json
 import random
-from tilespec import AffineModel
+from renderapi.transform import AffineModel
 
 def randomDig(digits):
     lower = 10**(digits-1)
