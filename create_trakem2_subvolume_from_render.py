@@ -43,9 +43,10 @@ if __name__ == '__main__':
         mainargs = vars(args)
         #print mainargs
         args = merge_two_dicts(mainargs,jsonargs)
+        args = merge_two_dicts(args,jsonargs['render'])
     else:
         args = vars(args)
-    print 'args verbose',args['verbose']
+
     if args['verbose']:
         # strip logger of handlers in case logger is set up within import block
         stripLogger(logging.getLogger())
@@ -64,8 +65,7 @@ if __name__ == '__main__':
 
     layersetfile = "layerset.xml"
     headerfile = "header.xml"
-    r = renderapi.render.connect(host=args['host'], port=args['port'], owner=args['owner'],
-project=args['project'], client_scripts=args['client_scripts'])
+    r = renderapi.render.connect(**args)
 
     #render = Render(args['host'],args['port'],args['owner'],args['project'],args)
     #stackmetadata=render.get_stack_metadata_by_owner(args['owner'])
