@@ -13,6 +13,6 @@ docker run -d --name renderapps \
 -p 8888:8888 \
 -e "PASSWORD=$JUPYTERPASSWORD" \
 -i -t renderapps:latest \
-/bin/bash -c "/opt/conda/bin/conda install jupyter -y && /opt/conda/bin/jupyter notebook --config=/root/.jupyter/jupyter_notebook_config.py --notebook-dir=/pipeline/render-python-apps --no-browser" 
+/bin/bash -c "/opt/conda/bin/jupyter notebook --config=/root/.jupyter/jupyter_notebook_config.py --notebook-dir=/pipeline/render-python-apps --no-browser" 
  
 
