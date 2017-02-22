@@ -1,11 +1,7 @@
 from PIL import Image
 import argparse
 import os
-from tilespec import TileSpec
-
-#def add_mipmaps_to_tilespec(tilespec):
     
-
 def create_mipmaps(inputImage,outputDirectory='.',mipmaplevels=[1,2,3],outputformat='jpg'):
     if not os.path.isdir(outputDirectory):
         os.makedirs(outputDirectory)
