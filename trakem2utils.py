@@ -60,7 +60,7 @@ def createlayer(jsonfile, outfile, layerid):
         f1.writelines(lines)
 
 
-def createlayer_fromtilespecs(tilespecs, outfile, layerid,shiftx=0.0,shifty=0.0):
+def createlayer_fromtilespecs(tilespecs, outfile, layerid,shiftx=0.0,shifty=0.0,affineOnly=False):
     #tilespecs = json.load(open(jsonfile, 'r'))
     lines = []
     lines.append("\t<t2_layer oid='" + str(layerid+10) + "'\n")
@@ -80,7 +80,7 @@ def createlayer_fromtilespecs(tilespecs, outfile, layerid,shiftx=0.0,shifty=0.0)
     y = 0
     while patchid < Ntiles:
     #print patchid
-        createpatch(tilespecs, lines, patchid,layerid,shiftx,shifty)
+        createpatch(tilespecs, lines, patchid,layerid,shiftx=shiftx,shifty=shifty,affineOnly=affineOnly)
         patchid = patchid + 1
 
     # end layer
@@ -91,14 +91,14 @@ def createlayer_fromtilespecs(tilespecs, outfile, layerid,shiftx=0.0,shifty=0.0)
         f1.writelines(lines)
 
 
-def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0):
+def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0,affineOnly=False):
     import numpy as np
     ts = tilespecs[patchid]
     #fp = tilespecs[patchid]['mipmapLevels']['0']['imageUrl']
     #print fp
     #fp = fp.replace("raw/data","processed/flatfieldcorrecteddata")
     #fp = fp.replace("session","Session000")
-    fp = tilespecs[patchid].imageUrl
+    fp = ts.ip.get(0)['imageUrl']
     #left,right = fp.split('_F',1)
     #num,rright = right.split('_',1)
     #lenspeclist = len(tilespecs[patchid]['transforms']['specList'])
@@ -106,30 +106,31 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0):
     #tString = tilespecs[patchid]['transforms']['specList'][lenspeclist-1]['dataString']
     #print tilespecs[patchid].tforms[lenspeclist-1]
     
-    #    tform_total = AffineModel()
-    #    for tform in ts.tforms:
-    #        tform_total = tform.concatenate(tform_total)
-    #    M00 = str(tform_total.M00)
-    #    M10 = str(tform_total.M01)
-    #    M01 = str(tform_total.M10)
-    #    M11 = str(tform_total.M11)
-    #    B0 = str(tform_total.B0)
-    #    B1 = str(tform_total.B1)
-    #else:
-
+    if affineOnly:
+        tform_total = AffineModel()
+        for tform in ts.tforms:
+            tform_total = tform.concatenate(tform_total)
+        M00 = str(tform_total.M00)
+        M10 = str(tform_total.M01)
+        M01 = str(tform_total.M10)
+        M11 = str(tform_total.M11)
+        B0 = str(tform_total.B0+shiftx)
+        B1 = str(tform_total.B1+shifty)
+    else:
+	    B0 = str(ts.minX+shiftx)
+	    B1 = str(ts.minY+shifty)
+	    M00 = str(1.0)
+	    M01 = str(0.0)
+	    M10 = str(0.0)
+	    M11 = str(1.0)
+	    #B0 = str(0)
+    #B1 = str(0)
     #    local_corners = np.array([[0,0],[0,ts.height],[ts.width,ts.height],[ts.width,0],[0,0]])
     #    world_corners = render.local_to_world_coordinates_array()
     #world_corners = tform_total.tform(local_corners)
     #mins= np.min(world_corners,axis=0)
 
-    B0 = str(ts.minX+shiftx)
-    B1 = str(ts.minY+shifty)
-    M00 = str(1.0)
-    M01 = str(0.0)
-    M10 = str(0.0)
-    M11 = str(1.0)
-    #B0 = str(0)
-    #B1 = str(0)
+
 
     fname = fp.split('/')
     filename_only = fp
@@ -145,7 +146,7 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0):
     lines.append("\tlinks=''\n")
     lines.append("\ttype='1'\n")    
     lines.append("\tfile_path='" + filename_only + "'\n")
-    lines.append("\ttitle= '" + tilespecs[patchid].tileId +  "'\n")
+    lines.append("\ttitle= '" + ts.tileId +  "'\n")
     lines.append("\tstyle='fill-opacity:1.0;stroke:#ffff00;'\n")
     lines.append("\to_width='" + str(int(ts.width))+"'\n")
     lines.append("\to_height='" + str(int(ts.height)) + "'\n")
@@ -153,11 +154,12 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0):
     lines.append("\tmax= '" + str(ts.maxint) +  "'\n")
     lines.append("\tmres='32'\n")
     lines.append("\t>\n")
-    lines.append("\t<ict_transform_list>\n")
-    for tform in tilespecs[patchid].tforms:
-        tformdict = tform.to_dict()
-        lines.append("\t\t<iict_transform class='%s' data='%s' />\n"%(tformdict['className'],tformdict['dataString']))
-    lines.append("\t</ict_transform_list>\n")
+    if not affineOnly:
+        lines.append("\t<ict_transform_list>\n")
+        for tform in ts.tforms:
+            tformdict = tform.to_dict()
+            lines.append("\t\t<iict_transform class='%s' data='%s' />\n"%(tformdict['className'],tformdict['dataString']))
+        lines.append("\t</ict_transform_list>\n")
     lines.append("\t</t2_patch>\n")
 
 def createheader(headerfile,outfile):
