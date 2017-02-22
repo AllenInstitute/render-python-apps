@@ -8,7 +8,7 @@ docker run -d --name renderapps \
 -v /nas4:/nas4 \
 -v /data:/data \
 -v /pipeline:/pipeline \
--v /pipeline/render-python-apps:/usr/local/render-python-apps \
+-v /pipeline/render-python-apps:/usr/local/render-python-apps \ #note this line should be removed if using dockerfile
 -v /etc/hosts:/etc/hosts \
 -it renderapps:latest \
 /bin/bash
