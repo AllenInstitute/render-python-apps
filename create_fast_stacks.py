@@ -1,32 +1,27 @@
 import argparse
-import jsonschema
 import json
 import os
 import pandas as pd
 import subprocess
 import copy
-from tilespec import TileSpec,Layout,AffineModel
-import numpy as np
-from sh import tar,zip
-import sys
-sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
-from renderapi import Render
+import renderapi
+from renderapi.tilespec import TileSpec,Layout,MipMapLevel
+from renderapi.transform import AffineModel
+
 my_env = os.environ.copy()
-import matplotlib.pyplot as plt
-import requests
 from itertools import izip_longest
 
 
 
-def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner):
+def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,minval=0,maxval=50000):
     df = df[df['zstack']==0]
-    ribbons = df.groupby('ribbon')
-    zoffset=0
+    #ribbons = df.groupby('ribbon')
+    #zoffset=0
 
-    for ribbnum,ribbon in ribbons:
-        ribbon.loc[ribbon.index,'z']=ribbon['section']+zoffset
-        zoffset += ribbon['section'].max()+1
-        df.loc[ribbon.index,'z']=ribbon['z'].values
+    #for ribbnum,ribbon in ribbons:
+    #    ribbon.loc[ribbon.index,'z']=ribbon['section']+zoffset
+    #    zoffset += ribbon['section'].max()+1
+    #    df.loc[ribbon.index,'z']=ribbon['z'].values
 
 
     cmds = []
@@ -41,11 +36,11 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner):
                 filepath=row.full_path
                 fileparts=filepath.split(os.path.sep)[1:]
                 tilespecdir = rootdir + "/processed/downsamp_tilespec/"+fileparts[5]+"/"+fileparts[6]+"/"+fileparts[7]
-                print tilespecdir
+                #print tilespecdir
                 if not os.path.isdir(tilespecdir):
                     os.makedirs(tilespecdir)
                 downdir = rootdir+"/processed/downsamp_images/"+fileparts[5]+"/"+fileparts[6]+"/"+fileparts[7]
-                print "This is the Down Sampled Directory: %s"%downdir
+                #print "This is the Down Sampled Directory: %s"%downdir
 
                 if not os.path.exists(downdir):
                     os.makedirs(downdir)
@@ -62,33 +57,28 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner):
                                                 stageY = row.ystage,
                                                 rotation = 0.0,
                                                 pixelsize = row.scale_x)
+                
+                mipmap0 = MipMapLevel(level=0,imageUrl=row.full_path)
+                mipmaplevels=[mipmap0]
                 filename = "%s_S%04d_F%04d_Z%02d.tif"%(row.ch_name,row.section,row.frame,0)
-                sc1Url = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip01.jpg')
-                sc2Url = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip02.jpg')
-                sc3Url = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip03.jpg')
-                flatpath = os.path.join(rootdir,'raw','data',
-                                        'Ribbon%04d'%row.ribbon,'Session%04d'%row.session,
-                                       row.ch_name,filename)
+                for i in range(1,4):
+                    scUrl = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip0%d.jpg'%i)
+                    mml = MipMapLevel(level=i,imageUrl=scUrl)
+                    mipmaplevels.append(mml)
+
                 tform = AffineModel(M00=row.a00,
                                          M01=row.a01,
                                          M10=row.a10,
                                          M11=row.a11,
                                          B0=row.a02,
                                          B1=row.a12)
-                maxval = 50000
-                minval = 0
             
-                
                 tilespeclist.append(TileSpec(tileId=row.tileID,
                                      frameId = row.frame,
                                      z=row.z,
                                      width=row.width,
                                      height=row.height,
-                                     imageUrl='file:'+row.full_path,
-                                     scale1Url=sc1Url,
-                                     scale2Url=sc2Url,
-                                     scale3Url=sc3Url,
-                                     maskUrl='file:/nas2/render_utilities/fullscmos.tif',
+                                     mipMapLevels=mipmaplevels,
                                      tforms=[tform],
                                      minint=minval,
                                      maxint=maxval,
@@ -111,11 +101,11 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner):
 if __name__ == "__main__":
 
 
-    DEFAULT_HOST = "ibs-forrestc-ux1.corp.alleninstitute.org"
+    DEFAULT_HOST = "ibs-forrestc-ux1"
     DEFAULT_PORT = 8080
     DEFAULT_OWNER = "Forrest"
     DEFAULT_PROJECT = "TEST"
-
+    DEFAULT_CLIENT_SCRIPTS = '/pipeline/render/render-ws-java-client/src/main/scripts'
     parser = argparse.ArgumentParser(description="Create fast Stacks")
     parser.add_argument('--statetableFile', help="State Table File")
     parser.add_argument('--projectDirectory',        help="name of the input Project")
@@ -124,7 +114,7 @@ if __name__ == "__main__":
     parser.add_argument('--project',default=DEFAULT_PROJECT,required=False)
     parser.add_argument('--host',default=DEFAULT_HOST,required=False)
     parser.add_argument('--port',default=8080,required=False)
-    
+    parser.add_argument('--client_scripts',default=DEFAULT_CLIENT_SCRIPTS,required=False,type=str,help='default client location')
     args = parser.parse_args()
 
     outputProject=args.project
@@ -134,12 +124,13 @@ if __name__ == "__main__":
 
     df = pd.read_csv(statetablefile)
     ribbons = df.groupby('ribbon')  
-    render = Render(args.host,args.port,args.owner,args.project)
+    r = renderapi.render.connect(**vars(args))
+    k=0
     for ribnum,ribbon in ribbons:
         mydf = ribbon.groupby('ch_name')
         for channum,chan in mydf:
             outputStack = args.outputStackPrefix + '_%s'%(channum)
-            render.create_stack(outputStack,owner=outputOwner,project=outputProject,verbose=False)
+            
             print "creating tilespecs and cmds...."
             tilespecpaths,cmds = make_tilespec_from_statetable (chan,rootdir,outputProject,outputOwner)
             print "importing tilespecs into render...."
@@ -149,7 +140,9 @@ if __name__ == "__main__":
                for p in filter(None, processes):
                    p.wait()
             print "uploading to render ..."
-
+            if k==0:
+                renderapi.stack.create_stack(outputStack,owner=outputOwner,project=outputProject,verbose=False,render=r)
             print tilespecpaths
-            render.import_jsonfiles_parallel(outputStack,tilespecpaths)
+            renderapi.client.import_jsonfiles_parallel(outputStack,tilespecpaths,render=r)
+        k+=1
             
