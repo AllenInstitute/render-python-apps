@@ -1,0 +1,20 @@
+{
+    "render":{
+        "host":"ibs-forrestc-ux1",
+        "port":8080,
+        "owner":"Forrest",
+        "project":"M247514_Rorb_1",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "EMstack":"EM_fix",
+    "LMstack":"REGFLATMBP_deconv",
+    "outputEMStack":"EM_fix_stitch3",
+    "renderHome":"/pipeline/render",
+    "minX":190000,
+    "minY":90000,
+    "maxX":225424,
+    "maxY":123142,
+    "minZ":0,
+    "maxZ":50,
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjectsLayer5/"
+}
