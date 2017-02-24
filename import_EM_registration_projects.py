@@ -5,9 +5,10 @@ import logging
 import os
 import sys
 from renderapi.utils import stripLogger
-import argparser
+import argparse
 from renderapi.tilespec import TileSpec
 from renderapi.transform import AffineModel
+import json
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "import xml files for each Z to register EM to LM")
