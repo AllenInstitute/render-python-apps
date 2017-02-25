@@ -16,16 +16,12 @@ import  json
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "Create xml from stack")
     parser.add_argument('--inputJson',help='json based input argument file',type=str)
-    parser.add_argument('--outputJson',help='json to describe where to output',type=str)
     parser.add_argument('--verbose','-v',help='turn on verbose output',required=False,action='store_true')
     args = parser.parse_args()
 
     jsonstring = open(args.inputJson,'r').read()
     jsonargs = json.loads(jsonstring)
 
-    outputjsonstring = open(args.outputJson,'r').read()
-    jsonoutputargs = json.loads(outputjsonstring)
-    
     if args.verbose:
         # strip logger of handlers in case logger is set up within import block
         stripLogger(logging.getLogger())
@@ -49,7 +45,7 @@ if __name__ == '__main__':
         infile=os.path.join(indir,'project.xml')
         outfile = os.path.join(indir,'tilespec.json')
 
-        renderAppDir= os.path.join(jsonoutputargs['renderHome'],'render-app','target')
+        renderAppDir= os.path.join(jsonargs['renderHome'],'render-app','target')
         renderJar = [os.path.join(renderAppDir,f) for f in os.listdir(renderAppDir)\
          if (f.startswith('render-app') and f.endswith('jar-with-dependencies.jar'))][0]
         print renderJar
@@ -79,13 +75,13 @@ if __name__ == '__main__':
                 tso.tforms = tsm.tforms
                 tso.tforms.append(shiftTransform)
             with open(jsonfilename,'w') as fp:
-                json.dump([ts.to_dict() for ts in tilespecs_original],fp,indent=4)
+                renderapi.utils.renderdump(tilespecs_original,fp,indent=4)
             jsonfiles.append(jsonfilename)
 
         if not jsonargs['doChunk']:
-            #renderapi.stack.delete_stack(jsonoutputargs['outputStack'],render=r) 
-            renderapi.stack.create_stack(jsonoutputargs['outputStack'],render=r)         
-            renderapi.client.import_jsonfiles_parallel(jsonoutputargs['outputStack'],jsonfiles,render=r)
+            #renderapi.stack.delete_stack(jsonargs['outputStack'],render=r) 
+            renderapi.stack.create_stack(jsonargs['outputStack'],render=r)         
+            renderapi.client.import_jsonfiles_parallel(jsonargs['outputStack'],jsonfiles,render=r)
             
 #             print "This is layerid:"        
 #             print layerid
