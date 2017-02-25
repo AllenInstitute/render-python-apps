@@ -77,7 +77,14 @@ if __name__ == '__main__':
         all_points_global_p = all_points_global_p[1:,:]
         all_points_global_q = all_points_global_q[1:,:]
         all_points=np.concatenate([all_points_global_p,all_points_global_q],axis=1)
-        f,ax=plt.subplots(1,1,figsize=(10,30))
+        width = bounds_p['maxX']-bounds_p['minX']
+        height = bounds_p['maxY']-bounds_p['minY']
+        wh_ratio = width*1.0/height
+        if wh_ratio>1.0:
+            f,ax=plt.subplots(1,1,figsize=(10,10/wh_ratio))
+        else:
+            f,ax=plt.subplots(1,1,figsize=(10*wh_ratio,10))
+
         #ax.imshow(lowmag_rg,extent=(bounds_p['minX'],bounds_p['maxX'],bounds_p['maxY'],bounds_p['minY']))
         ax.scatter(all_points[:,0],all_points[:,1],c='m',marker='o',s=5,linewidth=0)
         ax.quiver(all_points[:,0].T,all_points[:,1].T,
@@ -93,7 +100,7 @@ if __name__ == '__main__':
         plt.tight_layout()
         
         figpath = os.path.join(figdir,'%05d_to_%05d.png'%(z_p,z_q))
-        print figpath
+
         f.savefig(figpath)
         plt.close(f)
       
