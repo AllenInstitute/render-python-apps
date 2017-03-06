@@ -6,9 +6,9 @@
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "EMstack":"EM_fix",
+    "EMstack":"EM_fix_stitch3",
     "LMstack":"REGFLATMBP_deconv",
-    "outputEMStack":"EM_fix_stitch3",
+    "outputEMStack":"EM_reg",
     "renderHome":"/pipeline/render",
     "minX":190000,
     "minY":90000,

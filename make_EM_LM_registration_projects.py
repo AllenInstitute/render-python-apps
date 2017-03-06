@@ -18,7 +18,8 @@ if __name__ == '__main__':
    
     if not os.path.isdir(jsonargs['outputXMLdir']):
         os.makedirs(jsonargs['outputXMLdir'])
-
+    EMstack = jsonargs['EMstack']
+    LMstack = jsonargs['LMstack']
     r=renderapi.render.connect(**jsonargs['render'])
     EMz = renderapi.stack.get_z_values_for_stack(jsonargs['EMstack'],render=r)
     if args.verbose:

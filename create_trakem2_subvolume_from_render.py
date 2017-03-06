@@ -89,7 +89,7 @@ if __name__ == '__main__':
         createlayerset(outfile,width=(args['maxX']-args['minX']),height=(args['maxY']-args['minY']))
         #add layers
         
-        for layerid in range(x.first, x.last):
+        for layerid in range(x.first, x.last+1):
             print "This is layerid:"        
             print layerid
             if layerid not in args['badSections']:

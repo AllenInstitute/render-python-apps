@@ -19,6 +19,8 @@ if __name__ == '__main__':
     parser.add_argument('--verbose','-v',help='turn on verbose output',required=False,action='store_true')
     args = parser.parse_args()
 
+    #print args
+
     jsonstring = open(args.inputJson,'r').read()
     jsonargs = json.loads(jsonstring)
 
@@ -58,10 +60,10 @@ if __name__ == '__main__':
         output_tilespecs = [TileSpec(json=tsj) for tsj in tsjson]
         shiftTransform = AffineModel(B0=jsonargs['minX'],B1=jsonargs['minY'])
         jsonfiles=[]
-        for layerid in range(x.first, x.last):    
-
+        for layerid in range(x.first, x.last+1):    
+            print 'layerid',x.first
             jsonfilename = os.path.join(jsonargs['outputXMLdir'],'%05d.json'%layerid)
-
+            output_tilespec_list = []
             tilespecs_original = renderapi.tilespec.get_tile_specs_from_minmax_box(
                 jsonargs['inputStack'],
                 layerid,
@@ -71,11 +73,14 @@ if __name__ == '__main__':
                 jsonargs['maxY'],
                 render=r)
             for tso in tilespecs_original:
-                tsm = next(ts for ts in output_tilespecs if ts.tileId==tso.tileId)
-                tso.tforms = tsm.tforms
-                tso.tforms.append(shiftTransform)
+                matches = [ts for ts in output_tilespecs if ts.tileId==tso.tileId]
+                if len(matches)>0:
+                    tsm = matches[0]
+                    tso.tforms = tsm.tforms
+                    tso.tforms.append(shiftTransform)
+                    output_tilespec_list.append(tso)
             with open(jsonfilename,'w') as fp:
-                renderapi.utils.renderdump(tilespecs_original,fp,indent=4)
+                renderapi.utils.renderdump(output_tilespec_list,fp,indent=4)
             jsonfiles.append(jsonfilename)
 
         if not jsonargs['doChunk']:

@@ -10,16 +10,7 @@ import argparse
 import json
 from renderapi.utils import stripLogger
 import logging
-example_json={
-    "render":{
-        "host":"ibs-forrestc-ux1",
-        "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
-        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
-    },
-    "stack":"REGFLATDAPI_1_deconv"
-}
+
 example_json = {
     "render":{
         "host":"ibs-forrestc-ux1",

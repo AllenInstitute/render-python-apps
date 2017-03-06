@@ -141,6 +141,7 @@ if __name__ == "__main__":
                    p.wait()
             print "uploading to render ..."
             if k==0:
+                renderapi.stack.delete_stack(outputStack,owner=outputOwner,project=outputProject,render=r)
                 renderapi.stack.create_stack(outputStack,owner=outputOwner,project=outputProject,verbose=False,render=r)
             print tilespecpaths
             renderapi.client.import_jsonfiles_parallel(outputStack,tilespecpaths,render=r)
