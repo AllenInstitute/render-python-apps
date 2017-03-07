@@ -1,0 +1,21 @@
+{
+	"render":{
+		"host":"ibs-forrestc-ux1",
+		"port":8080,
+		"owner":"Forrest",
+		"project":"M247514_Rorb_1",
+		"client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+	},
+	"inputStack":"REGFLATSMALLDAPI_1_deconv_CONS",
+	"outputStack":"REGFLATSMALLFIXDAPI_1_deconv",
+	"renderHome":"/pipeline/render",
+	"minX":0,
+	"minY":900,
+	"maxX":11000,
+	"maxY":8200,
+	"minZ":0,
+	"maxZ":101,
+	"doChunk":false,
+	"chunkSize":50,
+	"outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/TEMfix/"
+}
