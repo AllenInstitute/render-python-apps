@@ -16,6 +16,21 @@ class RenderParameters(ModuleParameters):
 class RenderTrakEM2Parameters(RenderParameters):
     renderHome = InputDir(required=True,metadata={'description':'root path of standard render install'})
 
+class TEM2ProjectTransfer(RenderTrakEM2Parameters):
+    minX = mm.fields.Int(required=True,metadata={'description':'minimum x'})
+    minY = mm.fields.Int(required=True,metadata={'description':'minimum y'})
+    maxX = mm.fields.Int(required=True,metadata={'description':'maximum x'})
+    maxY = mm.fields.Int(required=True,metadata={'description':'maximum y'})
+    minZ = mm.fields.Int(required=False,metadata={'description':'minimum z'})
+    maxZ = mm.fields.Int(required=False,metadata={'description':'maximum z'})
+    inputStack = mm.fields.Str(required=True,metadata={'description':'stack to import from'})
+    outputStack = mm.fields.Str(required=True,metadata={'description':'stack to output to'})
+    outputXMLdir = mm.fields.Str(required=True,metadata={'description':'path to save xml files'})
+    doChunk = mm.fields.Boolean(required=False,default=False,metadata={'description':'split the input into chunks'})
+    chunkSize = mm.fields.Int(required=False,default=50,metadata={'description':'size of chunks'})
+
+
+
 class RenderModule(JsonModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
