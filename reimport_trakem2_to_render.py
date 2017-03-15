@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import os
 import sys
-#sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
-#sys.path.insert(0,'/nas3/data/M270907_Scnn1aTg2Tdt_13/scripts_ff/')
 import renderapi 
 from renderapi.tilespec import TileSpec
 from renderapi.transform import AffineModel
@@ -11,67 +9,74 @@ import logging
 import argparse
 from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import  json
+from render_module import TEM2ProjectTransfer,TrakEM2RenderModule
+import numpy as np
+
+example_parameters = {
+    "render":{
+        "host":"ibs-forrestc-ux1",
+        "port":8080,
+        "owner":"Forrest",
+        "project":"M247514_Rorb_1",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    'minX':59945,
+    'maxX':83341,
+    'minY':84722,
+    'maxY':130658,
+    'inputStack':'EM_fix',
+    'outputStack':'EM_Site4_stitched',
+    "doChunk":False,
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/Site4Stitch/",
+    "renderHome":"/pipeline/forrestrender/"
+}
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description = "Create xml from stack")
-    parser.add_argument('--inputJson',help='json based input argument file',type=str)
-    parser.add_argument('--verbose','-v',help='turn on verbose output',required=False,action='store_true')
-    args = parser.parse_args()
+    mod = TrakEM2RenderModule(schema_type=TEM2ProjectTransfer,input_data=example_parameters)
 
-    #print args
+    zvalues = mod.render.run(renderapi.stack.get_z_values_for_stack,mod.args['inputStack'])
 
-    jsonstring = open(args.inputJson,'r').read()
-    jsonargs = json.loads(jsonstring)
+    minZ = mod.args.get('minZ',int(np.min(zvalues)))
+    maxZ = mod.args.get('maxZ',int(np.max(zvalues)))
 
-    if args.verbose:
-        # strip logger of handlers in case logger is set up within import block
-        stripLogger(logging.getLogger())
-        logging.basicConfig(level=logging.DEBUG,stream=sys.stdout)
-        logging.debug('verbose mode enabled!')
-
-    if jsonargs['doChunk']:
-        allchunks = createchunks(jsonargs['minZ'],jsonargs['maxZ'],jsonargs['sectionsPerChunk'])
+    if mod.args['doChunk']:
+        allchunks = createchunks(minZ,maxZ,mod.args['chunkSize'])
+        raise Exception('do chunk output not yet implemented')
     else:
         allchunks=[]
         ck = Chunk()
-        ck.first = jsonargs['minZ']
-        ck.last = jsonargs['maxZ']
+        ck.first = minZ
+        ck.last = maxZ
         ck.dir = str(ck.first)+ "-" + str(ck.last)
         allchunks.append(ck)
-    r = renderapi.render.connect(**jsonargs['render'])
 
     for x in allchunks:
 
-        indir = os.path.join(jsonargs['outputXMLdir'],x.dir)
+        indir = os.path.join(mod.args['outputXMLdir'],x.dir)
         infile=os.path.join(indir,'project.xml')
         outfile = os.path.join(indir,'tilespec.json')
 
-        renderAppDir= os.path.join(jsonargs['renderHome'],'render-app','target')
-        renderJar = [os.path.join(renderAppDir,f) for f in os.listdir(renderAppDir)\
-         if (f.startswith('render-app') and f.endswith('jar-with-dependencies.jar'))][0]
-        print renderJar
-        
-        cmd = ['java','-cp',renderJar,'org.janelia.alignment.trakem2.Converter',infile,indir,outfile]
-        os.system(' '.join(cmd))
+        mod.convert_trakem2_project(infile,indir,outfile)
 
         with open(outfile,'r') as fp:
             tsjson = json.load(fp)
+
         output_tilespecs = [TileSpec(json=tsj) for tsj in tsjson]
-        shiftTransform = AffineModel(B0=jsonargs['minX'],B1=jsonargs['minY'])
+        shiftTransform = AffineModel(B0=mod.args['minX'],B1=mod.args['minY'])
         jsonfiles=[]
         for layerid in range(x.first, x.last+1):    
             print 'layerid',x.first
-            jsonfilename = os.path.join(jsonargs['outputXMLdir'],'%05d.json'%layerid)
+            jsonfilename = os.path.join(mod.args['outputXMLdir'],'%05d.json'%layerid)
             output_tilespec_list = []
             tilespecs_original = renderapi.tilespec.get_tile_specs_from_minmax_box(
-                jsonargs['inputStack'],
+                mod.args['inputStack'],
                 layerid,
-                jsonargs['minX'],
-                jsonargs['maxX'],
-                jsonargs['minY'],
-                jsonargs['maxY'],
-                render=r)
+                mod.args['minX'],
+                mod.args['maxX'],
+                mod.args['minY'],
+                mod.args['maxY'],
+                render=mod.render)
             for tso in tilespecs_original:
                 matches = [ts for ts in output_tilespecs if ts.tileId==tso.tileId]
                 if len(matches)>0:
@@ -83,21 +88,7 @@ if __name__ == '__main__':
                 renderapi.utils.renderdump(output_tilespec_list,fp,indent=4)
             jsonfiles.append(jsonfilename)
 
-        if not jsonargs['doChunk']:
-            #renderapi.stack.delete_stack(jsonargs['outputStack'],render=r) 
-            renderapi.stack.create_stack(jsonargs['outputStack'],render=r)         
-            renderapi.client.import_jsonfiles_parallel(jsonargs['outputStack'],jsonfiles,render=r)
-            
-#             print "This is layerid:"        
-#             print layerid
-#             if layerid not in args['badSections']:
-#                 r = render.get_tile_specs_from_minmax_box(args['inputStack'],layerid,args['minX'],args['maxX'],args['minY'],args['maxY'])
-# #                r = render.get_tile_specs_from_z(args['inputStack'],layerid)
-#                 print "Now adding layer: %d \n %d tiles"%(layerid,len(r))
-#                 createlayer_fromtilespecs(r, outfile,layerid)
-#             else:
-#                	r = None
-                
-#         #footers
-#         print outfile
-#         createfooters(outfile)
+        if not mod.args['doChunk']:
+            #renderapi.stack.delete_stack(mod.args['outputStack'],render=r) 
+            renderapi.stack.create_stack(mod.args['outputStack'],render=mod.render)         
+            renderapi.client.import_jsonfiles_parallel(mod.args['outputStack'],jsonfiles,render=mod.render)
