@@ -23,14 +23,15 @@ example_parameters = {
     'minX':59945,
     'maxX':83341,
     'minY':84722,
-    'maxY':130658,
+    'maxY':138658,
+    'minZ':24,
+    'maxZ':24,
     'inputStack':'EM_fix',
     'outputStack':'EM_Site4_stitched',
     "doChunk":False,
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/Site4Stitch/",
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/Site4StitchFix/",
     "renderHome":"/pipeline/forrestrender/"
 }
-
 
 if __name__ == '__main__':
     mod = TrakEM2RenderModule(schema_type=TEM2ProjectTransfer,input_data=example_parameters)
@@ -90,5 +91,5 @@ if __name__ == '__main__':
 
         if not mod.args['doChunk']:
             #renderapi.stack.delete_stack(mod.args['outputStack'],render=r) 
-            renderapi.stack.create_stack(mod.args['outputStack'],render=mod.render)         
+            renderapi.stack.create_stack(mod.args['outputStack'],render=mod.render)
             renderapi.client.import_jsonfiles_parallel(mod.args['outputStack'],jsonfiles,render=mod.render)
