@@ -20,8 +20,8 @@ example_parameters = {
 	},
   "input_stack":"Pinky40_20170313",
   "output_stack":"Pinky40_20170313_aibsdata",
-  "regex_find":"em-131fs",
-  "regex_replace":"nc-em"
+  "regex_find":"em-131fs/renderings",
+  "regex_replace":"nc-em/russelt"
 }
 
 
