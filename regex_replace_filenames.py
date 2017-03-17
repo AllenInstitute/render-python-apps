@@ -79,7 +79,7 @@ class ReplaceFileNames(RenderModule):
         if self.args['input_stack'] != output_stack:
             sv = renderapi.stack.get_stack_metadata(self.args['input_stack'],render=self.render)
             renderapi.stack.create_stack(output_stack,render=self.render)
-            renderapi.stack.set_stack_metadata(output_stack,sv)
+            renderapi.stack.set_stack_metadata(output_stack,sv,render=self.render)
 
         #import the json_files into the output stack
         renderapi.client.import_jsonfiles_parallel(output_stack,json_files,poolsize=self.args['pool_size'],render=mod.render)
