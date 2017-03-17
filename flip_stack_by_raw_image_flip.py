@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import renderapi 
+import renderapi
 from renderapi.tilespec import MipMapLevel
 from renderapi.transform import AffineModel
 import json
@@ -61,21 +61,21 @@ if __name__ == '__main__':
             old_url = mml.imageUrl
             old_path = fix_url(old_url)
 
-            new_url = mml.imageUrl[0:-4]+'_flip.tif'
+            new_url = mml.imageUrl[0:-4]+'_flip.png'
             new_path = fix_url(new_url)
-            
+
             #construct the imagemagick command
             cmd = ['convert',old_path,'-flip',new_path]
             mml.imageUrl = new_url
             ts.ip.update(mml)
-            
+
             #execute the imagemagick subprocess
             proc = subprocess.Popen(cmd)
             proc.wait()
 
             if delete_after:
                 #remove me to delete
-                os.remove(old_url)
+                os.remove(old_path)
 
         #open a temporary file
         tid,tfile = tempfile.mkstemp(suffix='.json')
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     mypartial = partial(process_z,mod.render,mod.args['input_stack'],delete_after=mod.args['delete_after'])
 
     #mypartial(0)
-    #get the filepaths of json files in parallel   
+    #get the filepaths of json files in parallel
     json_files = pool.map(mypartial,zvalues)
 
     if mod.args['input_stack']!=output_stack:
