@@ -71,7 +71,7 @@ if __name__ == '__main__':
                                 z)
         tilespecs = tilespecs1 + tilespecs2
         #open a temporary file
-        tid,tfile1 = tempfile.mkstemp(suffix='.json')
+        tid,tfile = tempfile.mkstemp(suffix='.json')
         file = open(tfile,'w')
         #write the file to disk
         renderapi.utils.renderdump(tilespecs,file)
