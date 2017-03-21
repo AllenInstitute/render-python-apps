@@ -10,8 +10,7 @@ import marshmallow as mm
 import os
 import numpy as np
 #An example set of parameters for this module
-example_parameters =
-{
+example_parameters ={
     "render":{
         "host":"em-131fs",
         "port":8999,
