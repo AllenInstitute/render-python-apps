@@ -1,4 +1,4 @@
-FROM fcollman/renderpython
+FROM renderpython:latest
 MAINTAINER Forrest Collman (forrest.collman@gmail.com)
 
 RUN mkdir -p /usr/local/render-python-apps

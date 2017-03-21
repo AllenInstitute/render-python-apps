@@ -25,11 +25,13 @@ example_parameters = {
     'minX':59945,
     'maxX':83341,
     'minY':84722,
-    'maxY':130658,
+    'maxY':138658,
+    'minZ':24,
+    'maxZ':24,
     'inputStack':'EM_fix',
     'outputStack':'EM_Site4_stitched',
     "doChunk":False,
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/Site4Stitch/",
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/Site4StitchFix/",
     "renderHome":"/pipeline/forrestrender/"
 }
 

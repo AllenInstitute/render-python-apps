@@ -1,4 +1,6 @@
 docker build -t renderapps:latest .
+docker tag renderapps:latest fcollman/render-python-apps
+docker tag renderapps:latest atbigdawg:5000/fcollman/render-python-apps
 docker kill renderapps
 docker rm renderapps
 docker run -d --name renderapps \

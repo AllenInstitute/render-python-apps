@@ -10,11 +10,14 @@ class RenderClientParameters(mm.Schema):
     owner = mm.fields.Str(required=True,metadata={'description':'render default owner'})
     project = mm.fields.Str(required=True,metadata={'description':'render default project'})
     client_scripts = mm.fields.Str(required=True,metadata={'description':'path to render client scripts'})
+    memGB = mm.fields.Str(required=False,default='5G',metadata={'description':'string describing java heap memory (default 5G)'})
+
 class RenderParameters(ModuleParameters):
     render = mm.fields.Nested(RenderClientParameters)
 
 class RenderTrakEM2Parameters(RenderParameters):
     renderHome = InputDir(required=True,metadata={'description':'root path of standard render install'})
+
 
 class TEM2ProjectTransfer(RenderTrakEM2Parameters):
     minX = mm.fields.Int(required=True,metadata={'description':'minimum x'})
@@ -28,6 +31,15 @@ class TEM2ProjectTransfer(RenderTrakEM2Parameters):
     outputXMLdir = mm.fields.Str(required=True,metadata={'description':'path to save xml files'})
     doChunk = mm.fields.Boolean(required=False,default=False,metadata={'description':'split the input into chunks'})
     chunkSize = mm.fields.Int(required=False,default=50,metadata={'description':'size of chunks'})
+
+class EMLMRegistrationParameters(TEM2ProjectTransfer):
+    LMstack = mm.fields.Str(required=True,metadata={'description':'name of LM stack to use for registration'})
+    minX = mm.fields.Int(required=False,metadata={'description':'minimum x (default to EM stack bounds)'})
+    minY = mm.fields.Int(required=False,metadata={'description':'minimum y (default to EM stack bounds)'})
+    maxX = mm.fields.Int(required=False,metadata={'description':'maximum x (default to EM stack bounds)'})
+    maxY = mm.fields.Int(required=False,metadata={'description':'maximum y (default to EM stack bounds)'})
+    minZ = mm.fields.Int(required=False,metadata={'description':'minimum z (default to EM stack bounds)'})
+    maxZ = mm.fields.Int(required=False,metadata={'description':'maximum z (default to EM stack bounds)'})
 
 
 
@@ -44,7 +56,7 @@ class TrakEM2RenderModule(RenderModule):
             schema_type = RenderTrakEM2Parameters
         super(TrakEM2RenderModule,self).__init__(schema_type=schema_type,*args,**kwargs)
         jarDir = os.path.join(self.args['renderHome'],'render-app','target')
-        renderjarFile = next(os.path.join(jarDir,f) for f in os.listdir(jarDir) if f.endswith('jar-with-dependencies.jar'))
+        self.renderjarFile = next(os.path.join(jarDir,f) for f in os.listdir(jarDir) if f.endswith('jar-with-dependencies.jar'))
         self.trakem2cmd = ['java','-cp',renderjarFile,'org.janelia.alignment.trakem2.Converter']
 
 

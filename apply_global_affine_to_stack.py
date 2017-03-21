@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import renderapi 
+import renderapi
 from renderapi.transform import AffineModel
 import json
 from render_module import RenderModule,RenderParameters
@@ -8,6 +8,7 @@ from functools import partial
 import tempfile
 import marshmallow as mm
 import os
+import numpy as np
 #An example set of parameters for this module
 example_parameters = {
     "render":{
@@ -37,19 +38,29 @@ class ApplyAffineParameters(RenderParameters):
     M11 = mm.fields.Float(required=False,default=1.0,metadata={'description':'M11 (y\'=M11*y) element of affine (default 1.0)'})
     B0 = mm.fields.Float(required=False,default=0.0,metadata={'description':'B0 (x translation) element of affine (defautl 0.0)'})
     B1 = mm.fields.Float(required=False,default=0.0,metadata={'description':'B1 (y translation) element of affine (default 0.0)'})
+    zmin = mm.fields.Int(required=False,metadata={'description':'zvalue to start'})
+    zmax = mm.fields.Int(required=False,metadata={'description':'zvalue to end'})
     pool_size = mm.fields.Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
 
 if __name__ == '__main__':
     #process the command line arguments
     mod = RenderModule(schema_type=ApplyAffineParameters,input_data=example_parameters)
-    #mod.run()
+    mod.run()
     #get the z values in the stack
     zvalues = mod.render.run(renderapi.stack.get_z_values_for_stack,mod.args['input_stack'])
+    zvalues = np.array(zvalues)
+    print zvalues
+    zmin = mod.args.get('zmin',np.min(zvalues))
+    zmax = mod.args.get('zmax',np.max(zvalues))
+    zvalues = zvalues[zvalues>=zmin]
+    zvalues = zvalues[zvalues<=zmax]
 
     #define a function to process one z value
     def process_z(render,input_stack,tform,z):
         #get the tilespecs for this Z
-        tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,input_stack,z)
+        tilespecs = render.run( renderapi.tilespec.get_tile_specs_from_z,
+                                input_stack,
+                                z)
         #loop over the tilespes adding the transform
         for ts in tilespecs:
             ts.tforms.append(tform)
@@ -74,13 +85,28 @@ if __name__ == '__main__':
     output_stack = mod.args.get('output_stack',mod.args['input_stack'])
 
     #define a processing pool
-    pool = Pool(mod.args['pool_size'])
+    #pool = Pool(mod.args['pool_size'])
     #define a partial function for processing a single z value
-    mypartial = partial(process_z,mod.render,mod.args['input_stack'],global_tform)
+    mypartial = partial(process_z,
+                        mod.render,
+                        mod.args['input_stack'],
+                        global_tform)
     #get the filepaths of json files in parallel
+    #json_files = []
+    #for z in zvalues:
+    #    print z
+    #    json_files.append(mypartial(z))
+    #print json_files
+    pool = Pool(mod.args['pool_size'])
     json_files = pool.map(mypartial,zvalues)
     #import the json_files into the output stack
-    renderapi.client.import_jsonfiles_parallel(output_stack,json_files,poolsize=mod.args['pool_size'],render=mod.render)
+    if (mod.args['input_stack'] != output_stack):
+        mod.render.run(renderapi.stack.create_stack,output_stack)
+
+    renderapi.client.import_jsonfiles_parallel( output_stack,
+                                                json_files,
+                                                poolsize=mod.args['pool_size'],
+                                                render=mod.render)
 
     #clean up the temp files
     [os.remove(tfile) for tfile in json_files]
