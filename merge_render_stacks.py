@@ -48,8 +48,8 @@ if __name__ == '__main__':
     zvalues2 = mod.render.run(renderapi.stack.get_z_values_for_stack,mod.args['stack2'])
     zvalues2 = np.array(zvalues1)
 
-    zmin = mod.args.get('zmin',np.min(zvalues))
-    zmax = mod.args.get('zmax',np.max(zvalues))
+    zmin = mod.args.get('zmin',min(np.min(zvalues1),np.min(zvalues2)))
+    zmax = mod.args.get('zmax',min(np.max(zvalues1),np.max(zvalues2)))
     zvalues1 = zvalues1[zvalues1>=zmin]
     zvalues1 = zvalues1[zvalues1<=zmax]
     zvalues2 = zvalues1[zvalues2>=zmin]
