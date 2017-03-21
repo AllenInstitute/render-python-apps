@@ -47,7 +47,7 @@ if __name__ == '__main__':
     zvalues1 = np.array(zvalues1)
     zvalues2 = mod.render.run(renderapi.stack.get_z_values_for_stack,mod.args['stack2'])
     zvalues2 = np.array(zvalues1)
-    print zvalues
+
     zmin = mod.args.get('zmin',np.min(zvalues))
     zmax = mod.args.get('zmax',np.max(zvalues))
     zvalues1 = zvalues1[zvalues1>=zmin]
