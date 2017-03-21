@@ -81,6 +81,8 @@ if __name__ == '__main__':
     #import the json_files into the output stack
     if (mod.args['input_stack'] != output_stack):
         mod.render.run(renderapi.stack.create_stack,output_stack)
+    mod.render.run(renderapi.stack.set_stack_state,output_stack,'LOADING')
+
 
     renderapi.client.import_jsonfiles_parallel( output_stack,
                                                 json_files,
