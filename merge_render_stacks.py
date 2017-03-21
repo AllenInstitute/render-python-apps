@@ -60,7 +60,7 @@ if __name__ == '__main__':
         zvalues = np.union1d(zvalues1,zvalues2)
 
     #define a function to process one z value
-    def process_z(render,stack1,stack2,tform,z):
+    def process_z(render,stack1,stack2,z):
         #get the tilespecs for this Z
         tilespecs1 = render.run( renderapi.tilespec.get_tile_specs_from_z,
                                 stack1,
@@ -87,8 +87,8 @@ if __name__ == '__main__':
     #define a partial function for processing a single z value
     mypartial = partial(process_z,
                         mod.render,
-                        mod.args['input_stack'],
-                        global_tform)
+                        mod.args['stack1'],
+                        mod.args['stack2'])
     #get the filepaths of json files in parallel
     #json_files = []
     #for z in zvalues:
