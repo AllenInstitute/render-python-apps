@@ -69,6 +69,9 @@ if __name__ == '__main__':
         tilespecs2 = render.run( renderapi.tilespec.get_tile_specs_from_z,
                                 stack2,
                                 z)
+        for ts in tilespecs1:
+            ts.layout.sectionId= tilespecs2[0].layout.sectionId
+            
         tilespecs = tilespecs1 + tilespecs2
         #open a temporary file
         tid,tfile = tempfile.mkstemp(suffix='.json')
