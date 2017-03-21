@@ -98,6 +98,7 @@ if __name__ == '__main__':
     pool = Pool(mod.args['pool_size'])
     json_files = pool.map(mypartial,zvalues)
     #import the json_files into the output stack
+    output_stack = mod.args['output_stack']
     mod.render.run(renderapi.stack.create_stack,output_stack)
 
     renderapi.client.import_jsonfiles_parallel( output_stack,
