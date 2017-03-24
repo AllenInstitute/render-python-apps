@@ -60,8 +60,8 @@ def smart_merge(a, b, path=None,merge_keys = None,overwrite_with_none=False):
                     a[key]=b[key]
                 else: pass #then don't alter a's
             else:
-                #in this case we are potentially overwriting a's value with b's   
-                #determine if we should try to merge     
+                #in this case we are potentially overwriting a's value with b's
+                #determine if we should try to merge
                 if do_join(a,b,key,merge_keys):
                     #attempt to merge leafs
                     a[key]=merge_value(a,b,key)
@@ -114,7 +114,7 @@ class InputFile(mm.fields.Str):
             raise mm.ValidationError("%s is not a file" % value)
         else:
             try:
-                os.access(value,os.R_OK)    
+                os.access(value,os.R_OK)
             except IOError:
                 raise mm.ValidationError("%s is not readable" % value)
 
@@ -144,10 +144,10 @@ class JsonModule( object ):
         input_data = None, #dictionary input as option instead of --input_json
         schema_type = ModuleParameters, #schema for parsing arguments
         args = None,
-        logger_name = 'json_module'): 
+        logger_name = 'json_module'):
 
         schema = schema_type()
-        
+
         #convert schema to argparse object
         p = schema_argparser(schema)
         argsobj = p.parse_args(args)
@@ -250,14 +250,14 @@ def build_schema_arguments(schema, arguments=None, path=None):
             arguments[arg_name] = arg
 
     return arguments
-        
+
 def schema_argparser(schema):
     """ given a jsonschema, build an argparse.ArgumentParser """
 
     arguments = build_schema_arguments(schema)
 
     parser = argparse.ArgumentParser()
-    
+
     for arg_name, arg in arguments.iteritems():
         parser.add_argument(arg_name, **arg)
     return parser
@@ -268,6 +268,3 @@ def main():
     print jm.args
 
 if __name__ == "__main__": main()
-
-
-
