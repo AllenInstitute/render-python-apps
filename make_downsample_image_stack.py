@@ -23,8 +23,6 @@ example_parameters=
     'pool_size':5
 }
 
-
-}
 class MakeDownsampleSectionStackParameters(RenderParameters):
     input_stack = mm.fields.Str(required=True,)
         metadata={'description':'stack to make a downsample version of'})
@@ -86,5 +84,5 @@ class MakeDownsampleSectionStack(RenderModule):
 
 
 if __name__ == "__main__":
-    mod = MakeDownsampleSectionStack()
+    mod = MakeDownsampleSectionStack(input_data=example_parameters)
     mod.run()
