@@ -137,19 +137,20 @@ if __name__ == '__main__':
             "project":"M247514_Rorb_1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "prealignedstack":"REGFLATDAPI_1_deconv",
-        "postalignedstack":"BIGALIGNDAPI_1_deconv_pmfilter_quad",
-        "registered_stacks":["EM_reg2"],
-        "oldprefix":"REGFLAT",
-        "newprefix":"ALIGN"
+        "prealignedstack":"REG_MARCH_21_DAPI_1",
+        "postalignedstack":"ALIGN2_MARCH_24b_DAPI_1",
+        "registered_stacks":["REG_MARCH_21_MBP_deconv",
+                             "REG_MARCH_21_GABA_deconv",
+                             "REG_MARCH_21_GAD2_deconv",
+                             "REG_MARCH_21_GluN1_deconv",
+                             "REG_MARCH_21_PSD95_deconv",
+                             "REG_MARCH_21_TdTomato_deconv",
+                             "REG_MARCH_21_VGlut1_deconv",
+                             "REG_MARCH_21_synapsin_deconv",
+                             "REG_MARCH_21_DAPI_1_deconvnew",
+                             "REG_MARCH_21_Gephyrin_deconvnew"],
+        "oldprefix":"REG_MARCH_21_",
+        "newprefix":"ALIGN2_MARCH24b_"
     }
     module = ApplyAlignmentFromRegisteredStacks(parser, example_json=example_json)
     module.run()
-    # "registered_stacks":["REGFLATMBP_deconv",
-    #                         "REGFLATGABA_deconv",
-    #                         "REGFLATGAD2_deconv",
-    #                         "REGFLATGluN1_deconv",
-    #                         "REGFLATPSD95_deconv",
-    #                         "REGFLATTdTomato_deconv",
-    #                         "REGFLATVGlut1_deconv",
-    #                         "REGFLATsynapsin_deconv"
