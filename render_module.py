@@ -57,7 +57,7 @@ class TrakEM2RenderModule(RenderModule):
         super(TrakEM2RenderModule,self).__init__(schema_type=schema_type,*args,**kwargs)
         jarDir = os.path.join(self.args['renderHome'],'render-app','target')
         self.renderjarFile = next(os.path.join(jarDir,f) for f in os.listdir(jarDir) if f.endswith('jar-with-dependencies.jar'))
-        self.trakem2cmd = ['java','-cp',renderjarFile,'org.janelia.alignment.trakem2.Converter']
+        self.trakem2cmd = ['java','-cp',self.renderjarFile,'org.janelia.alignment.trakem2.Converter']
 
 
     def convert_trakem2_project(self,xmlFile,projectPath,json_path):
@@ -67,14 +67,14 @@ class TrakEM2RenderModule(RenderModule):
             line = proc.stdout.readline()
             if 'ERROR' in line:
                 self.logger.error(line)
-            else:    
+            else:
                 self.logger.debug(line)
         while proc.poll() is None:
             line = proc.stdout.readline()
             if 'ERROR' in line:
                 self.logger.error(line)
             else:
-                self.logger.debug(line)    
+                self.logger.debug(line)
 
 
 
