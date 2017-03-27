@@ -152,5 +152,19 @@ if __name__ == '__main__':
         "oldprefix":"REG_MARCH_21_",
         "newprefix":"ALIGN2_MARCH24b_"
     }
+    example_json = {
+        "render":{
+            "host":"ibs-forrestc-ux1",
+            "port":8080,
+            "owner":"Forrest",
+            "project":"M247514_Rorb_1",
+            "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+        },
+        "prealignedstack":"REGFLATDAPI_1_deconvnew",
+        "postalignedstack":"ALIGN2_MARCH24b_DAPI_1_deconvnew",
+        "registered_stacks":["EM_reg2"],
+        "oldprefix":"REG_MARCH_21_",
+        "newprefix":"ALIGN2_MARCH24b_"
+    }
     module = ApplyAlignmentFromRegisteredStacks(parser, example_json=example_json)
     module.run()
