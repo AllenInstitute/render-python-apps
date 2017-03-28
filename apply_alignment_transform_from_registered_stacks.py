@@ -5,7 +5,7 @@ from functools import partial
 import os
 import pathos.multiprocessing as mp
 from shapely import geometry
-import argparse 
+import argparse
 from renderapi.utils import stripLogger
 import logging
 import sys
@@ -99,7 +99,7 @@ def process_z(r,prealignedstack,postalignedstack,sourcestack,outstack,z,num_poin
     r.run(renderapi.client.import_tilespecs,outstack,ts_source)
     return None
 
-    
+
 class ApplyAlignmentFromRegisteredStacks(RenderModule):
     def __init__(self, parser, *args,**kwargs):
 
@@ -123,8 +123,8 @@ class ApplyAlignmentFromRegisteredStacks(RenderModule):
             res = pool.map(myp, zvalues)
             #self.render.run(renderapi.stack.set_stack_state,outstack,state='COMPLETE')
             #break
- 
-        
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "Filter point matches that start or end outside polygons defined in polygon_dir,\
     that were generated from specified stack")
@@ -138,7 +138,7 @@ if __name__ == '__main__':
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
         "prealignedstack":"REG_MARCH_21_DAPI_1",
-        "postalignedstack":"ALIGN2_MARCH_24b_DAPI_1",
+        "postalignedstack":"BIGALIGN2_MARCH_24c_DAPI_1",
         "registered_stacks":["REG_MARCH_21_MBP_deconvnew",
                              "REG_MARCH_21_GABA_deconvnew",
                              "REG_MARCH_21_GAD2_deconvnew",
@@ -148,11 +148,28 @@ if __name__ == '__main__':
                              "REG_MARCH_21_VGlut1_deconvnew",
                              "REG_MARCH_21_synapsin_deconvnew",
                              "REG_MARCH_21_DAPI_1_deconvnew",
+                             "REG_MARCH_21_DAPI_2_deconvnew",
+                             "REG_MARCH_21_DAPI_3_deconvnew",
                              "REG_MARCH_21_Gephyrin_deconvnew"],
         "oldprefix":"REG_MARCH_21_",
-        "newprefix":"ALIGN2_MARCH24b_"
+        "newprefix":"BIGALIGN2_MARCH24b_"
     }
     example_json = {
+            "render":{
+                "host":"ibs-forrestc-ux1",
+                "port":8080,
+                "owner":"Forrest",
+                "project":"M247514_Rorb_1",
+                "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+            },
+            "prealignedstack":"REG_MARCH_21_DAPI_1",
+            "postalignedstack":"BIGALIGN2_MARCH_24c_DAPI_1",
+            "registered_stacks":["REG_MARCH_21_DAPI_3_deconvnew",
+                                 "REG_MARCH_21_Gephyrin_deconvnew"],
+            "oldprefix":"REG_MARCH_21_",
+            "newprefix":"BIGALIGN2_MARCH24b_"
+    }
+    example_json2 = {
         "render":{
             "host":"ibs-forrestc-ux1",
             "port":8080,
@@ -161,10 +178,10 @@ if __name__ == '__main__':
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
         "prealignedstack":"REGFLATDAPI_1_deconvnew",
-        "postalignedstack":"ALIGN2_MARCH24b_DAPI_1_deconvnew",
+        "postalignedstack":"BIGALIGN2_MARCH_24c_DAPI_1",
         "registered_stacks":["EM_reg2"],
         "oldprefix":"REG_MARCH_21_",
-        "newprefix":"ALIGN2_MARCH24b_"
+        "newprefix":"BIGALIGN2_MARCH24b_"
     }
-    module = ApplyAlignmentFromRegisteredStacks(parser, example_json=example_json)
+    module = ApplyAlignmentFromRegisteredStacks(parser, example_json=example_json2)
     module.run()

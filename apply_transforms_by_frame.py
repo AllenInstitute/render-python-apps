@@ -3,7 +3,7 @@ import json
 import pathos.multiprocessing as mp
 from functools import partial
 import tempfile
-from render_module import RenderModule
+from render_module import RenderModule,RenderParameters
 import os
 import marshmallow as mm
 
@@ -80,10 +80,10 @@ class ApplyTransforms(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = ApplyTransformParameters
-        super(Template,self).__init__(schema_type=schema_type,*args,**kwargs)
+        super(ApplyTransforms,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
         print json.dumps(self.args,indent=4)
-        pool = mp.ProcessingPool(int(self.args['poolSize']))
+        pool = mp.ProcessingPool(int(self.args['pool_size']))
 
         #STEP 2: get z values that exist in aligned stack
         zvalues=self.render.run(renderapi.stack.get_z_values_for_stack,self.args['alignedStack'])

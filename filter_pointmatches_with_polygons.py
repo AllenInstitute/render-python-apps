@@ -5,7 +5,7 @@ from functools import partial
 import os
 import pathos.multiprocessing as mp
 from shapely import geometry
-import argparse 
+import argparse
 
 example_json = {
     "render":{
@@ -43,13 +43,13 @@ if __name__ == '__main__':
     matchcollection = jsonargs['matchcollection']
     targetmatchcollection =jsonargs['targetmatchcollection']
 
-    r = renderapi.render.connect(**jsonargs['render']) 
-    
+    r = renderapi.render.connect(**jsonargs['render'])
+
     def mask_points(points,mask):
         p = np.array(points).T
         return p[mask,:].T.tolist()
 
-    def mask_match(match,mask):    
+    def mask_match(match,mask):
         if np.sum(mask)==0:
             return None
         match['matches']['p']=mask_points(match['matches']['p'],mask)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
         insideboth = insidep & insideq
         newmatch = mask_match(match,insideboth)
         return newmatch
-        
+
     def filter_matches(r,stack,fromcollection,tocollection,polydict,pgroup):
         matches=r.run(renderapi.pointmatch.get_matches_with_group,fromcollection,pgroup)
         new_matches = []
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         for ts in tilespecs:
             tiledict[ts.tileId]=ts
         qgroups = set([match['qGroupId'] for match in matches])
-        
+
         for qgroup in qgroups:
             z = r.run(renderapi.stack.get_z_value_for_section,stack,qgroup)
             tilespecs=r.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         return r.run(renderapi.pointmatch.import_matches,tocollection,json.dumps(new_matches))
 
     def create_polydict(r,stack,mask_dir):
-        sectionData=r.run(renderapi.stack.get_sectionData_for_stack,stack)
+        sectionData=r.run(renderapi.stack.get_stack_sectionData,stack)
         sectionIds=[sd['sectionId'] for sd in sectionData]
         polydict = {}
         for sectionId in sectionIds:
@@ -109,28 +109,28 @@ if __name__ == '__main__':
         return polydict
 
     def create_zdict(r,stack):
-        sectionData=r.run(renderapi.stack.get_sectionData_for_stack,stack)
+        sectionData=r.run(renderapi.stack.get_stack_sectionData,stack)
         sectionIds=[sd['sectionId'] for sd in sectionData]
         zdict={}
         for sectionId in sectionIds:
-            z = r.run(renderapi.stack.get_z_value_for_section,stack,sectionId) 
+            z = r.run(renderapi.stack.get_z_value_for_section,stack,sectionId)
             zdict[sectionId]=z
         return zdict
 
     #define a dictionary of z values for each sectionId
     zdict = create_zdict(r,stack)
-   
-    #define a dictionary of polygons for each sectionId 
+
+    #define a dictionary of polygons for each sectionId
     polydict = create_polydict(r,stack,polygonfolder)
-    
+
     #get the set of starting sectionIds for the point match database
     pgroups = r.run(renderapi.pointmatch.get_match_groupIds_from_only,matchcollection)
 
     #define a partial function on filter_matches that takes in a single sectionId
     mypartial=partial(filter_matches,r,stack,matchcollection,targetmatchcollection,polydict)
-    
+
     #run function in parallel over 40 workers
-    pool = mp.ProcessPool(4)  
+    pool = mp.ProcessPool(4)
     #res = pool.map(mypartial,pgroups)
     for pgroup in pgroups:
         mypartial(pgroup)
