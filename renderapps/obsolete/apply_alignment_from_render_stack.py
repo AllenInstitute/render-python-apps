@@ -54,7 +54,7 @@ def process_section(z,renderObj=None):
 
 
 if __name__ == '__main__':
-
+    raise(Exception('THIS NEEDS TO BE UPDATED FOR NEW API'))
     #inputfile='/nas/data/M247514_Rorb_1/scripts/test/out_edit2.xml'
     #inputOwner = 'Forrest'
     #inputProject = 'M247514_Rorb_1'

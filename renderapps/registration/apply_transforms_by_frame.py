@@ -3,7 +3,7 @@ import json
 import pathos.multiprocessing as mp
 from functools import partial
 import tempfile
-from render_module import RenderModule
+from renderapps.module.render_module import RenderModule
 import os
 import marshmallow as mm
 

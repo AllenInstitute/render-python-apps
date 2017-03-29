@@ -5,17 +5,17 @@ import os
 import pandas as pd
 import subprocess
 import copy
-from tilespec import TileSpec,Layout,AffineModel
+from renderapi.tilespec import TileSpec,Layout,AffineModel
 import numpy as np
 from sh import tar,zip
 import json
 import glob
 import sys
 sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
-from renderapi import Render
+from renderapi.render import Render
 
 if __name__ == '__main__':
-
+    raise(Exception('THIS IS BROKEN, NEEDS TO BE FIXED FOR NEW API'))
     DEFAULT_HOST = "ibs-forrestc-ux1.corp.alleninstitute.org"
     DEFAULT_PORT = 8080
     DEFAULT_OWNER = "Forrest"

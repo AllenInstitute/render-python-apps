@@ -1,4 +1,4 @@
-from render_module import TrakEM2RenderModule,EMLMRegistrationParameters
+from renderapps.module.render_module import TrakEM2RenderModule, EMLMRegistrationParameters
 import os
 import renderapi
 import json

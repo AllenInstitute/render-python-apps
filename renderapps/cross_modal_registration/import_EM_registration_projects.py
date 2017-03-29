@@ -1,5 +1,7 @@
 import renderapi
-from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
+from renderapps.TrakEM2.trakem2utils import \
+    createchunks, createheader, createproject, \
+    createlayerset, createfooters, createlayer_fromtilespecs, Chunk
 import json
 import logging
 import os

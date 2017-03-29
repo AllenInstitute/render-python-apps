@@ -10,7 +10,7 @@ from renderapi.utils import stripLogger
 import logging
 import sys
 from renderapi.transform import AffineModel
-from RenderModule import RenderModule
+from renderapps.module.RenderModule import RenderModule
 
 logger = logging.getLogger(__name__)
 

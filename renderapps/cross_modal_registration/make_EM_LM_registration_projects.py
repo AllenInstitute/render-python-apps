@@ -1,12 +1,12 @@
 import renderapi
-from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
+from renderapps.TrakEM2.trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import json
 import logging
 import os
 import sys
 from renderapi.utils import stripLogger
 import argparse
-from render_module import TrakEM2RenderModule,RenderParameters,EMLMRegistrationParameters
+from renderapps.module.render_module import TrakEM2RenderModule, RenderParameters, EMLMRegistrationParameters
 import marshmallow as mm
 
 if __name__ == '__main__':

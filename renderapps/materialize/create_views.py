@@ -31,7 +31,8 @@ if __name__ == '__main__':
     parser.add_argument('--project',help='Render project',type=str,required=True)
     parser.add_argument('--host',help='render host',type=str,default=DEFAULT_HOST)
     parser.add_argument('--port',help='render port',type=int,default=DEFAULT_PORT)
-
+    
+    raise(Exception('THIS IS BROKEN, NEEDS TO BE FIXED FOR NEW API'))
     args = parser.parse_args()
 
     print args.lastz

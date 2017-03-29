@@ -13,7 +13,7 @@ import glob
 from renderapi import Render
 
 if __name__ == '__main__':
-
+    raise(Excption('this is broken and needs to be updated for new api'))
     parser = argparse.ArgumentParser(description="Create Stitched Stack to be used for alignment")
     parser.add_argument('--inputDir', nargs=1, help='tilespec directory', type=str)
     parser.add_argument('--outputStack', nargs=1, help='output stack', type=str)
