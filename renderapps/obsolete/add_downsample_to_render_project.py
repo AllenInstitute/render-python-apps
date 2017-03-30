@@ -58,6 +58,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,inputOwner,inputProjec
  
 
 if __name__ == '__main__':
+    raise(Exception('THIS NEEDS TO BE UPDATED FOR NEW API'))
     parser = argparse.ArgumentParser(description="Take an existing render stack, and create a new render stack with downsampled tilespecs and create those downsampled tiles")
 
     parser.add_argument('--renderHost',help="host name of the render server",default="ibs-forrestc-ux1")

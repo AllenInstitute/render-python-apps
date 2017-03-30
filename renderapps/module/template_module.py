@@ -1,13 +1,27 @@
 import os
 import renderapi
 from pathos.multiprocessing import Pool
-from render_module import RenderModule,RenderParameters
-from json_module import InputFile,InputDir
+from functools import partial
+from renderapps.module.render_module import RenderModule, RenderParameters
+from json_module import InputFile, InputDir
 import marshmallow as mm
 
+example_json={
+        "render":{
+            "host":"ibs-forrestc-ux1",
+            "port":8080,
+            "owner":"Forrest",
+            "project":"M247514_Rorb_1",
+            "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+        },
+        "example":"my example parameters",
+}
+
 class TemplateParameters(RenderParameters):
-    example = mm.fields.Str(required=True,default=None,
+    example = mm.fields.Str(required=True,
         metadata={'description':'an example'})
+    default_val = mm.fields.Str(required=False,default="a default value",
+        metadata={'description':'an example with a default'})
 
 
 class Template(RenderModule):
@@ -19,5 +33,5 @@ class Template(RenderModule):
         print mod.args
 
 if __name__ == "__main__":
-    mod = Template()
+    mod = Template(input_data= example_json)
     mod.run()

@@ -3,7 +3,7 @@ from renderapi import Render
 import argparse
 
 if __name__ == '__main__':
-
+    raise(Exception('THIS NEEDS TO BE UPDATED FOR NEW API'))
     parser = argparse.ArgumentParser(description="Delete Stack")
     parser.add_argument('--stackName', nargs=1, help='project directory', type=str)
 

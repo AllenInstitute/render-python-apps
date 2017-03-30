@@ -35,6 +35,15 @@ class MakeDownsampleSectionStackParameters(RenderParameters):
     pool_size = mm.fields.Int(require=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
+def process_z(render,stack,output_dir,scale,z):
+    args=['--stack', stack,
+          '--rootDirectory',output_dir ,
+          '--scale',str(scale),
+          str(z)]
+    self.render.run(renderapi.client.call_run_ws_client,
+        'org.janelia.render.client.RenderSectionClient',
+        add_args = args)
+
 #       @Parameter(names = "--stack", description = "Stack name", required = true)
 # private String stack;
 #
@@ -56,16 +65,6 @@ class MakeDownsampleSectionStackParameters(RenderParameters):
 # @Parameter(description = "Z values for sections to render", required = true)
 # private List<Double> zValues;
 #
-
-
-def process_z(render,stack,output_dir,scale,z):
-    args=['--stack', stack,
-          '--rootDirectory',output_dir ,
-          '--scale',str(scale),
-          str(z)]
-    self.render.run(renderapi.client.call_run_ws_client,
-        'org.janelia.render.client.RenderSectionClient',
-        add_args = args)
 
 class MakeDownsampleSectionStack(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):

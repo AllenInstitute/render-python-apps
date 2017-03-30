@@ -9,6 +9,7 @@ from tilespec import TileSpec,Layout,AffineModel
 import numpy as np
 from sh import tar,zip
 import json
+from renderapi import Render
 
 
 def num2str(num,digits):
@@ -22,6 +23,8 @@ def num2str(num,digits):
 def updatejsonfilewithz(json_file,ch,rib,sess,sect,ffdir):
     ff_file=os.path.join(ffdir,'%s_rib%04dsess%04dsect%04d.json'%(ch,rib,sess,sect))
     
+    print ff_file
+
     with open(json_file) as json_data:
 	stts = json.load(json_data)
     print(len(stts))
@@ -34,20 +37,39 @@ def updatejsonfilewithz(json_file,ch,rib,sess,sect,ffdir):
     with open(json_file,'w') as outfile:
 	json.dump(stts,outfile)
 
+def updatejsonfilewithsectionId(json_file,ch,rib,sess,sect,ffdir):
+    ff_file=os.path.join(ffdir,'%s_rib%04dsess%04dsect%04d.json'%(ch,rib,sess,sect))
+    
+    with open(json_file) as json_data:
+	stts = json.load(json_data)
+    print(len(stts))
+    with open(ff_file) as json_data:
+	ffts = json.load(json_data)
+    print(len(ffts))
+    sectionId = ffts[0]['layout']['sectionId']
+    for ts in stts:
+	ts['layout']['sectionId'] = sectionId+ch
+    with open(json_file,'w') as outfile:
+	json.dump(stts,outfile,indent=4)
+	
+
 
 if __name__ == '__main__':
-
+    raise(Exception('THIS NEEDS TO BE UPDATED FOR NEW API'))
     parser = argparse.ArgumentParser(description="Create Stitched Stack to be used for alignment")
     parser.add_argument('--rootDir', nargs=1, help='project directory', type=str)
     parser.add_argument('--firstStatetableNum', nargs=1, help='First State table Num', type=int)
     parser.add_argument('--lastStatetableNum', nargs=1, help='Last State table Num', type=int)
     parser.add_argument('--outputStack', nargs=1, help='Output Stack Prefix', type=str)
+    parser.add_argument('--channel', nargs=1, help='Channel', type=str)
     parser.add_argument('--updateZval', dest='updateZval',help='Flag for updating z value from flatfield tilespecs',action='store_true',default=False)
+    parser.add_argument('--updateSectionId', dest='updateSectionId',help='Flag for updating section id value from flatfield tilespecs',action='store_true',default=False)
 
     args = parser.parse_args()
 
 
     rootdir = args.rootDir[0]
+    inputChannel =args.channel[0]
 	
 
     #get all statetablefiles
@@ -71,30 +93,30 @@ if __name__ == '__main__':
     stitched_tilespec_dir = os.path.join(rootdir,'processed','stitched_tilespec_ff')
     stitched_transform_tilespec_dir = os.path.join(rootdir,'processed','stitched_transformspec_ff')
 
+
+
     my_env = os.environ.copy()
     client_scripts = '/pipeline/render/render-ws-java-client/src/main/scripts'
 
-    baseurl = 'http://ibs-forrestc-ux1.corp.alleninstitute.org:8080/render-ws/v1'
+    baseurl = 'http://ibs-forrestc-ux1.corp.alleninstitute.org:8082/render-ws/v1'
     owner = 'Sharmishtaas'
     project = '%s'%os.path.split(rootdir)[1]
     project_params = ['--baseDataUrl',baseurl,'--owner',owner,'--project',project]
 
     print len(df)
 
+    render = Render("ibs-forrestc-ux1.corp.alleninstitute.org", 8082, "Sharmishtaas", "M270907_Scnn1aTg2Tdt_13")
+
+
+
     for ((ch,sess),group) in df.groupby(['ch_name','session']):
         #print sess
 
         #if (1 == 1):
-        if (ch == "DAPI_1"):
+        if (ch == inputChannel):
             stackstr = args.outputStack[0]+'_'+ch
-
-
-            cmd=[os.path.join(client_scripts,'manage_stacks.sh')]+\
-                project_params+\
-                ['--stack',stackstr,'--action','CREATE','--cycleNumber','1','--cycleStepNumber','3']
-
-            proc=subprocess.Popen(cmd,env=my_env,stdout=subprocess.PIPE)
-            proc.wait()
+	    render.create_stack(stackstr)
+	    #exit(0)
             print "created stack",stackstr
 
 
@@ -106,29 +128,21 @@ if __name__ == '__main__':
                     json_file=os.path.join(stitched_tilespec_dir,'%s_rib%04dsess%04dsect%04d.json'%(ch,rib,sess,sect))
 		    if (args.updateZval):
 			print "Updating z value for %s!"%json_file
-		    	updatejsonfilewithz(json_file,ch,rib,sess,sect,ff_tilespec_dir)
+			if os.path.exists(json_file):
+		    		updatejsonfilewithz(json_file,ch,rib,sess,sect,ff_tilespec_dir)
+
+		    if (args.updateSectionId):
+			print "Updating sectionId value for %s!"%json_file
+			if os.path.exists(json_file):
+		    		updatejsonfilewithsectionId(json_file,ch,rib,sess,sect,ff_tilespec_dir)
                     tform_file = os.path.join(stitched_transform_tilespec_dir,'rib%04dsess%04dsect%04d.json'%(rib,sess,sect))
                     print json_file
                     print tform_file
+		    jsonfiles = [json_file]
+		    #if os.path.exists(json_file):		    
+		    #render.import_jsonfiles_one_by_one(stackstr,jsonfiles,tform_file)
+		    render.import_jsonfiles_one_by_one(stackstr,jsonfiles,tform_file)
+	    #render.set_stack_state(stackstr,'COMPLETE')
+            #url = baseurl + '/owner/' + owner + '/project/' + project + '/stack/' + stackstr + '/z/0/png-image?scale=.2'
+            #print 'example URL',url
 
-                    cmd=[os.path.join(client_scripts,'import_json.sh')]+ \
-                        project_params +\
-                        ['--stack',stackstr] +\
-                        ['--transformFile',tform_file]+\
-                        [json_file]
-
-
-
-                    proc=subprocess.Popen(cmd,env=my_env,stdout=subprocess.PIPE)
-                    proc.wait()
-
-
-            cmd=[os.path.join(client_scripts,'manage_stacks.sh')]+\
-                project_params +\
-                ['--stack',stackstr,'--action','SET_STATE',\
-                 '--stackState','COMPLETE']
-            proc=subprocess.Popen(cmd,env=my_env,stdout=subprocess.PIPE)
-            proc.wait()
-            print "completed stack",stackstr
-            url = baseurl + '/owner/' + owner + '/project/' + project + '/stack/' + stackstr + '/z/0/png-image?scale=.2'
-            print 'example URL',url
