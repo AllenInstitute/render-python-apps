@@ -29,7 +29,9 @@ class UploadTileSpecs(RenderModule):
         if schema_type is None:
             schema_type = UploadTileSpecParameters
         super(UploadTileSpecs,self).__init__(schema_type=schema_type,*args,**kwargs)
-    def run(self):       
+    def run(self):   
+        self.logger.error('NOT TESTED SPEAK TO FORREST IF WORKING OR NOT WORKING')
+    
         jsonfiles = sorted(glob.glob(self.args['inputDir']+"*.json"))
         print jsonfiles
         

@@ -29,6 +29,8 @@ class UploadChannelModule(RenderModule):
             schema_type = UploadChannelTileSpecParameters
         super(UploadChannelModule,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
+        self.logger.error('NOT TESTED SPEAK TO FORREST IF WORKING OR NOT WORKING')
+
         print mod.args
 
         str = self.args['inputDir']+"/"+self.args['channel'] + "*.json"
