@@ -8,8 +8,7 @@ import marshmallow as mm
 from functools import partial
 
 
-example_parameters=
-{
+example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":80,
@@ -24,7 +23,7 @@ example_parameters=
 }
 
 class MakeDownsampleSectionStackParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,)
+    input_stack = mm.fields.Str(required=True,
         metadata={'description':'stack to make a downsample version of'})
     scale = mm.fields.Float(required=False,default = .01,
         metadata={'description':'scale to make images'})

@@ -12,7 +12,8 @@ from sh import tar,zip
 import json
 import glob
 import renderapi
-from renderapps.module import RenderModule,RenderParameters
+from renderapps.module.render_module import RenderModule,RenderParameters
+
 import marshmallow as mm
 
 class UploadChannelTileSpecParameters(RenderParameters):
