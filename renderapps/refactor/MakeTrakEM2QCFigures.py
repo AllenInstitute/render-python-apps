@@ -45,8 +45,8 @@ def get_box_of_path(path):
     return box
 
 class MakeTrakEM2QCFigures(ModuleParameters):
-        annotationFile = InputFile(required=True,metadata={'description':'name of stack to with annotations'})
-        outputDir = mm.fields.Str(required=True,metadata={'description':'name of the directory to save files'})
+    annotationFile = InputFile(required=True,metadata={'description':'name of stack to with annotations'})
+    outputDir = mm.fields.Str(required=True,metadata={'description':'name of the directory to save files'})
 
 if __name__ == '__main__':
 

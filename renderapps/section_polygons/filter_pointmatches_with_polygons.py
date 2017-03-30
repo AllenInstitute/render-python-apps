@@ -38,8 +38,8 @@ class FilterPointMatchParameters(RenderParameters):
         metadata={'description':'match collection to output to'})
 
 def mask_points(points,mask):
-            p = np.array(points).T
-            return p[mask,:].T.tolist()
+    p = np.array(points).T
+    return p[mask,:].T.tolist()
 
 def mask_match(match,mask):    
     if np.sum(mask)==0:
