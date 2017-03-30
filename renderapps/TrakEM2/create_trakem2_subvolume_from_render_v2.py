@@ -9,10 +9,11 @@ from renderapi.utils import stripLogger
 import argparse
 from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import json
-from render_module import RenderModule,RenderParameters,TEM2ProjectTransfer
+from renderapps.module.render_module import RenderModule, RenderParameters, TEM2ProjectTransfer
 import json_module
 import marshmallow as mm
 import numpy as np
+
 
 example_parameters = {
     "render":{

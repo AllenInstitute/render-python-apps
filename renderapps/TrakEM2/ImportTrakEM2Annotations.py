@@ -7,7 +7,7 @@ import os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from render_module import RenderTrakEM2Parameters, TrakEM2RenderModule
+from renderapps.module.render_module import RenderTrakEM2Parameters, TrakEM2RenderModule
 import marshmallow as mm
 from shapely import geometry
 import lxml.etree

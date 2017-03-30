@@ -5,25 +5,25 @@ import json
 from renderapi.tilespec import TileSpec
 from renderapi.transform import AffineModel
 
-example_json={
-        "render":{
-            "host":"ibs-forrestc-ux1",
-            "port":8080,
-            "owner":"Forrest",
-            "project":"M247514_Rorb_1",
-            "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
-        },
-        "inputStack":"EM_fix_stitch3",
-        "LMstack":"REGFLATMBP_deconv",
-        "outputStack":"EM_reg2",
-        "renderHome":"/pipeline/render",
-        "minX":190000,
-        "minY":90000,
-        "maxX":225424,
-        "maxY":123142,
-        "minZ":0,
-        "maxZ":50,
-        "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects/"
+example_json = {
+    "render":{
+        "host":"ibs-forrestc-ux1",
+        "port":8080,
+        "owner":"Forrest",
+        "project":"M247514_Rorb_1",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "inputStack":"EM_fix_stitch3",
+    "LMstack":"REGFLATMBP_deconv",
+    "outputStack":"EM_reg2",
+    "renderHome":"/pipeline/render",
+    "minX":190000,
+    "minY":90000,
+    "maxX":225424,
+    "maxY":123142,
+    "minZ":0,
+    "maxZ":50,
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects/"
 }
 
 

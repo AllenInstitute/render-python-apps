@@ -1,5 +1,5 @@
 import numpy as np
-from json_module import JsonModule,ModuleParameters,InputFile
+from json_module import JsonModule, ModuleParameters, InputFile
 import renderapi
 import json
 import numpy as np

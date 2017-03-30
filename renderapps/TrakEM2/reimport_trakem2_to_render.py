@@ -9,7 +9,7 @@ import logging
 import argparse
 from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import  json
-from render_module import TEM2ProjectTransfer,TrakEM2RenderModule,EMLMRegistrationParameters
+from renderapps.module.render_module import TEM2ProjectTransfer, TrakEM2RenderModule, EMLMRegistrationParameters
 import numpy as np
 
 example_parameters = {
