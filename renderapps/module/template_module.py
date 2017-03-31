@@ -30,7 +30,9 @@ class Template(RenderModule):
             schema_type = TemplateParameters
         super(Template,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        print mod.args
+        print self.args
+        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
+
 
 if __name__ == "__main__":
     mod = Template(input_data= example_json)

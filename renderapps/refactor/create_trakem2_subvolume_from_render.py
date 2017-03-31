@@ -2,7 +2,10 @@
 import os
 import sys
 #sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
-#sys.path.insert(0,'/nas3/data/M270907_Scnn1aTg2Tdt_13/scripts_ff/')
+#this module was an older version that I refactored into a more modern version using the render module
+#i'm not yet confident that the behavior of the new module is sufficently reproducable to get rid of this one yet
+#so i'm leaving it here for now...
+
 import renderapi
 import logging
 from renderapi.utils import stripLogger

@@ -4,13 +4,11 @@ import renderapi
 import json
 import numpy as np
 import os
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 from renderapps.module.render_module import RenderTrakEM2Parameters, TrakEM2RenderModule
 import marshmallow as mm
 from shapely import geometry
 import lxml.etree
+from AnnotationJsonSchema import AnnotationFile
 
 parameters={
     "render":{
@@ -54,7 +52,7 @@ parameters={
     "renderHome":"/pipeline/render"
 }
 
-class ImportTrakEM2Annotations(RenderTrakEM2Parameters):
+class ImportTrakEM2AnnotationParameters(RenderTrakEM2Parameters):
     EMstack = mm.fields.Str(required=True,metadata={'description':'stack to look for trakem2 patches in'})
     trakem2project = json_module.InputFile(required=True,metadata={'description':'trakem2 file to read in'})
     outputAnnotationFile = mm.fields.Str(required=True,metadata={'description':'name of stack to save annotation tilespecs'})
@@ -149,233 +147,62 @@ def tilespec_to_bounding_box_polygon(ts):
         corners=tform.tform(corners)
     return geometry.Polygon(corners) 
 
-
-if __name__ == '__main__':
-
-    mod = TrakEM2RenderModule(input_data = parameters,
-                              schema_type = ImportTrakEM2Annotations)
-
-    tem2file = mod.args['trakem2project']
-    trakem2dir = os.path.split(tem2file)[0]
-    jsonFileOut = os.path.join(trakem2dir,os.path.splitext(tem2file)[0]+'.json')
-
-    #convert the trakem2 project to a json tilespec
-    mod.convert_trakem2_project(tem2file,trakem2dir,jsonFileOut)
-
-    #read in the tilespecs from the json, and parse them with api
-    tsjson = json.load(open(jsonFileOut,'r'))
-    tem2_tilespecs = [renderapi.tilespec.TileSpec(json=tsj) for tsj in tsjson]
-
-    #loop over the tem2 tilespecs to find the corresponding render tilespecs
-    # matching based upon the filename (due to moving of the data)
-
-    render_tilespecs = []
-    for ts in tem2_tilespecs:
-        pot_render_tilespecs = mod.render.run(renderapi.tilespec.get_tile_specs_from_z,
-                                             mod.args['EMstack'],
-                                             ts.z)
-        filepath = os.path.split(ts.ip.get(0)['imageUrl'])[1]
-        pot_filepaths = [os.path.split(t.ip.get(0)['imageUrl'])[1] for t in pot_render_tilespecs]
-        render_tilespecs.append(next(t for t,fp in zip(pot_render_tilespecs,pot_filepaths) if fp==filepath))
-    #convert the tem2_tilespecs to shapely polygons
-    tem2_polygons = [tilespec_to_bounding_box_polygon(ts) for ts in tem2_tilespecs]
-
-    #parse the TEM2 project
-    root = lxml.etree.parse(open(tem2file,'r'))
-
-    #get the area lists
-    area_lists=root.findall('//t2_area_list')
-    area_lists = [al for al in area_lists if (len(al.getchildren())>0)]
-    print 'project contains %d area lists'%len(area_lists)
-
-    #parse the area lists into json
-    json_output = parse_area_lists(area_lists)
-    len(json_output['area_lists'])
-
-    #dump the json dictionary through the AnnotationFile schema
-    #in order to serialize it to disk
-    from AnnotationJsonSchema import AnnotationFile
-    schema = AnnotationFile()
-    test = schema.dump(json_output)
-    fp = open(mod.args['outputAnnotationFile'],'w')
-    print test.errors
-    json.dump(test.data,fp)
-    fp.close()
-
-# #calculate the bounding boxes
-# bboxes= []    
-# volumes = np.zeros(len(json_output['area_lists']))
-
-# for i,al in enumerate(json_output['area_lists']):
-#     bbox = None
-#     points = None
-    
-#     for area in al['areas']:
-#         for path in area['paths']:
-#             p = path['orig_path']
-#             pathbox = get_box_of_path(path)
-#             bbox=merge_bounding_box(bbox,pathbox)
-    
-#     bboxes.append(bbox)
-#     volumes[i]=box_volume(bbox)/(1000*1000*1000)
-
-
-# # In[40]:
-
-
-
-# # In[228]:
-
-# f,ax = plt.subplots(1,1)
-# ans=ax.hist(volumes,bins=np.arange(0,.1,.001))
-
-
-# # In[41]:
-
-
-
-# subdir=os.path.splitext(os.path.split(mod.args['trakem2project'])[1])[0]
-# if not os.path.isdir(subdir):
-#     os.makedirs(subdir)
-# i=0
-# zipup=zip(volumes,json_output['area_lists'])
-# order = np.argsort(volumes)
-
-# for k in order:
-#     al = json_output['area_lists'][k]
-#     #if volumes[k]>.1:
-#     f,ax = plt.subplots(1,1,figsize=(14,14))
-#     #print bboxes[i]
-#     c = np.random.rand(3,1)
-#     for area in al['areas']:
-#         for path in area['paths']:
-#             poly = geometry.Polygon(path['orig_path'])
-#             x,y = poly.boundary.xy
-#             #print poly
-#             ax.plot(np.array(x),np.array(y)*-1,'r')
-#     #print volumes[i]
-#     ax.set_title(al['oid'])
-#     ax.set_xlim([-2600,2700])
-#     ax.set_ylim([-3000,1540])
-#     f.savefig(os.path.join(subdir,'%07d.png'%i))
-#     i+=1
-
-
-# # In[31]:
-
-# np.sort()
-
-
-# # In[159]:
-
-# np.array(x)
-
-
-# # In[150]:
-
-# al['oid']
-
-
-# # In[107]:
-
-# print volumes[volumes>1]
-# print np.sum(volumes>1)*1.0/len(volumes)
-
-
-# # In[108]:
-
-# np.max(volumes)
-
-
-# # In[95]:
-
-# print volumes[volumes>1]
-# print np.sum(volumes>1)*1.0/len(volumes)
-
-
-# # In[ ]:
-
-
-
-
-# # In[71]:
-
-
-
-
-# # In[28]:
-
-
-
-
-# # In[14]:
-
-# print ts.ip.get(0)
-# print ts.z
-# render_tspecs=mod.render.run(renderapi.tilespec.get_tile_specs_from_z,
-#                              mod.args['EMstack'],
-#                              ts.z)
-
-
-# # In[18]:
-
-# for ts in render_tspecs:
-#     print ts.ip.get(0)
-
-
-# # In[11]:
-
-# import matplotlib.pyplot as plt
-# plt.plot(local_path[:,0],local_path[:,1])
-
-
-# # In[17]:
-
-# a=['a','b','c']
-# b=list(a)
-# a.reverse()
-# print a
-# print b
-
-
-# # In[7]:
-
-# 'ERROR' in 'ERROR IS HERE'
-
-
-# # In[74]:
-
-# renderapi.tilespec.AffineModel.tform()
-
-
-# # In[12]:
-
-# tform
-
-
-# # In[34]:
-
-# p2, Nd = tform.convert_to_point_vector(path)
-# pt = np.dot(np.linalg.inv(tile_tform.M), p2.T).T
-# print tform.convert_points_vector_to_array(pt, Nd)
-
-
-# # In[31]:
-
-# Nd
-
-
-# # In[107]:
-
-# import tempfile
-
-
-# # In[110]:
-
-
-
-
-# # In[ ]:
-
-
-
+class ImportTrakEM2Annotations(RenderModule):
+    def __init__(self,schema_type=None,*args,**kwargs):
+        if schema_type is None:
+            schema_type = ImportTrakEM2AnnotationParameters
+        super(ImportTrakEM2Annotations,self).__init__(schema_type=schema_type,*args,**kwargs)
+    def run(self):
+       
+        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
+
+        tem2file = self.args['trakem2project']
+        trakem2dir = os.path.split(tem2file)[0]
+        jsonFileOut = os.path.join(trakem2dir,os.path.splitext(tem2file)[0]+'.json')
+
+        #convert the trakem2 project to a json tilespec
+        self.convert_trakem2_project(tem2file,trakem2dir,jsonFileOut)
+
+        #read in the tilespecs from the json, and parse them with api
+        tsjson = json.load(open(jsonFileOut,'r'))
+        tem2_tilespecs = [renderapi.tilespec.TileSpec(json=tsj) for tsj in tsjson]
+
+        #loop over the tem2 tilespecs to find the corresponding render tilespecs
+        # matching based upon the filename (due to moving of the data)
+
+        render_tilespecs = []
+        for ts in tem2_tilespecs:
+            pot_render_tilespecs = self.render.run(renderapi.tilespec.get_tile_specs_from_z,
+                                                self.args['EMstack'],
+                                                ts.z)
+            filepath = os.path.split(ts.ip.get(0)['imageUrl'])[1]
+            pot_filepaths = [os.path.split(t.ip.get(0)['imageUrl'])[1] for t in pot_render_tilespecs]
+            render_tilespecs.append(next(t for t,fp in zip(pot_render_tilespecs,pot_filepaths) if fp==filepath))
+        #convert the tem2_tilespecs to shapely polygons
+        tem2_polygons = [tilespec_to_bounding_box_polygon(ts) for ts in tem2_tilespecs]
+
+        #parse the TEM2 project
+        root = lxml.etree.parse(open(tem2file,'r'))
+
+        #get the area lists
+        area_lists=root.findall('//t2_area_list')
+        area_lists = [al for al in area_lists if (len(al.getchildren())>0)]
+        print 'project contains %d area lists'%len(area_lists)
+
+        #parse the area lists into json
+        json_output = parse_area_lists(area_lists)
+        len(json_output['area_lists'])
+
+        #dump the json dictionary through the AnnotationFile schema
+        #in order to serialize it to disk
+
+        schema = AnnotationFile()
+        test = schema.dump(json_output)
+        fp = open(self.args['outputAnnotationFile'],'w')
+        self.logger.error(test.errors)
+        json.dump(test.data,fp)
+        fp.close()
+
+if __name__ == "__main__":
+    mod = ImportTrakEM2Annotations(input_data= parameters)
+    mod.run()

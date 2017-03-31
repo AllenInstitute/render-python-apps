@@ -1,6 +1,7 @@
 from PIL import Image
 import argparse
 import os
+
     
 def create_mipmaps(inputImage,outputDirectory='.',mipmaplevels=[1,2,3],outputformat='jpg'):
     if not os.path.isdir(outputDirectory):
