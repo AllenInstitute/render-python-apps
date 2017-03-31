@@ -1,0 +1,21 @@
+{
+	"render":{
+		"host":"ibs-forrestc-ux1",
+		"port":8080,
+		"owner":"Sharmishtaas",
+		"project":"M247514_Rorb_1",
+		"client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+	},
+	"inputStack":"REG_MARCH_21_DAPI_1",
+	"outputStack":"ROUGHALIGN_MARCH_21_DAPI_1",
+	"renderHome":"/pipeline/render",
+	"minX" : 0.0,
+	"minY" : 0.0,
+	"minZ" : 0.0,
+	"maxX" : 7984.0,
+	"maxY" : 10257.0,
+	"maxZ" : 101.0,
+	"doChunk":false,
+	"chunkSize":50,
+	"outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/TEM2RoughAlignmnet2/"
+}

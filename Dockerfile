@@ -3,6 +3,8 @@ MAINTAINER Forrest Collman (forrest.collman@gmail.com)
 
 RUN mkdir -p /usr/local/render-python-apps
 WORKDIR /usr/local
+RUN pip install tifffile
+RUN pip install opencv-python
 
 COPY . /usr/local/render-python-apps
 

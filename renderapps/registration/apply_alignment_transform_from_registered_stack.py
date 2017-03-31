@@ -159,5 +159,3 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
 if __name__ == "__main__":
     mod = ApplyAlignmentFromRegisteredStack(input_data= example_json)
     mod.run()
-
-

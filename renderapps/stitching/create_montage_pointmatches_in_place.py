@@ -15,7 +15,7 @@ example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
-        "owner":"Sharmishtaas",
+        "owner":"Forrest",
         "project":"M247514_Rorb_1",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },

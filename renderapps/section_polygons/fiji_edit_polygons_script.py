@@ -20,7 +20,7 @@ exampledict = [{'bounds': {u'maxX': 11501.0,
   'type': 'Polygon'},
  'z': 0}]
 
-jsondir = '/nas3/data/M247514_Rorb_1/processed/shape_polygons'
+jsondir = '/nas3/data/M247514_Rorb_1/processed/shape_polygons_032717'
 import os
 
 files = os.listdir(jsondir)
@@ -43,7 +43,7 @@ for f in files:
     bound_height = d['bounds']['maxY']-d['bounds']['minY']
     
     scale = img_width*1.0/bound_width
-    
+    print 'scale',scale
     xvals = [(x-d['bounds']['minX'])*scale for x,y in coords[:-1]]
     yvals = [(y-d['bounds']['minY'])*scale  for x,y in coords[:-1]]
     print xvals,yvals
