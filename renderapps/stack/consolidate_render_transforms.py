@@ -11,7 +11,7 @@ import os
 import renderapi
 import pathos.multiprocessing as mp
 from functools import partial
-from renderapps.module.render_module import RenderModule, RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
 from json_module import InputFile, InputDir
 import marshmallow as mm
 

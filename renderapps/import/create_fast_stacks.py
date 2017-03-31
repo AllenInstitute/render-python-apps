@@ -11,7 +11,7 @@ from create_mipmaps import create_mipmaps
 my_env = os.environ.copy()
 from itertools import izip_longest
 from pathos.multiprocessing import Pool
-from renderapps.module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule,RenderParameters
 from json_module import InputFile,InputDir
 import marshmallow as mm
 

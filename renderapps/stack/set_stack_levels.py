@@ -2,8 +2,8 @@ import os
 import renderapi
 from pathos.multiprocessing import Pool
 from functools import partial
-from renderapps.module.render_module import RenderModule,RenderParameters
-from renderapps.module.json_module import InputFile,InputDir
+from ..module.render_module import RenderModule,RenderParameters
+from ..module.json_module import InputFile,InputDir
 import marshmallow as mm
 import tempfile
 example_json = {

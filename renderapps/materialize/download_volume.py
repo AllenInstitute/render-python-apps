@@ -2,7 +2,7 @@ import renderapi
 import subprocess
 import numpy as np
 import marshmallow as mm
-from render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule,RenderParameters
 from pathos.multiprocessing import Pool
 from functools import partial
 import os

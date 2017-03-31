@@ -4,7 +4,7 @@ import renderapi
 import json
 import numpy as np
 import os
-from renderapps.module.render_module import RenderTrakEM2Parameters, TrakEM2RenderModule
+from ..module.render_module import RenderTrakEM2Parameters, TrakEM2RenderModule
 import marshmallow as mm
 from shapely import geometry
 import lxml.etree

@@ -10,7 +10,7 @@ import argparse
 import json
 from renderapi.utils import stripLogger
 import logging
-from renderapps.module.render_module import InputDir
+from ..module.render_module import InputDir
 
 
 example_json = {

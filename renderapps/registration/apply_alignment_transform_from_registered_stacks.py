@@ -1,5 +1,5 @@
 
-from renderapps.registration.apply_alignment_transform_from_registered_stack import ApplyAlignmentFromRegisteredStackParametersBase,ApplyAlignmentFromRegisteredStack
+from .apply_alignment_transform_from_registered_stack import ApplyAlignmentFromRegisteredStackParametersBase,ApplyAlignmentFromRegisteredStack
 
 from renderapps.module.render_module import RenderModule
 import marshmallow as mm

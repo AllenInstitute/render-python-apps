@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import renderapi
-from renderapps.module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule,RenderParameters
 import marshmallow as mm
 
 #An example set of parameters for this module

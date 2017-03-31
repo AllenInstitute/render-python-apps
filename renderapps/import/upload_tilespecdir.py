@@ -13,7 +13,7 @@ import glob
 import sys
 sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
 from renderapi.render import Render
-from renderapps.module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule,RenderParameters
 
 from json_module import InputFile,InputDir
 import marshmallow as mm

@@ -2,7 +2,7 @@ import json
 import os
 import renderapi
 from pathos.multiprocessing import Pool
-from render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule,RenderParameters
 from json_module import InputFile,InputDir,OutputDir
 import marshmallow as mm
 from functools import partial

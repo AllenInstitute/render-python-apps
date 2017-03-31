@@ -5,7 +5,7 @@ from functools import partial
 import os
 import pathos.multiprocessing as mp
 from shapely import geometry
-from renderapps.module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule,RenderParameters
 from json_module import InputDir
 import marshmallow as mm
 

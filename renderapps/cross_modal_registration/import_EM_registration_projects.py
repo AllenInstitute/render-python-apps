@@ -1,5 +1,5 @@
 import renderapi
-from renderapps.TrakEM2.trakem2utils import \
+from ..TrakEM2.trakem2utils import \
     createchunks, createheader, createproject, \
     createlayerset, createfooters, createlayer_fromtilespecs, Chunk
 import json
@@ -11,7 +11,7 @@ import argparse
 from renderapi.tilespec import TileSpec
 from renderapi.transform import AffineModel
 import json
-from renderapps.module.render_module import TrakEM2RenderModule,EMLMRegistrationParameters
+from ..module.render_module import TrakEM2RenderModule, EMLMRegistrationParameters
 
 import marshmallow as mm
 

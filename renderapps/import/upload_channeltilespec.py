@@ -5,7 +5,7 @@ import numpy as np
 import json
 import glob
 import renderapi
-from renderapps.module.render_module import RenderModule, RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
 from sh import tar,zip
 
 

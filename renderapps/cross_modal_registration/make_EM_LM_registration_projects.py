@@ -1,12 +1,12 @@
 import renderapi
-from renderapps.TrakEM2.trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
+from ..TrakEM2.trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import json
 import logging
 import os
 import sys
 from renderapi.utils import stripLogger
 import argparse
-from renderapps.module.render_module import TrakEM2RenderModule, RenderParameters, EMLMRegistrationParameters
+from ..module.render_module import TrakEM2RenderModule, RenderParameters, EMLMRegistrationParameters
 import marshmallow as mm
 
 example_json = {

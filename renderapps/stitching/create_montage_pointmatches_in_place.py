@@ -7,7 +7,7 @@ from functools import partial
 import numpy as np
 import time
 import subprocess
-from render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule,RenderParameters
 import pathos.multiprocessing as mp
 import marshmallow as mm
 

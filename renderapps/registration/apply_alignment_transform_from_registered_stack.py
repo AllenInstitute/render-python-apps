@@ -6,7 +6,7 @@ import pathos.multiprocessing as mp
 from shapely import geometry
 import logging
 from renderapi.transform import AffineModel
-from renderapps.module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule,RenderParameters
 
 
 example_json = {
