@@ -2,7 +2,7 @@
 import renderapi
 from renderapi.transform import AffineModel
 import json
-from render_module import RenderModule,RenderParameters
+from renderapps.module.render_module import RenderModule,RenderParameters
 from pathos.multiprocessing import Pool
 from functools import partial
 import tempfile
