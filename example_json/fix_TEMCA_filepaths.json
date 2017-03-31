@@ -1,0 +1,11 @@
+{
+	"render":{
+		"host":"em-131fs",
+		"port":8080,
+		"owner":"gayathri",
+		"project":"EM_Phase1",
+		"client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+	},
+	"input_stack":"Pinky40_20170313",
+  "output_stack":"Pinky40_20170313_aibsdata"
+}

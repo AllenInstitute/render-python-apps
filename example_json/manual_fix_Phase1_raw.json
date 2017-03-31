@@ -1,0 +1,20 @@
+{
+    "input_stack": "manual_align_Phase1Data_3464_3763", 
+    "zmax": 3500, 
+    "render": {
+        "owner": "gayathri", 
+        "project": "EM_Phase1", 
+        "host": "em-131fs", 
+        "port": 8999, 
+        "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
+    }, 
+    "zmin": 3484, 
+    "output_stack": "manual_align_Phase1Data_3464_3500_forrestfix", 
+    "pool_size": 20, 
+    "M11": 0.9768604999254986, 
+    "M10": 0.06550331703630263, 
+    "B0": -443.57891397791263, 
+    "B1": -2522.0269285684794, 
+    "M00": 1.0180277504005144, 
+    "M01": 0.025422452518775448
+}

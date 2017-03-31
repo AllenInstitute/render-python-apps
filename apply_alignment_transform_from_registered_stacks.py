@@ -116,12 +116,12 @@ class ApplyAlignmentFromRegisteredStacks(RenderModule):
             myp = partial(process_z, self.render, prealignedstack, postalignedstack, sourcestack, outstack)
             zvalues = self.render.run(renderapi.stack.get_z_values_for_stack, sourcestack)
             self.render.run(renderapi.stack.delete_stack, outstack)
-            self.render.run(renderapi.stack.create_stack, outstack, stackResolutionX = 3, stackResolutionY = 3, stackResolutionZ = 70)
+            self.render.run(renderapi.stack.create_stack, outstack, stackResolutionX = 1, stackResolutionY = 1, stackResolutionZ = 1)
             #for z in zvalues:
             #    myp(z)
             #    break
             res = pool.map(myp, zvalues)
-            #self.render.run(renderapi.stack.set_stack_state,outstack,state='COMPLETE')
+            self.render.run(renderapi.stack.set_stack_state,outstack,state='COMPLETE')
             #break
 
 
@@ -137,38 +137,15 @@ if __name__ == '__main__':
             "project":"M247514_Rorb_1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "prealignedstack":"REG_MARCH_21_DAPI_1",
+        "prealignedstack":"BIGREG_MARCH_21_DAPI_1",
         "postalignedstack":"BIGALIGN2_MARCH_24c_DAPI_1",
-        "registered_stacks":["REG_MARCH_21_MBP_deconvnew",
-                             "REG_MARCH_21_GABA_deconvnew",
-                             "REG_MARCH_21_GAD2_deconvnew",
-                             "REG_MARCH_21_GluN1_deconvnew",
-                             "REG_MARCH_21_PSD95_deconvnew",
-                             "REG_MARCH_21_TdTomato_deconvnew",
-                             "REG_MARCH_21_VGlut1_deconvnew",
-                             "REG_MARCH_21_synapsin_deconvnew",
-                             "REG_MARCH_21_DAPI_1_deconvnew",
-                             "REG_MARCH_21_DAPI_2_deconvnew",
-                             "REG_MARCH_21_DAPI_3_deconvnew",
-                             "REG_MARCH_21_Gephyrin_deconvnew"],
-        "oldprefix":"REG_MARCH_21_",
-        "newprefix":"BIGALIGN2_MARCH24b_"
+        "registered_stacks":["BIGREG_MARCH_21_DAPI_1",
+                             "BIGREG_MARCH_21_DAPI_2",
+                             "BIGREG_MARCH_21_DAPI_3"],
+        "oldprefix":"BIGREG_MARCH_21_",
+        "newprefix":"BIGALIGN2_MARCH24c_"
     }
-    example_json = {
-            "render":{
-                "host":"ibs-forrestc-ux1",
-                "port":8080,
-                "owner":"Forrest",
-                "project":"M247514_Rorb_1",
-                "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
-            },
-            "prealignedstack":"REG_MARCH_21_DAPI_1",
-            "postalignedstack":"BIGALIGN2_MARCH_24c_DAPI_1",
-            "registered_stacks":["REG_MARCH_21_DAPI_3_deconvnew",
-                                 "REG_MARCH_21_Gephyrin_deconvnew"],
-            "oldprefix":"REG_MARCH_21_",
-            "newprefix":"BIGALIGN2_MARCH24b_"
-    }
+
     example_json2 = {
         "render":{
             "host":"ibs-forrestc-ux1",
@@ -177,11 +154,12 @@ if __name__ == '__main__':
             "project":"M247514_Rorb_1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "prealignedstack":"REGFLATDAPI_1_deconvnew",
-        "postalignedstack":"BIGALIGN2_MARCH_24c_DAPI_1",
+        "prealignedstack":"REGFLATMBP_deconvnew",
+        "postalignedstack":"BIGALIGN2_MARCH24c_MBP_deconvnew",
         "registered_stacks":["EM_reg2"],
         "oldprefix":"REG_MARCH_21_",
-        "newprefix":"BIGALIGN2_MARCH24b_"
+        "newprefix":"BIGALIGN2_MARCH24c_"
     }
+
     module = ApplyAlignmentFromRegisteredStacks(parser, example_json=example_json2)
     module.run()
