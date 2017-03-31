@@ -10,7 +10,7 @@ from renderapi.utils import stripLogger
 import argparse
 from renderapi.tilespec import TileSpec
 from renderapi.transform import AffineModel
-import json
+
 from ..module.render_module import TrakEM2RenderModule, EMLMRegistrationParameters
 
 import marshmallow as mm
