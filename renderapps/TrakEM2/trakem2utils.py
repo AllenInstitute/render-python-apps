@@ -10,12 +10,12 @@ def randomDig(digits):
     return random.randint(lower,upper)
 
 def createproject(outfile):
-    lines = [];
+    lines = []
     outdirectory,myfile = outfile.rsplit("/",1)
     p1 = randomDig(13)
     p2 = randomDig(9)
     p3 = randomDig(10)
-    strdir = str(p1)+"."+str(p2)+"."+str(p3);
+    strdir = str(p1)+"."+str(p2)+"."+str(p3)
 
     lines.append("\tunuid='" + strdir + "'\n")
     lines.append("\tmipmaps_folder='" + outdirectory + "/trakem2." + strdir + "/trakem2.mipmaps/'\n")
@@ -117,12 +117,12 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0,affineOn
         B0 = str(tform_total.B0+shiftx)
         B1 = str(tform_total.B1+shifty)
     else:
-	    B0 = str(ts.minX+shiftx)
-	    B1 = str(ts.minY+shifty)
-	    M00 = str(1.0)
-	    M01 = str(0.0)
-	    M10 = str(0.0)
-	    M11 = str(1.0)
+        B0 = str(ts.minX+shiftx)
+        B1 = str(ts.minY+shifty)
+        M00 = str(1.0)
+        M01 = str(0.0)
+        M10 = str(0.0)
+        M11 = str(1.0)
 	    #B0 = str(0)
     #B1 = str(0)
     #    local_corners = np.array([[0,0],[0,ts.height],[ts.width,ts.height],[ts.width,0],[0,0]])
@@ -198,12 +198,12 @@ def createlayerset(outfile,width=7000,height=7000):
         f1.writelines(lines)
 
 def createfooters(outfile):
-    lines = [];
+    lines = []
     lines.append("\t</t2_layer_set>\n")
     lines.append("\t</trakem2>\n")
     
     with open(outfile, "a") as f1:
-	print lines
+        print lines
         f1.writelines(lines)
 
 class Chunk:

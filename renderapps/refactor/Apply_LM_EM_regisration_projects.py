@@ -41,7 +41,7 @@ if __name__ == '__main__':
     r=mod.render
     EMz = renderapi.stack.get_z_values_for_stack(EMstack,render=r)
     
-    renderJar = mod.renderJar
+    renderJar = mod.renderjarFile
     mod.logger.debug(renderJar)
 
     tilespecsfiles = []

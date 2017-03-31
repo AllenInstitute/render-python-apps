@@ -1,6 +1,7 @@
 
-from renderapps.registration.apply_alignment_transfrom_form_registered_stack import ApplyAlignmentFromRegisteredStackParametersBase,ApplyAlignmentFromRegisteredStack
-from renderapps.module.RenderModule import RenderModule
+from renderapps.registration.apply_alignment_transform_from_registered_stack import ApplyAlignmentFromRegisteredStackParametersBase,ApplyAlignmentFromRegisteredStack
+
+from renderapps.module.render_module import RenderModule
 import marshmallow as mm
 
 example_json = {
@@ -69,8 +70,8 @@ class ApplyAlignmentFromRegisteredStacks(RenderModule):
             params['source_stack']=sourcestack
             params['output_stack']=outstack
             #run the submodule not parsing command line arguments
-            mod = ApplyAlignmentFromRegisteredStack(input_data = params,args=[])
-            mod.run()
+            submod = ApplyAlignmentFromRegisteredStack(input_data = params,args=[])
+            submod.run()
 
  
 if __name__ == "__main__":

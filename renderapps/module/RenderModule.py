@@ -1,12 +1,12 @@
 import renderapi
 from renderapi.utils import stripLogger
-from JsonRunnableModule import JsonRunnableModule
+from renderapps.module.JsonRunnableModule import JsonRunnableModule
 import logging
 import sys
 
 class RenderModule(JsonRunnableModule):
     
-    def __init__(self,parser,example_json={}):
+    def __init__(self,parser,example_json=None):
 
         render_example ={
             "host":"ibs-forrestc-ux1",
@@ -15,9 +15,11 @@ class RenderModule(JsonRunnableModule):
             "project":"M247514_Rorb_1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         }
+        if example_json is None:
+            example_json={}
         if 'render' not in example_json.keys():
             example_json['render']=render_example
-
+      
         parser.add_argument('--render.host',help='render host')
         parser.add_argument('--render.port',help='render port')
         parser.add_argument('--render.owner',help='render owner')

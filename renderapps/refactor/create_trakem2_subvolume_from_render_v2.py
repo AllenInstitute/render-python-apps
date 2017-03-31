@@ -7,12 +7,13 @@ import renderapi
 import logging
 from renderapi.utils import stripLogger
 import argparse
-from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
+from renderapps.TrakEM2.trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import json
 from renderapps.module.render_module import RenderModule, RenderParameters, TEM2ProjectTransfer
 import json_module
 import marshmallow as mm
 import numpy as np
+
 
 
 example_parameters = {
