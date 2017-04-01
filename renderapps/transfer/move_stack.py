@@ -50,7 +50,9 @@ class StackTransfer(RenderTransfer):
     def run(self):
         self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
         stack_out = self.args.get('stack_out',self.args['stack_in']) 
-        zvalues = renderapi.stack.get_z_values_for_stack(self.args['stack_in'], render=self.render_source)
+        stack_in =self.args['stack_in']
+
+        zvalues = renderapi.stack.get_z_values_for_stack(stack_in, render=self.render_source)
 
         tfiles = []
 
@@ -58,7 +60,7 @@ class StackTransfer(RenderTransfer):
 
         for z in zvalues:
             tilespecs = renderapi.tilespec.get_tile_specs_from_z(
-                self.args['stack_in'],
+                stack_in,
                 z,
                 render=self.render_source)
             for ts in tilespecs:
@@ -85,7 +87,7 @@ class StackTransfer(RenderTransfer):
         if self.args['upload_json']:
             self.render_target.run(renderapi.stack.create_stack,stack_out)
             self.render_target.run(renderapi.client.import_jsonfiles_parallel(stack_out,tfile))
-            self.render_target.run(renderapi.stack.set_stack_state,stack_in,'COMPLETE')
+            self.render_target.run(renderapi.stack.set_stack_state,stack_out,'COMPLETE')
                     # Clean up temp JSON files
             for filename in tfiles:
                 self.logger.debug("Removing " + filename)
