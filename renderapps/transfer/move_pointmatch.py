@@ -1,4 +1,4 @@
-import tempfile
+
 import os
 import renderapi
 from .transfer_module import RenderTransferParameters,RenderTransfer
@@ -41,7 +41,7 @@ class PointMatchTransfer(RenderTransfer):
         if schema_type is None:
             schema_type = PointMatchTransferParameters
         super(PointMatchTransfer,self).__init__(schema_type=schema_type,*args,**kwargs)
-        
+
     def run(self):
         self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
         collection_target = self.args.get('collection_target',self.args['collection_source']) 
@@ -55,7 +55,7 @@ class PointMatchTransfer(RenderTransfer):
             collection_source,
             self.render_target,
             collection_target)
-        results = map(mypartial, pgroups)
+        pool.map(mypartial, pgroups)
         
 
 if __name__ == "__main__":
