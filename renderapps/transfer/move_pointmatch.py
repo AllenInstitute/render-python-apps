@@ -23,7 +23,9 @@ example_parameters={
     },
     "collection_in" : 'ALIGNMBP_deconv',
     "collection_out" : 'ALIGNMBP_deconv',
-}       
+}      
+
+
 class PointMatchTransferParameters(RenderTransferParameters):
     collection_source = mm.fields.Str(required=True,
         metadata={'description':'point match collection to move from source_render'})
@@ -57,7 +59,6 @@ class PointMatchTransfer(RenderTransfer):
             collection_target)
         pool.map(mypartial, pgroups)
         
-
 if __name__ == "__main__":
     mod = PointMatchTransfer(input_data= example_parameters)
     mod.run()
