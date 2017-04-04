@@ -1,0 +1,10 @@
+requests
+numpy
+pillow
+pathos
+tifffile
+opencv-python
+marshmallow
+shapely
+rtree
+networkx
