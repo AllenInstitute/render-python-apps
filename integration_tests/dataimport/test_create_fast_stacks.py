@@ -26,5 +26,6 @@ def test_create_fast_stacks(render_test_parameters):
         "pool_size":5
     }
     mod = CreateFastStack(input_data = test_parameters)
-
     mod.run()
+    mod.logger.error("need to make a check that import worked")
+    assert(false)
