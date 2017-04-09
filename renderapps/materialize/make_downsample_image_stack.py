@@ -1,3 +1,5 @@
+if __name__ == "__main__" and __package__ is None:
+    __package__ = "renderapps.materialize.make_downsample_image_stack"
 import json
 import os
 import renderapi
