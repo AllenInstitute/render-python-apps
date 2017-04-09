@@ -1,23 +1,17 @@
-import jsonschema
 import json
 import os
-import subprocess
-import copy
-from tilespec import TileSpec,Layout,AffineModel,ResolvedTileSpecMap,ResolvedTileSpecCollection
-import numpy as np
-from sh import tar,zip
+from create_mipmaps import create_mipmaps
 import renderapi
-my_env = os.environ.copy()
-import requests
-from itertools import izip_longest
 import argparse
+from pathos.multiprocessing import Pool
+
 
 def make_tilespecs_and_cmds(render,inputStack,outputStack,inputOwner,inputProject,outputProject,outputOwner,tilespecdir):
-    zvalues=render.get_z_values_for_stack(inputStack,owner = inputOwner,project = inputProject)
-    cmds = []
+    zvalues=render.run(renderapi.stack.get_z_values_for_stack,inputStack)
+    mipmap_args = []
     tilespecpaths=[]
     for z in zvalues:
-        tilespecs = render.get_tile_specs_from_z(inputStack,z,owner=inputOwner,project=inputProject)
+        tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,inputStack,z)
         
         for i,tilespec in enumerate(tilespecs):
             
@@ -33,7 +27,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,inputOwner,inputProjec
                               fileparts[6],
                               fileparts[7])
             #construct command for creating mipmaps for this tilespec
-            downcmd = ['python','create_mipmaps.py','--inputImage',filepath,'--outputDirectory',downdir,'--mipmaplevels','1','2','3']
+            mipmap_args.append((filepath,downdir))
             tilespecdir = os.path.join(os.path.sep,
                                        fileparts[0], 
                                        fileparts[1],
@@ -54,8 +48,11 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,inputOwner,inputProjec
         json.dump([ts.to_dict() for ts in tilespecs],fp,indent=4)
         fp.close()
         tilespecpaths.append(tilespecpath)
-    return tilespecpaths,cmds
- 
+    return tilespecpaths,mipmap_args
+
+def create_mipmap_from_tuple(mipmap_tuple):
+    (filepath,downdir)=mipmap_tuple
+    return create_mipmaps(filepath,downdir) 
 
 if __name__ == '__main__':
     raise(Exception('THIS NEEDS TO BE UPDATED FOR NEW API'))
@@ -64,9 +61,7 @@ if __name__ == '__main__':
     parser.add_argument('--renderHost',help="host name of the render server",default="ibs-forrestc-ux1")
     parser.add_argument('--renderPort',help="port of the render server",default = 8080)
     parser.add_argument('--inputOwner',help="name of project owner to read project from",default = "Forrest")
-    parser.add_argument('--outputOwner',help="name of project owner to upload edited tilespec with downsamples (Default to same as input)",default = None)
     parser.add_argument('--inputProject',help="name of the input Project",required=True)
-    parser.add_argument('--outputProject',help="name of the output Project (Default to same as input)",default=None)
     parser.add_argument('--inputStack',help='name of stack to take in',required=True)
     parser.add_argument('--outputStack',help='name of stack to upload to render',required=True) 
     parser.add_argument('--outputTileSpecDir',help='location to save tilespecs before uploading to render (default to ',default='tilespec_downsampled')
@@ -75,28 +70,27 @@ if __name__ == '__main__':
     parser.add_argument('--verbose',help="verbose output",default=False)
     args = parser.parse_args()
 
+    render = renderapi.render.connect(host=args.renderHost,
+                                      port=args.renderPort,
+                                      owner=args.inputOwner,
+                                      project=args.inputProject,
+                                      client_scripts = args.client_scripts)
 
-    #fill in outputOwner and outputProjet with inputOwner and inputProject if left blank
-    if args.outputOwner is None:
-        args.outputOwner = args.inputOwner
-    if args.outputProject is None:
-        args.outputProject = args.inputProject
-
-    render = renderapi.Render(args.renderHost,args.renderPort,args.inputOwner,args.inputProject)
     #create a new stack to upload to render
-    render.create_stack(args.outputStack,owner=args.outputOwner,project=args.outputProject,verbose=args.verbose,client_scripts=args.client_scripts)
+    render.run(renderapi.stack.create_stack,args.outputStack)
 
     #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
-    tilespecpaths,cmds = make_tilespecs_and_cmds(render,args.inputStack,args.outputStack,args.inputOwner,args.inputProject,args.outputProject,args.outputOwner,args.outputTileSpecDir)
+    tilespecpaths,mipmap_args = make_tilespecs_and_cmds(render,args.inputStack,args.outputStack,args.inputOwner,args.inputProject,args.outputProject,args.outputOwner,args.outputTileSpecDir)
 
     #upload created tilespecs to render
-    render.import_jsonfiles_parallel(args.outputStack,tilespecpaths,owner=args.outputOwner,project=args.outputProject,verbose=args.verbose,client_scripts=args.client_scripts)
+    render.run(renderapi.client.import_jsonfiles_parallel,
+               args.outputStack,
+               tilespecpaths)
+   
+    print "making downsample images"
+    pool = Pool(30)
+    results=pool.map(create_mipmap_from_tuple,mipmap_args)
 
-    #launch jobs to create downsampled images
-    groups = [(subprocess.Popen(cmd, stdout=subprocess.PIPE) for cmd in cmds)] * 48 # itertools' grouper recipe
-    for processes in izip_longest(*groups): # run len(processes) == limit at a time
-        for p in filter(None, processes):
-            p.wait()
 
     print "finished!"
 
