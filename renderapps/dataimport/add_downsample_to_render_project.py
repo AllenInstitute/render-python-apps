@@ -2,6 +2,7 @@ import json
 import os
 from create_mipmaps import create_mipmaps
 import renderapi
+from renderapi.tilespec import MipMapLevel
 import argparse
 from pathos.multiprocessing import Pool
 
