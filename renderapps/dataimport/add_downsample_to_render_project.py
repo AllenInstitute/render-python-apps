@@ -14,8 +14,10 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
         tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,inputStack,z)
         
         for i,tilespec in enumerate(tilespecs):
-            
-            filepath=str(tilespec.imageUrl).lstrip('file:')
+            mml = tilespec.ip.mipMapLevels[0]
+
+            old_url = mml.imageUrl
+            filepath=str(old_url).lstrip('file:')
             fileparts=filepath.split(os.path.sep)[1:]
             downdir=os.path.join(os.path.sep,
                               fileparts[0],
@@ -40,12 +42,16 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
                 os.makedirs(downdir)
             cmds.append(downcmd)
             filebase = os.path.split(filepath)[1]
-            tilespec.scale1Url = 'file:' + os.path.join(downdir,filebase[0:-4]+'_mip01.jpg')
-            tilespec.scale2Url = 'file:' + os.path.join(downdir,filebase[0:-4]+'_mip02.jpg')
-            tilespec.scale3Url = 'file:' + os.path.join(downdir,filebase[0:-4]+'_mip03.jpg')
+            
+            for i in range(1,4):
+                scUrl = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip0%d.jpg'%i)
+                mml = MipMapLevel(level=i,imageUrl=scUrl)
+                tilespec.ip.update(mml)
+
+           
         tilespecpath = os.path.join(tilespecdir,outputStack+'_%04d.json'%z)
         fp = open(tilespecpath,'w')
-        json.dump([ts.to_dict() for ts in tilespecs],fp,indent=4)
+        renderapi.utils.renderdump(tilespecs,fp,indent=4)
         fp.close()
         tilespecpaths.append(tilespecpath)
     return tilespecpaths,mipmap_args
