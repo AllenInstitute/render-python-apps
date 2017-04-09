@@ -3,6 +3,7 @@ MAINTAINER Forrest Collman (forrest.collman@gmail.com)
 
 RUN mkdir -p /usr/local/render-python-apps
 WORKDIR /usr/local
+RUN conda install jupyter
 RUN pip install tifffile
 RUN pip install opencv-python
 
@@ -19,3 +20,4 @@ RUN python setup.py install
 RUN python setup.py install
 COPY jupyter_notebook_config.py /root/.jupyter/
 WORKDIR /usr/local/render-python-apps
+CMD ["jupyter", "notebook", "--no-browser", "--allow-root"]
