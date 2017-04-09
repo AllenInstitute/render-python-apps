@@ -40,7 +40,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
                 os.makedirs(tilespecdir)
             if not os.path.isdir(downdir):
                 os.makedirs(downdir)
-            cmds.append(downcmd)
+         
             filebase = os.path.split(filepath)[1]
             
             for i in range(1,4):
