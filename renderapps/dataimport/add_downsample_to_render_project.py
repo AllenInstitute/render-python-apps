@@ -41,7 +41,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
             if not os.path.isdir(downdir):
                 os.makedirs(downdir)
          
-            filebase = os.path.split(filepath)[1]
+            filebase,filename = os.path.split(filepath)
             
             for i in range(1,4):
                 scUrl = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip0%d.jpg'%i)
