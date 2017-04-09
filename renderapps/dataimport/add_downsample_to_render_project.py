@@ -6,7 +6,7 @@ import argparse
 from pathos.multiprocessing import Pool
 
 
-def make_tilespecs_and_cmds(render,inputStack,outputStack,inputOwner,inputProject,outputProject,outputOwner,tilespecdir):
+def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
     zvalues=render.run(renderapi.stack.get_z_values_for_stack,inputStack)
     mipmap_args = []
     tilespecpaths=[]
@@ -43,7 +43,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,inputOwner,inputProjec
             tilespec.scale1Url = 'file:' + os.path.join(downdir,filebase[0:-4]+'_mip01.jpg')
             tilespec.scale2Url = 'file:' + os.path.join(downdir,filebase[0:-4]+'_mip02.jpg')
             tilespec.scale3Url = 'file:' + os.path.join(downdir,filebase[0:-4]+'_mip03.jpg')
-        tilespecpath = os.path.join(tilespecdir,outputProject+'_'+outputOwner+'_'+outputStack+'_%04d.json'%z)
+        tilespecpath = os.path.join(tilespecdir,outputStack+'_%04d.json'%z)
         fp = open(tilespecpath,'w')
         json.dump([ts.to_dict() for ts in tilespecs],fp,indent=4)
         fp.close()
@@ -55,7 +55,6 @@ def create_mipmap_from_tuple(mipmap_tuple):
     return create_mipmaps(filepath,downdir) 
 
 if __name__ == '__main__':
-    raise(Exception('THIS NEEDS TO BE UPDATED FOR NEW API'))
     parser = argparse.ArgumentParser(description="Take an existing render stack, and create a new render stack with downsampled tilespecs and create those downsampled tiles")
 
     parser.add_argument('--renderHost',help="host name of the render server",default="ibs-forrestc-ux1")
@@ -80,7 +79,7 @@ if __name__ == '__main__':
     render.run(renderapi.stack.create_stack,args.outputStack)
 
     #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
-    tilespecpaths,mipmap_args = make_tilespecs_and_cmds(render,args.inputStack,args.outputStack,args.inputOwner,args.inputProject,args.outputProject,args.outputOwner,args.outputTileSpecDir)
+    tilespecpaths,mipmap_args = make_tilespecs_and_cmds(render,args.inputStack,args.outputStack,args.outputTileSpecDir)
 
     #upload created tilespecs to render
     render.run(renderapi.client.import_jsonfiles_parallel,
