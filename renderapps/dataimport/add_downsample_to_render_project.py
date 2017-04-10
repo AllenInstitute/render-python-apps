@@ -19,6 +19,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
 
             old_url = mml.imageUrl
             filepath=str(old_url).lstrip('file:')
+            filepath=filepath.replace("%20"," ")
             fileparts=filepath.split(os.path.sep)[1:]
             downdir=os.path.join(os.path.sep,
                               fileparts[0],
