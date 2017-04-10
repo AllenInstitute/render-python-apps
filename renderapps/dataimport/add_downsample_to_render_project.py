@@ -88,7 +88,8 @@ if __name__ == '__main__':
 
     #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
     tilespecpaths,mipmap_args = make_tilespecs_and_cmds(render,args.inputStack,args.outputStack,args.outputTileSpecDir)
-
+    render.run(renderapi.stack.delete_stack,args.outputStack)
+    
     #upload created tilespecs to render
     render.run(renderapi.client.import_jsonfiles_parallel,
                args.outputStack,
