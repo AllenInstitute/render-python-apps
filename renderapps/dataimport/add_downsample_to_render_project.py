@@ -74,8 +74,9 @@ if __name__ == '__main__':
     parser.add_argument('--outputTileSpecDir',help='location to save tilespecs before uploading to render (default to ',default='tilespec_downsampled')
     parser.add_argument('--client_scripts',help='path to render client scripts',default='/pipeline/render/render-ws-java-client/src/main/scripts')
     parser.add_argument('--ndvizBase',help="base url for ndviz surface",default="http://ibs-forrestc-ux1:8000/render/172.17.0.1:8081")
-    parser.add_argument('--convertTo8Bit', help="convert the images from 16 to 8 bit", default=True)
+    parser.add_argument('--do_not_convert', dest='convertTo8Bit', action='store_false')
     parser.add_argument('--verbose',help="verbose output",default=False)
+    parser.set_defaults(convertTo8Bit=True)
     args = parser.parse_args()
 
     render = renderapi.render.connect(host=args.renderHost,
@@ -85,7 +86,7 @@ if __name__ == '__main__':
                                       client_scripts = args.client_scripts)
 
     render.run(renderapi.stack.delete_stack,args.outputStack)
-
+    print ""
     #create a new stack to upload to render
     render.run(renderapi.stack.create_stack,args.outputStack)
 
@@ -98,6 +99,7 @@ if __name__ == '__main__':
                tilespecpaths)
    
     print "making downsample images"
+   
     pool = Pool(30)
     mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=args.convertTo8Bit)
     results=pool.map(mypartial,mipmap_args)
