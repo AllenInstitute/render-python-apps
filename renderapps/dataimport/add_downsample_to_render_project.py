@@ -44,9 +44,9 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
                 os.makedirs(downdir)
          
             filebase,filename = os.path.split(filepath)
-            filename = filename.replace(" ","%20")
+            downdir2 = downdir.replace(" ","%20")
             for i in range(1,4):
-                scUrl = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip0%d.jpg'%i)
+                scUrl = 'file:' + os.path.join(downdir2,filename[0:-4]+'_mip0%d.jpg'%i)
                 mml = MipMapLevel(level=i,imageUrl=scUrl)
                 tilespec.ip.update(mml)
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
     tilespecpaths,mipmap_args = make_tilespecs_and_cmds(render,args.inputStack,args.outputStack,args.outputTileSpecDir)
     render.run(renderapi.stack.delete_stack,args.outputStack)
-    
+
     #upload created tilespecs to render
     render.run(renderapi.client.import_jsonfiles_parallel,
                args.outputStack,
