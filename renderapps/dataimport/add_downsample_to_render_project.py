@@ -83,21 +83,22 @@ if __name__ == '__main__':
                                       project=args.inputProject,
                                       client_scripts = args.client_scripts)
 
+    render.run(renderapi.stack.delete_stack,args.outputStack)
+
     #create a new stack to upload to render
     render.run(renderapi.stack.create_stack,args.outputStack)
 
     #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
     tilespecpaths,mipmap_args = make_tilespecs_and_cmds(render,args.inputStack,args.outputStack,args.outputTileSpecDir)
-    render.run(renderapi.stack.delete_stack,args.outputStack)
-
+   
     #upload created tilespecs to render
     render.run(renderapi.client.import_jsonfiles_parallel,
                args.outputStack,
                tilespecpaths)
    
     print "making downsample images"
-    pool = Pool(30)
-    results=pool.map(create_mipmap_from_tuple,mipmap_args)
+    #pool = Pool(30)
+    #results=pool.map(create_mipmap_from_tuple,mipmap_args)
 
 
     print "finished!"
