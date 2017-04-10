@@ -2,17 +2,17 @@ from PIL import Image
 import argparse
 import os
 
-    
-def create_mipmaps(inputImage,outputDirectory='.',mipmaplevels=[1,2,3],outputformat='jpg'):
+def create_mipmaps(inputImage,outputDirectory='.',mipmaplevels=[1,2,3],outputformat='jpg',convertTo8Bit=True):
     if not os.path.isdir(outputDirectory):
         os.makedirs(outputDirectory)
 
     im = Image.open(inputImage)
     #print 'origmode',im.mode
     origsize = im.size
-    table=[ i/256 for i in range(65536) ]
-    im = im.convert('I')
-    im = im.point(table,'L')
+    if convertTo8Bit:
+        table=[ i/256 for i in range(65536) ]
+        im = im.convert('I')
+        im = im.point(table,'L')
     #print 'new mode',im.mode
     inputFileName = os.path.split(inputImage)[1]
                    

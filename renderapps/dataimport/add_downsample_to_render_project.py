@@ -5,7 +5,7 @@ import renderapi
 from renderapi.tilespec import MipMapLevel
 import argparse
 from pathos.multiprocessing import Pool
-
+from functools import partial
 
 def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
     zvalues=render.run(renderapi.stack.get_z_values_for_stack,inputStack)
@@ -58,9 +58,9 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
         tilespecpaths.append(tilespecpath)
     return tilespecpaths,mipmap_args
 
-def create_mipmap_from_tuple(mipmap_tuple):
+def create_mipmap_from_tuple(mipmap_tuple,convertTo8Bit=True):
     (filepath,downdir)=mipmap_tuple
-    return create_mipmaps(filepath,downdir) 
+    return create_mipmaps(filepath,downdir,convertTo8Bit=convertTo8Bit) 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Take an existing render stack, and create a new render stack with downsampled tilespecs and create those downsampled tiles")
@@ -74,6 +74,7 @@ if __name__ == '__main__':
     parser.add_argument('--outputTileSpecDir',help='location to save tilespecs before uploading to render (default to ',default='tilespec_downsampled')
     parser.add_argument('--client_scripts',help='path to render client scripts',default='/pipeline/render/render-ws-java-client/src/main/scripts')
     parser.add_argument('--ndvizBase',help="base url for ndviz surface",default="http://ibs-forrestc-ux1:8000/render/172.17.0.1:8081")
+    parser.add_argument('--convertTo8Bit', help="convert the images from 16 to 8 bit", default=True)
     parser.add_argument('--verbose',help="verbose output",default=False)
     args = parser.parse_args()
 
@@ -98,7 +99,8 @@ if __name__ == '__main__':
    
     print "making downsample images"
     pool = Pool(30)
-    results=pool.map(create_mipmap_from_tuple,mipmap_args)
+    mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=args.convertTo8Bit)
+    results=pool.map(mypartial,mipmap_args)
 
 
     print "finished!"

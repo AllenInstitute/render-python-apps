@@ -71,7 +71,7 @@ class MakeDownsampleSectionStack(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = MakeDownsampleSectionStackParameters
-        super(CreateFastStack,self).__init__(schema_type=schema_type,*args,**kwargs)
+        super(MakeDownsampleSectionStack,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,
             self.args['input_stack'])
