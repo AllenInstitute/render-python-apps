@@ -97,8 +97,8 @@ if __name__ == '__main__':
                tilespecpaths)
    
     print "making downsample images"
-    #pool = Pool(30)
-    #results=pool.map(create_mipmap_from_tuple,mipmap_args)
+    pool = Pool(30)
+    results=pool.map(create_mipmap_from_tuple,mipmap_args)
 
 
     print "finished!"
