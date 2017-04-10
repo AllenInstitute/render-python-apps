@@ -44,7 +44,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
                 os.makedirs(downdir)
          
             filebase,filename = os.path.split(filepath)
-            
+            filename = filename.replace(" ","%20")
             for i in range(1,4):
                 scUrl = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip0%d.jpg'%i)
                 mml = MipMapLevel(level=i,imageUrl=scUrl)
