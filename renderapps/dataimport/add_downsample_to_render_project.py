@@ -99,7 +99,7 @@ if __name__ == '__main__':
                tilespecpaths)
    
     print "making downsample images"
-   
+    print "conversion ",args.convertTo8Bit
     pool = Pool(30)
     mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=args.convertTo8Bit)
     results=pool.map(mypartial,mipmap_args)
