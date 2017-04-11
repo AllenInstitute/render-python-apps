@@ -1,5 +1,5 @@
 if __name__ == "__main__" and __package__ is None:
-    __package__ = "renderapps.dataimport.add_downsample_to_render_project_v2"
+    __package__ = "renderapps.dataimport"
 import json
 import os
 from create_mipmaps import create_mipmaps
