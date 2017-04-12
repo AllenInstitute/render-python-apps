@@ -56,7 +56,7 @@ the base module classes for writing json_module style modules
 includes a template module example to work from
 
 ## json_module
-a subpackage related to providing a unified interface for setting parameters from a json file, or the command line, or via passing a dictionary to a class.
+a subpackage related to providing a unified interface for setting parameters from a json file, or the command line, or via passing a dictionary to a class. this should go in a seperate repo eventually.
 
 ## obsolete
 modules that were written with deprecated version of render python and would need to be rewritten in the new format
@@ -64,5 +64,16 @@ hopefully will go away over time.. leaving useful code here for now.
 
 ## refactor
 modules that don't use the consistent json_module pattern and should be refactored
-hopefully will go away..
+hopefully will go awa as code is moved out of this..
 
+#allen_utils
+This is a folder of miscelaneous shell scripts and files that are specific to running render python related things at the allen.  they might be of interest but won't work in general for people outside of Synapse Biology at the Allen Institute.
+
+#example_json
+This is a folder of example json files that were used to run various modules, could be a useful reference.
+
+#integration_tests
+These should eventually contain tests for running against an integrated deployment environment, specifically configured to run inside an environment like the one specified here (https://github.com/fcollman/render-deploy/tree/test)
+
+#notebooks
+a set of ipython notebooks that show some more interactive use of render-python and render-python apps.  Mostly specific to the allen in terms of data sources, but perhaps still useful.
