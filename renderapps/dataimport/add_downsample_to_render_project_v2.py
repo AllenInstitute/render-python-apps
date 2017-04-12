@@ -58,16 +58,6 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack):
                               fileparts[7])
             #construct command for creating mipmaps for this tilespec
             mipmap_args.append((filepath,downdir))
-            tilespecdir = os.path.join(os.path.sep,
-                                       fileparts[0], 
-                                       fileparts[1],
-                                       fileparts[2],
-                                       'processed',
-                                       tilespecdir)
-            if not os.path.isdir(tilespecdir):
-                os.makedirs(tilespecdir)
-            if not os.path.isdir(downdir):
-                os.makedirs(downdir)
 
             filebase, filename = os.path.split(filepath)
             downdir2 = downdir.replace(" ", "%20")
