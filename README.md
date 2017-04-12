@@ -66,14 +66,14 @@ hopefully will go away over time.. leaving useful code here for now.
 modules that don't use the consistent json_module pattern and should be refactored
 hopefully will go awa as code is moved out of this..
 
-#allen_utils
+# allen_utils
 This is a folder of miscelaneous shell scripts and files that are specific to running render python related things at the allen.  they might be of interest but won't work in general for people outside of Synapse Biology at the Allen Institute.
 
-#example_json
+# example_json
 This is a folder of example json files that were used to run various modules, could be a useful reference.
 
-#integration_tests
+# integration_tests
 These should eventually contain tests for running against an integrated deployment environment, specifically configured to run inside an environment like the one specified here (https://github.com/fcollman/render-deploy/tree/test)
 
-#notebooks
+# notebooks
 a set of ipython notebooks that show some more interactive use of render-python and render-python apps.  Mostly specific to the allen in terms of data sources, but perhaps still useful.
