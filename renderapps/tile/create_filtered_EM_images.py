@@ -40,7 +40,7 @@ def fix_url(url):
 
 class FilterEMModule(RenderModule):
     def __init__(self,*args,**kwargs):
-        super(FilterEMModule,self).__init__(*args,**kwargs)
+        super(FilterEMModule,self).__init__(*args, **kwargs)
 
 
     def filter_em_image(self,path_in,path_out):

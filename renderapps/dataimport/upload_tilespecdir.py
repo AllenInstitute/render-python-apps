@@ -1,22 +1,8 @@
-import argparse
-import jsonschema
-import json
-import os
-import pandas as pd
-import subprocess
-import copy
-from renderapi.tilespec import TileSpec,Layout,AffineModel
-import numpy as np
-from sh import tar,zip
-import json
 import glob
-import sys
-sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
-from renderapi.render import Render
-from ..module.render_module import RenderModule,RenderParameters
-
-from json_module import InputFile,InputDir
+import renderapi
 import marshmallow as mm
+from json_module import InputDir
+from ..module.render_module import RenderModule, RenderParameters
 
 class UploadTileSpecParameters(RenderParameters):
     inputDir = InputDir(required=True,
@@ -36,7 +22,7 @@ class UploadTileSpecs(RenderModule):
         print jsonfiles
         
         renderapi.stack.create_stack(self.args['outputStack'],render=self.render)
-        renderapi.client.import_jsonfiles_parallel(args['outputStack'],jsonfiles,render=self.render)
+        renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],jsonfiles,render=self.render)
 
 if __name__ == "__main__":
     mod = UploadTileSpecs()

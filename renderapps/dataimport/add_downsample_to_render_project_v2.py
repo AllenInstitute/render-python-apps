@@ -1,5 +1,3 @@
-if __name__ == "__main__" and __package__ is None:
-    __package__ = "renderapps.dataimport"
 import json
 import os
 from create_mipmaps import create_mipmaps
@@ -102,25 +100,25 @@ class AddDownSample(RenderModule):
     def run(self):
         self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
 
-        self.render.run(renderapi.stack.delete_stack,args['output_stack'])
+        self.render.run(renderapi.stack.delete_stack,self.args['output_stack'])
 
         #create a new stack to upload to render
-        self.render.run(renderapi.stack.create_stack,args['output_stack'])
+        self.render.run(renderapi.stack.create_stack,self.args['output_stack'])
 
         #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
         tilespecpaths,mipmap_args = make_tilespecs_and_cmds(self.render,
-                                                            args['input_stack'],
-                                                            args['output_stack'])
+                                                            self.args['input_stack'],
+                                                            self.args['output_stack'])
     
         #upload created tilespecs to render
         self.render.run(renderapi.client.import_jsonfiles_parallel,
-                args['output_stack'],
+                self.args['output_stack'],
                 tilespecpaths)
     
         self.logger.debug("making downsample images")
-        self.logger.debug("convert_to_8bit:{}".format(args['convert_to_8bit']))
+        self.logger.debug("convert_to_8bit:{}".format(self.args['convert_to_8bit']))
         pool = Pool(args['pool_size'])
-        mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=args['convert_to_8bit'])
+        mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=self.args['convert_to_8bit'])
         results=pool.map(mypartial,mipmap_args)
 
 if __name__ == "__main__":

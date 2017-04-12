@@ -6,7 +6,6 @@ import json
 import glob
 import renderapi
 from ..module.render_module import RenderModule, RenderParameters
-from sh import tar,zip
 
 
 import marshmallow as mm

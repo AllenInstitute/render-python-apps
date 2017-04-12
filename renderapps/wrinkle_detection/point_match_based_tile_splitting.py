@@ -1,11 +1,7 @@
 import renderapi
-import os
-from pathos.multiprocessing import Pool
-from functools import partial
-from ..module.render_module import RenderModule, RenderParameters
-from json_module import InputFile, InputDir
 import marshmallow as mm
 import renderapi.tilespec
+from ..module.render_module import RenderModule, RenderParameters
 
 example_json={
         "render":{

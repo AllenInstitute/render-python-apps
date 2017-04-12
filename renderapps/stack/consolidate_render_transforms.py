@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 from renderapi.transform import AffineModel
 import renderapi
@@ -68,7 +67,7 @@ def consolidate_transforms(tforms,logger,makePolyDegree=0):
             new_tform_list.append(tform_total)
     return new_tform_list
         
-def process_z_make_json(r,logger,json_dir,z):
+def process_z_make_json(r, logger, json_dir, z):
     tilespecs = r.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
 
     for ts in tilespecs:

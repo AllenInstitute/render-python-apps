@@ -77,7 +77,6 @@ def smart_merge(a, b, path=None,merge_keys = None,overwrite_with_none=False):
                 a[key] = b[key]
     return a
 
-import py
 
 class OutputFile(mm.fields.Str):
     def _validate(self,value):

@@ -2,12 +2,10 @@ import argparse
 import jsonschema
 import json
 import os
-import pandas as pd
 import subprocess
 import copy
 from tilespec import TileSpec,Layout,AffineModel
 import numpy as np
-from sh import tar,zip
 import json
 
 
