@@ -107,7 +107,7 @@ class AddDownSample(RenderModule):
     
         self.logger.debug("making downsample images")
         self.logger.debug("convert_to_8bit:{}".format(self.args['convert_to_8bit']))
-        pool = Pool(args['pool_size'])
+        pool = Pool(self.args['pool_size'])
         mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=self.args['convert_to_8bit'])
         results=pool.map(mypartial,mipmap_args)
 
