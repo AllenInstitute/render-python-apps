@@ -78,9 +78,9 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack):
   
     return tilespecpaths,mipmap_args
 
-def create_mipmap_from_tuple(mipmap_tuple,convertTo8Bit=True):
+def create_mipmap_from_tuple(mipmap_tuple,convertTo8bit=True):
     (filepath,downdir)=mipmap_tuple
-    return create_mipmaps(filepath,downdir,convertTo8Bit=convertTo8Bit) 
+    return create_mipmaps(filepath,downdir,convertTo8bit=convertTo8bit) 
 
 class AddDownSample(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -110,7 +110,7 @@ class AddDownSample(RenderModule):
         self.logger.debug("making mipmaps images")
         self.logger.debug("convert_to_8bit:{}".format(self.args['convert_to_8bit']))
         pool = Pool(self.args['pool_size'])
-        mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=self.args['convert_to_8bit'])
+        mypartial = partial(create_mipmap_from_tuple,convertTo8bit=self.args['convert_to_8bit'])
         results=pool.map(mypartial,mipmap_args)
 
 if __name__ == "__main__":
