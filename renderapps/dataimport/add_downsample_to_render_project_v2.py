@@ -20,7 +20,7 @@ example_json={
         },
         "input_stack":"BIGALIGN2_MARCH24c_EM_clahe",
         "output_stack":"BIGALIGN2_MARCH24c_EM_clahe_mm",
-        "convert_to_8bit":True
+        "convert_to_8bit":False
 }
 
 class AddDownSampleParameters(RenderParameters):
@@ -95,17 +95,19 @@ class AddDownSample(RenderModule):
         #create a new stack to upload to render
         self.render.run(renderapi.stack.create_stack,self.args['output_stack'])
 
+        self.logger.debug("creating tilespecs and mipmap arguments...")
         #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
         tilespecpaths,mipmap_args = make_tilespecs_and_cmds(self.render,
                                                             self.args['input_stack'],
                                                             self.args['output_stack'])
     
+        self.logger.debug("uploading to render...")
         #upload created tilespecs to render
         self.render.run(renderapi.client.import_jsonfiles_parallel,
                 self.args['output_stack'],
                 tilespecpaths)
     
-        self.logger.debug("making downsample images")
+        self.logger.debug("making mipmaps images")
         self.logger.debug("convert_to_8bit:{}".format(self.args['convert_to_8bit']))
         pool = Pool(self.args['pool_size'])
         mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=self.args['convert_to_8bit'])
