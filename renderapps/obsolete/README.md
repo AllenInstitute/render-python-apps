@@ -1,8 +1,7 @@
-These programs make use of the old version of the renderapi,
-they need to be refactored to use both the new renderapi,
-as well as the newer pattern of using a RenderModule to handle inputs and outputs
-much of the code contains useful patterns, so i am keeping it here, with hopes we will move it
-slowly out of this folder and into functioning code again or delete things.
+These programs make use of the old version of the renderapi, they need to be refactored to be functional.
+Most also need to use the newer pattern of using a RenderModule to handle parameter settings.
+The code might contains useful patterns, so i am keeping it here, with hopes we will move it
+slowly out of this folder and into functioning code again or else decide that things can be deleted.
 
 apply_alignment_from_render_stack
 this was useful for applying trakem2 style alignments where there was 1 transform per section

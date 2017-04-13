@@ -1,4 +1,4 @@
-# render-python
+# render-python-apps
 There are a set of python based processing modules that do a broad assortment of steps in various image processing workflows whose results are stored in render.  They make extensive use of the render-python library (www.github.com/fcollman/render-python) for reading metadata from render and sending it back.
 
 # running a module
