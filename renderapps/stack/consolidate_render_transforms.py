@@ -1,15 +1,12 @@
 import numpy as np
 from renderapi.transform import AffineModel
-import renderapi
 import json
-import os
 from functools import partial
 import argparse
 from renderapi.utils import stripLogger
 import os
 import renderapi
 import pathos.multiprocessing as mp
-from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 from json_module import InputFile, InputDir
 import marshmallow as mm
@@ -28,14 +25,14 @@ example_json={
 class ConsolidateTransformsParameters(RenderParameters):
     stack = mm.fields.Str(required=True,
         metadata={'description':'stack to consolidate'})
-    postfix = mm.fields.Str(required=False,default="_CONS",
+    postfix = mm.fields.Str(required=False, default="_CONS",
         metadata={'description':'postfix to add to stack name on saving if no output defined (default _CONS)'})
     output_stack = mm.fields.Str(required=False,
         metadata={'description':'name of output stack (default to adding postfix to input)'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = mm.fields.Int(required=False, default=20,
         metadata={'description':'name of output stack (default to adding postfix to input)'})
 
-def consolidate_transforms(tforms,logger,makePolyDegree=0):
+def consolidate_transforms(tforms, logger, makePolyDegree=0):
     tform_total = AffineModel()
     start_index = 0
     total_affines = 0
@@ -68,23 +65,23 @@ def consolidate_transforms(tforms,logger,makePolyDegree=0):
     return new_tform_list
         
 def process_z_make_json(r, logger, json_dir, z):
-    tilespecs = r.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
+    tilespecs = r.run(renderapi.tilespec.get_tile_specs_from_z, stack, z)
 
     for ts in tilespecs:
         logger.debug('process_z_make_json: tileId {}'.format(ts.tileId))
-        ts.tforms = consolidate_transforms(ts.tforms,logger)
+        ts.tforms = consolidate_transforms(ts.tforms, logger)
         logger.debug('consolatedate tformlist {}'.format(ts.tforms[0]))
 
     logger.debug("tileid:{} transforms:{}".format(tilespecs[0].tileId,tilespecs[0].tforms))
-    json_filepath = os.path.join(json_dir,'%s_%04d'%(outstack,z))
-    renderapi.utils.renderdump(tilespecs,open(json_filepath,'w'),indent=4)
+    json_filepath = os.path.join(json_dir, '%s_%04d'%(outstack,z))
+    renderapi.utils.renderdump(tilespecs, open(json_filepath, 'w'), indent=4)
     return json_filepath
 
 class ConsolidateTransforms(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = ConsolidateTransformsParameters
-        super(ConsolidateTransforms,self).__init__(schema_type=schema_type,*args,**kwargs)
+        super(ConsolidateTransforms,self).__init__(schema_type=schema_type, *args, **kwargs)
     def run(self):
         self.logger.error('NOT TESTED SPEAK TO FORREST IF WORKING OR NOT WORKING')
         stack = self.args['stack']
@@ -98,17 +95,17 @@ class ConsolidateTransforms(RenderModule):
 
         pool =mp.ProcessingPool(self.args['pool_size'])
 
-        zvalues=r.run(renderapi.stack.get_z_values_for_stack,stack)
+        zvalues=r.run(renderapi.stack.get_z_values_for_stack, stack)
 
-        json_files=pool.map(partial(process_z_make_json,self.render,self.logger,json_dir),zvalues)
+        json_files=pool.map(partial(process_z_make_json, self.render, self.logger, json_dir), zvalues)
 
         r.run(renderapi.stack.delete_stack,outstack)
         r.run(renderapi.stack.create_stack,outstack)
-        r.run(renderapi.client.import_jsonfiles_parallel,outstack,json_files)
+        r.run(renderapi.client.import_jsonfiles_parallel, outstack, json_files)
 
 
 if __name__ == "__main__":
-    mod = ConsolidateTransforms(input_data= example_json)
+    mod = ConsolidateTransforms(input_data=example_json)
     mod.run()
 
     
