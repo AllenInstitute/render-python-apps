@@ -4,10 +4,36 @@ from create_mipmaps import create_mipmaps
 import renderapi
 from renderapi.tilespec import MipMapLevel
 import argparse
-from pathos.multiprocessing import Pool
 from functools import partial
+from pathos.multiprocessing import Pool
+from ..module.render_module import RenderModule, RenderParameters
+import marshmallow as mm
+import tempfile
 
-def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
+example_json={
+        "render":{
+            "host":"ibs-forrestc-ux1",
+            "port":8080,
+            "owner":"Forrest",
+            "project":"M247514_Rorb_1",
+            "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+        },
+        "input_stack":"BIGALIGN2_MARCH24c_EM_clahe",
+        "output_stack":"BIGALIGN2_MARCH24c_EM_clahe_mm",
+        "convert_to_8bit":False
+}
+
+class AddDownSampleParameters(RenderParameters):
+    input_stack = mm.fields.Str(required=True,
+        metadata={'description':'stack to input'})
+    output_stack = mm.fields.Str(required=True,
+        metadata={'description':'stack to output (deletes before upload)'})
+    convert_to_8bit = mm.fields.Boolean(required=False,default=True,
+        metadata={'description':'convert the data from 16 to 8 bit (default True)'})
+    pool_size = mm.fields.Int(required=False, default=20,
+        metadata={'description':'size of parallelism'})
+
+def make_tilespecs_and_cmds(render,inputStack,outputStack):
     zvalues=render.run(renderapi.stack.get_z_values_for_stack,inputStack)
     mipmap_args = []
     tilespecpaths=[]
@@ -32,78 +58,63 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack,tilespecdir):
                               fileparts[7])
             #construct command for creating mipmaps for this tilespec
             mipmap_args.append((filepath,downdir))
-            tilespecdir = os.path.join(os.path.sep,
-                                       fileparts[0], 
-                                       fileparts[1],
-                                       fileparts[2],
-                                       'processed',
-                                       tilespecdir)
-            if not os.path.isdir(tilespecdir):
-                os.makedirs(tilespecdir)
-            if not os.path.isdir(downdir):
-                os.makedirs(downdir)
-         
-            filebase,filename = os.path.split(filepath)
-            downdir2 = downdir.replace(" ","%20")
-            for i in range(1,4):
+
+            filebase, filename = os.path.split(filepath)
+            downdir2 = downdir.replace(" ", "%20")
+            for i in range(1, 4):
                 scUrl = 'file:' + os.path.join(downdir2,filename[0:-4]+'_mip0%d.jpg'%i)
                 mml = MipMapLevel(level=i,imageUrl=scUrl)
                 tilespec.ip.update(mml)
+      
+        tempjson = tempfile.NamedTemporaryFile(
+            suffix=".json", mode='r', delete=False)
+        tempjson.close()
+        tsjson = tempjson.name
+        with open(tsjson, 'w') as f:
+            renderapi.utils.renderdump(tilespecs, f)
+            f.close()
+        tilespecpaths.append(tsjson)
 
-           
-        tilespecpath = os.path.join(tilespecdir,outputStack+'_%04d.json'%z)
-        fp = open(tilespecpath,'w')
-        renderapi.utils.renderdump(tilespecs,fp,indent=4)
-        fp.close()
-        tilespecpaths.append(tilespecpath)
+  
     return tilespecpaths,mipmap_args
 
-def create_mipmap_from_tuple(mipmap_tuple,convertTo8Bit=True):
+def create_mipmap_from_tuple(mipmap_tuple,convertTo8bit=True):
     (filepath,downdir)=mipmap_tuple
-    return create_mipmaps(filepath,downdir,convertTo8Bit=convertTo8Bit) 
+    return create_mipmaps(filepath,downdir,convertTo8bit=convertTo8bit) 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Take an existing render stack, and create a new render stack with downsampled tilespecs and create those downsampled tiles")
+class AddDownSample(RenderModule):
+    def __init__(self,schema_type=None,*args,**kwargs):
+        if schema_type is None:
+            schema_type = AddDownSampleParameters
+        super(AddDownSample,self).__init__(schema_type=schema_type,*args,**kwargs)
+    def run(self):
+        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
 
-    parser.add_argument('--renderHost',help="host name of the render server",default="ibs-forrestc-ux1")
-    parser.add_argument('--renderPort',help="port of the render server",default = 8080)
-    parser.add_argument('--inputOwner',help="name of project owner to read project from",default = "Forrest")
-    parser.add_argument('--inputProject',help="name of the input Project",required=True)
-    parser.add_argument('--inputStack',help='name of stack to take in',required=True)
-    parser.add_argument('--outputStack',help='name of stack to upload to render',required=True) 
-    parser.add_argument('--outputTileSpecDir',help='location to save tilespecs before uploading to render (default to ',default='tilespec_downsampled')
-    parser.add_argument('--client_scripts',help='path to render client scripts',default='/pipeline/render/render-ws-java-client/src/main/scripts')
-    parser.add_argument('--ndvizBase',help="base url for ndviz surface",default="http://ibs-forrestc-ux1:8000/render/172.17.0.1:8081")
-    parser.add_argument('--do_not_convert', dest='convertTo8Bit', action='store_false')
-    parser.add_argument('--verbose',help="verbose output",default=False)
-    parser.set_defaults(convertTo8Bit=True)
-    args = parser.parse_args()
+        self.render.run(renderapi.stack.delete_stack,self.args['output_stack'])
 
-    render = renderapi.render.connect(host=args.renderHost,
-                                      port=args.renderPort,
-                                      owner=args.inputOwner,
-                                      project=args.inputProject,
-                                      client_scripts = args.client_scripts)
+        #create a new stack to upload to render
+        self.render.run(renderapi.stack.create_stack,self.args['output_stack'])
 
-    render.run(renderapi.stack.delete_stack,args.outputStack)
-    print ""
-    #create a new stack to upload to render
-    render.run(renderapi.stack.create_stack,args.outputStack)
+        self.logger.debug("creating tilespecs and mipmap arguments...")
+        #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
+        tilespecpaths,mipmap_args = make_tilespecs_and_cmds(self.render,
+                                                            self.args['input_stack'],
+                                                            self.args['output_stack'])
+    
+        self.logger.debug("uploading to render...")
+        #upload created tilespecs to render
+        self.render.run(renderapi.client.import_jsonfiles_parallel,
+                self.args['output_stack'],
+                tilespecpaths)
+    
+        self.logger.debug("making mipmaps images")
+        self.logger.debug("convert_to_8bit:{}".format(self.args['convert_to_8bit']))
+        pool = Pool(self.args['pool_size'])
+        mypartial = partial(create_mipmap_from_tuple,convertTo8bit=self.args['convert_to_8bit'])
+        results=pool.map(mypartial,mipmap_args)
 
-    #go get the existing input tilespecs, make new tilespecs with downsampled URLS, save them to the tilespecpaths, and make a list of commands to make downsampled images
-    tilespecpaths,mipmap_args = make_tilespecs_and_cmds(render,args.inputStack,args.outputStack,args.outputTileSpecDir)
-   
-    #upload created tilespecs to render
-    render.run(renderapi.client.import_jsonfiles_parallel,
-               args.outputStack,
-               tilespecpaths)
-   
-    print "making downsample images"
-    print "conversion ",args.convertTo8Bit
-    pool = Pool(30)
-    mypartial = partial(create_mipmap_from_tuple,convertTo8Bit=args.convertTo8Bit)
-    results=pool.map(mypartial,mipmap_args)
+if __name__ == "__main__":
+    mod = AddDownSample(input_data= example_json)
+    mod.run()
 
-
-    print "finished!"
 

@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     create_mipmaps(args.inputImage,args.outputDirectory,args.mipmaplevels,args.outputformat)
     
-#     if not os.path.isdir(args.outputDirectory):
+#     if not os.path.isdirf(args.outputDirectory):
 #         os.makedirs(args.outputDirectory)
 
 #     im = Image.open(args.inputImage)
