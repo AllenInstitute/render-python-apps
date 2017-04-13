@@ -1,9 +1,6 @@
 # render-python-apps
-<<<<<<< HEAD
-There are a set of python based processing modules that do a broad assortment of steps in various image processing workflows whose results are stored in render.  They make extensive use of the render-python library (www.github.com/fcollman/render-python) for reading metadata from render and sending it back.
-=======
+
 These are a set of python based processing modules that do a broad assortment of steps in various image processing workflows whose results are ultimately stored in render.  They make extensive use of the render-python library (www.github.com/fcollman/render-python) for reading metadata from render and sending it back.
->>>>>>> 94ebcfaf18362fac4e84c377bc527edc784172e9
 
 # running a module
 Each module is designed to be run using a common pattern for defining inputs that is setup using the json_module pattern.
