@@ -62,16 +62,16 @@ class RenderStackParameters(RenderParameters):
 
 
 def process_z(render,stack,channel,save_dir,x,y,width,height,scale,minIntensity,maxIntensity,z,img_format='png'):
-        img = renderapi.image.get_bb_image(stack,z,x,y,width,height,
-                                           scale=scale,
-                                           minIntensity=minIntensity,
-                                           maxIntensity=maxIntensity,
-                                           img_format=img_format,
-                                           render=render)
-        img = img[:,:,0]
-        filepath = os.path.join(save_dir,'%s_%06d.tif'%(channel,z))
-        tifffile.imsave(filepath,img)
-        return filepath
+    img = renderapi.image.get_bb_image(stack,z,x,y,width,height,
+                                        scale=scale,
+                                        minIntensity=minIntensity,
+                                        maxIntensity=maxIntensity,
+                                        img_format=img_format,
+                                        render=render)
+    img = img[:,:,0]
+    filepath = os.path.join(save_dir,'%s_%06d.tif'%(channel,z))
+    tifffile.imsave(filepath,img)
+    return filepath
 
 
 

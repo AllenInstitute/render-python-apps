@@ -3,8 +3,6 @@ import renderapi
 from ..test_data import render_host,render_port, client_script_location,tilespec_file, tform_file
 import pytest
 
-
-
 @pytest.fixture(scope='module')
 def render_test_parameters():
     render_test_parameters = {

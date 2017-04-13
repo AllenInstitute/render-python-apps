@@ -16,7 +16,6 @@ def num2str(num,digits):
         mystr = prefix + mystr
     return mystr
 
-
 def updatejsonfilewithz(json_file,ch,rib,sess,sect,ffdir):
     ff_file=os.path.join(ffdir,'%s_rib%04dsess%04dsect%04d.json'%(ch,rib,sess,sect))
     

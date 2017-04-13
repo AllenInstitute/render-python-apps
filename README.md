@@ -1,7 +1,55 @@
 # render-python
 There are a set of python based processing modules that do a broad assortment of steps in various image processing workflows whose results are stored in render.  They make extensive use of the render-python library (www.github.com/fcollman/render-python) for reading metadata from render and sending it back.
 
-The code is now organized in a sub-module structure arranged thematically by purpose.  You can (or will when we are done with documentation) find more detailed descriptions of each submodule in the subfolders. 
+# running a module
+Each module is designed to be run using a common pattern for defining inputs that is setup using the json_module pattern.
+
+module can be run in 3 different ways
+
+1) passing parameters via command line parameters
+python -m renderapps.module.example_module\
+ --render.host RENDERHOST_DNS_OR_IP\
+ --render.port RENDERPORT\
+ --render.owner OWNERNAME\
+ --render.project PROJECTNAME\
+ --render.client_scripts PATHTORENDERSCRIPTS \
+ --param1 P1\
+ --param2 P2
+
+note for each module you can get help about the parameters by running
+python -m renderapps.module.example_module --help
+
+2) passing a json file from command line
+python -m renderapps.module.example_module --input_json path_to_json_file
+
+This will read the parameters from the json file passed in.  Note that command line arguments can be mixed with json definitions, and command line arguments overwrite parameters specified in the json.
+
+3) calling the module from another python program
+
+from renderapps.module.example_module import ExampleModule
+
+module_parameters = {
+    "render":{
+        "host":"RENDERHOST",
+        "port":RENDERPORT,
+        "owner":"OWNERNAME",
+        "project":"PROJECTNAME",
+        "client_scripts":"PATHTORENDERSCRIPTS"
+    },
+    "param1":"P1",
+    "param2":P2,
+}    
+mod = ExampleModule(input_data=module_parameters, args = [])
+mod.run()
+
+Note that passing in args =[] will bypass the command line parsing.
+
+No matter how the module is run, all input parameters will be validated using the schema which each module has defined using the marshmallow framework. 
+
+#Repo Organization
+
+The code is now organized in a sub-module structure arranged thematically by purpose.
+You can (or will when we are done with documentation) find more detailed descriptions of each submodule in the subfolders. 
 
 Here are the thematic areas
 
@@ -64,7 +112,7 @@ hopefully will go away over time.. leaving useful code here for now.
 
 ## refactor
 modules that don't use the consistent json_module pattern and should be refactored
-hopefully will go awa as code is moved out of this..
+hopefully will go away as code is moved out of this..
 
 # allen_utils
 This is a folder of miscelaneous shell scripts and files that are specific to running render python related things at the allen.  they might be of interest but won't work in general for people outside of Synapse Biology at the Allen Institute.
@@ -77,3 +125,4 @@ These should eventually contain tests for running against an integrated deployme
 
 # notebooks
 a set of ipython notebooks that show some more interactive use of render-python and render-python apps.  Mostly specific to the allen in terms of data sources, but perhaps still useful.
+

@@ -30,7 +30,7 @@ class SplitTile(RenderModule):
             schema_type = SplitTileParameters
         super(SplitTile,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
+        self.logger.error('WARNING not complete')
 
         ts = renderapi.tilespec.get_tile_spec(self.args['stack'], self.args['tileId'])
         #pull the point matches that involve this tile out of the point match database
