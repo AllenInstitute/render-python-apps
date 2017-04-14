@@ -102,7 +102,7 @@ class ConsolidateTransforms(RenderModule):
         r.run(renderapi.stack.delete_stack,outstack)
         r.run(renderapi.stack.create_stack,outstack)
         r.run(renderapi.client.import_jsonfiles_parallel, outstack, json_files)
-
+        
 
 if __name__ == "__main__":
     mod = ConsolidateTransforms(input_data=example_json)

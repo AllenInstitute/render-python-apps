@@ -50,3 +50,25 @@ outputJson contains a few more options, and an example is given in test_output_j
 NOTE: both of these programs require the render-python interface to be available to python.
 www.github.com/fcollman/render-python.
 
+### ImportTrakEM2Annotations
+This is a program for extracting area list annotations in TrakEM2 and converting them to a json format
+where each area list is expressed as a set of local tile coordinates, in a nested json schema that is specified in AnnotationJsonSchema.  This is meant to facilitate transforming annotations done in TrakEM2 of an alignment that might later be updated by render, the idea is that annotations can get stored in a local tile coordinate version, and then transformed to a world coordinate version using the render coordinate mapping service.
+
+### MakeTrakEM2QCFigures
+This is a small program written to make summary figures of TrakEM2 annotations in order to draw the attention of a manual QC process to annotations that might be false merges by sorting them according to their total bounding box size, and showing a 2d summary plot of their profiles.
+
+## Other Files
+
+### trakem2utils
+Basic python functions for interacting with trakem2 xml files.
+
+### header.xml
+Template trakem2 header xml
+
+### layerset.xml
+Template trakem2 layerset xml 
+
+### ImportTrakEM2Annotations.ipynb 
+The ipython notebook used to develop the ImportTrakEM2Annotation module
+
+
