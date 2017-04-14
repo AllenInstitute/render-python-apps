@@ -30,7 +30,7 @@ echo $PROJECT
 
 python /data/array_tomography/ForSharmi/allen_SB_code/MakeAT/make_state_table_ext_multi.py --projectDirectory $PROJECT_ROOT --outputFile $PROJECT_ROOT/scripts/statetable
 
-docker exec -t renderapps python renderapps/import/create_fast_stacks.py\
+docker exec -t renderapps python -m renderapps.dataimport.create_fast_stacks\
  --statetableFile $PROJECT_ROOT/scripts/statetable\
  --render.owner $OWNER\
  --render.project $PROJECT\
