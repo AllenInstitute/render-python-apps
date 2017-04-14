@@ -125,7 +125,6 @@ class CreateFastStack(RenderModule):
         df = pd.read_csv(statetablefile)
         ribbons = df.groupby('ribbon')
         k=0
-        pool = Pool(self.args['pool_size'])
         for ribnum,ribbon in ribbons:
             mydf = ribbon.groupby('ch_name')
             for channum,chan in mydf:
@@ -135,9 +134,11 @@ class CreateFastStack(RenderModule):
                 tilespecpaths,mipmap_args = make_tilespec_from_statetable(chan,rootdir,outputProject,outputOwner,outputStack)
                 self.logger.info("importing tilespecs into render....")
                 self.logger.info("creating downsampled images ...")
+                pool = Pool(self.args['pool_size'])
 
                 results=pool.map(create_mipmap_from_tuple,mipmap_args)
-
+                pool.close()
+                pool.join()
                 #groups = [(subprocess.Popen(cmd,\
                 # stdout=subprocess.PIPE) for cmd in cmds)] \
                 # * self.args['pool_size'] # itertools' grouper recipe
