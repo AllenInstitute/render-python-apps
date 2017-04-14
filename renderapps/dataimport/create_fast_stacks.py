@@ -98,10 +98,11 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputSt
                                      layout= layout))
                 z = row.z
 
-            json_text=json.dumps([t.to_dict() for t in tilespeclist],indent=4)
+           
+            
             json_file = os.path.join(tilespecdir,outputProject+'_'+outputOwner+'_'+outputStack+'_%04d.json'%z)
             fd=open(json_file, "w")
-            fd.write(json_text)
+            renderapi.utils.renderdump(tilespeclist,fp)
             fd.close()
             tilespecpaths.append(json_file)
     return tilespecpaths,mipmap_args
@@ -152,7 +153,7 @@ class CreateFastStack(RenderModule):
                     renderapi.stack.create_stack(outputStack,owner=outputOwner,
                     project=outputProject,verbose=False,render=self.render)
                 self.logger.info(tilespecpaths)
-                renderapi.client.import_jsonfiles_parallel(outputStack,tilespecpaths,render=self.render)
+                renderapi.client.import_jsonfiles_parallel(outputStack,tilespecpaths,render=self.render, poolsize=self.args['pool_size'])
             k+=1
 
 if __name__ == "__main__":
