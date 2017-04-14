@@ -22,7 +22,7 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-with open('integreation_tests/requirements.txt', 'r') as f:
+with open('integration_tests/requirements.txt', 'r') as f:
     test_required = f.read().splitlines()
 
 with open('requirements.txt', 'r') as f:
