@@ -13,6 +13,7 @@ from pathos.multiprocessing import Pool
 from ..module.render_module import RenderModule,RenderParameters
 from json_module import InputFile,InputDir
 import marshmallow as mm
+import pandas as pd
 
 class CreateFastStacksParameters(RenderParameters):
     statetableFile = InputFile(required=True,
