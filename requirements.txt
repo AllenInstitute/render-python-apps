@@ -8,3 +8,4 @@ marshmallow
 shapely
 rtree
 networkx
+pandas

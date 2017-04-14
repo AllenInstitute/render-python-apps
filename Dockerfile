@@ -6,7 +6,8 @@ WORKDIR /usr/local
 RUN conda install jupyter
 RUN pip install tifffile
 RUN pip install opencv-python
-
+RUN pip install pandas
+RUN apt-get install libspatialindex-dev -y
 COPY . /usr/local/render-python-apps
 
 #RUN git clone http://stash.corp.alleninstitute.org/scm/~forrestc/json_module.git
