@@ -26,4 +26,4 @@ def test_create_fast_stacks(render_test_parameters):
     mod = CreateFastStack(input_data = test_parameters)
     mod.run()
     mod.logger.error("need to make a check that import worked")
-    assert(false)
+    assert(False)
