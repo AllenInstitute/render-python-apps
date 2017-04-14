@@ -2,7 +2,6 @@
 
 from . import create_fast_stacks
 from . import create_mipmaps
-from . import add_downsample_to_render_project_v2
 from . import add_downsample_to_render_project
 from . import upload_channeltilespec
 from . import upload_tilespecdir
