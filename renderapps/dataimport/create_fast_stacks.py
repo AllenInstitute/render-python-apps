@@ -9,7 +9,7 @@ from renderapi.transform import AffineModel
 from create_mipmaps import create_mipmaps
 my_env = os.environ.copy()
 from itertools import izip_longest
-from pathos.multiprocessing import ProcessPool
+from multiprocess import Pool
 from ..module.render_module import RenderModule,RenderParameters
 from json_module import InputFile,InputDir
 import marshmallow as mm
@@ -98,11 +98,11 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputSt
                                      layout= layout))
                 z = row.z
 
-           
-            
+
+
             json_file = os.path.join(tilespecdir,outputProject+'_'+outputOwner+'_'+outputStack+'_%04d.json'%z)
             fd=open(json_file, "w")
-            renderapi.utils.renderdump(tilespeclist,fp)
+            renderapi.utils.renderdump(tilespeclist,fd)
             fd.close()
             tilespecpaths.append(json_file)
     return tilespecpaths,mipmap_args
@@ -135,7 +135,7 @@ class CreateFastStack(RenderModule):
                 tilespecpaths,mipmap_args = make_tilespec_from_statetable(chan,rootdir,outputProject,outputOwner,outputStack)
                 self.logger.info("importing tilespecs into render....")
                 self.logger.info("creating downsampled images ...")
-                pool = ProcessPool(self.args['pool_size'])
+                pool = Pool(self.args['pool_size'])
 
                 results=pool.map(create_mipmap_from_tuple,mipmap_args)
                 pool.close()
@@ -153,7 +153,7 @@ class CreateFastStack(RenderModule):
                     renderapi.stack.create_stack(outputStack,owner=outputOwner,
                     project=outputProject,verbose=False,render=self.render)
                 self.logger.info(tilespecpaths)
-                renderapi.client.import_jsonfiles_parallel(outputStack,tilespecpaths,render=self.render, poolsize=self.args['pool_size'])
+                renderapi.client.import_jsonfiles(outputStack,tilespecpaths,render=self.render, poolsize=self.args['pool_size'])
             k+=1
 
 if __name__ == "__main__":

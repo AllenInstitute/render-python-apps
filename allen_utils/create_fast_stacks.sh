@@ -39,5 +39,6 @@ docker exec -t renderapps python -m renderapps.dataimport.create_fast_stacks\
  --render.host ibs-forrestc-ux1\
  --render.client_scripts /var/www/render/render-ws-java-client/src/main/scripts\
  --render.port 8080\
- --render.memGB 5G\
- --log_level INFO
+ --render.memGB 10G\
+ --log_level INFO\
+ --pool_size 5

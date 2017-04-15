@@ -1,5 +1,5 @@
-docker pull atbigdawg:5000/fcollman/render-python
-docker tag atbigdawg:5000/fcollman/render-python fcollman/render-python
+docker pull atbigdawg:5000/fcollman/render-python:master
+docker tag atbigdawg:5000/fcollman/render-python:master fcollman/render-python
 docker build -t fcollman/render-python-apps .
 docker tag fcollman/render-python-apps atbigdawg:5000/fcollman/render-python-apps
 docker push atbigdawg:5000/fcollman/render-python-apps
