@@ -3,7 +3,6 @@ import renderapi
 from renderapi.transform import AffineModel
 import json
 from ..module.render_module import RenderModule,RenderParameters
-from pathos.multiprocessing import Pool
 from functools import partial
 import tempfile
 import marshmallow as mm
@@ -102,8 +101,8 @@ class ApplyAffine(RenderModule):
         #    print z
         #    json_files.append(mypartial(z))
         #print json_files
-        pool = Pool(self.args['pool_size'])
-        json_files = pool.map(mypartial,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            json_files = pool.map(mypartial,zvalues)
         #import the json_files into the output stack
         if (self.args['input_stack'] != output_stack):
             self.render.run(renderapi.stack.create_stack,output_stack)

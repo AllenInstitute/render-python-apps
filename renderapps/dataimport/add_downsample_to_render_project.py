@@ -5,7 +5,6 @@ import renderapi
 from renderapi.tilespec import MipMapLevel
 import argparse
 from functools import partial
-from pathos.multiprocessing import Pool
 from ..module.render_module import RenderModule, RenderParameters
 import marshmallow as mm
 import tempfile
@@ -109,9 +108,10 @@ class AddDownSample(RenderModule):
     
         self.logger.debug("making mipmaps images")
         self.logger.debug("convert_to_8bit:{}".format(self.args['convert_to_8bit']))
-        pool = Pool(self.args['pool_size'])
+
         mypartial = partial(create_mipmap_from_tuple,convertTo8bit=self.args['convert_to_8bit'])
-        results=pool.map(mypartial,mipmap_args)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            results=pool.map(mypartial,mipmap_args)
 
 if __name__ == "__main__":
     mod = AddDownSample(input_data= example_json)

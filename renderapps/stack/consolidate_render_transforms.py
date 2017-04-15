@@ -6,7 +6,6 @@ import argparse
 from renderapi.utils import stripLogger
 import os
 import renderapi
-import pathos.multiprocessing as mp
 from ..module.render_module import RenderModule, RenderParameters
 from json_module import InputFile, InputDir
 import marshmallow as mm
@@ -93,11 +92,10 @@ class ConsolidateTransforms(RenderModule):
         if not os.path.isdir(json_dir):
             os.makedirs(json_dir)
 
-        pool =mp.ProcessingPool(self.args['pool_size'])
 
         zvalues=r.run(renderapi.stack.get_z_values_for_stack, stack)
-
-        json_files=pool.map(partial(process_z_make_json, self.render, self.logger, json_dir), zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            json_files=pool.map(partial(process_z_make_json, self.render, self.logger, json_dir), zvalues)
 
         r.run(renderapi.stack.delete_stack,outstack)
         r.run(renderapi.stack.create_stack,outstack)

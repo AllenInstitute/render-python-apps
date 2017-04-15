@@ -3,7 +3,6 @@ import os
 import renderapi
 from .transfer_module import RenderTransferParameters,RenderTransfer
 import marshmallow as mm
-from pathos.multiprocessing import Pool
 from functools import partial
 import json
 example_parameters={
@@ -51,13 +50,13 @@ class PointMatchTransfer(RenderTransfer):
 
         pgroups = renderapi.pointmatch.get_match_groupIds_from_only(collection_source, render=self.render_source)
 
-        pool = Pool(self.args['pool_size'])
         mypartial = partial(process_group,
             self.render_source,
             collection_source,
             self.render_target,
             collection_target)
-        pool.map(mypartial, pgroups)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            pool.map(mypartial, pgroups)
         
 if __name__ == "__main__":
     mod = PointMatchTransfer(input_data= example_parameters)

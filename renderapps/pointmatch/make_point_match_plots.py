@@ -42,6 +42,8 @@ class MakePointMatchPlotsParameters(RenderParameters):
         metadata={'description':'minimum Z to make plots for (default to whole stack)'})
     maxZ = mm.fields.Int(required=False,
         metadata={'description':'maximum Z to make plots for (default to whole stack)'})
+    pool_size = mm.fields.Int(required=False,default=20,
+        metadata={'description':'number of parallel threads to use'})
 
 def make_plot(r,matchcollection,zvalues,figdir,item):
     section_p,section_q = item
@@ -132,7 +134,8 @@ class MakePointMatchPlots(RenderModule):
                         items.append((group,group2))
 
         mypartial= partial(make_plot,r,self.args['matchcollection'],zvalues,figdir)
-        res=pool.map(mypartial,items)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            res=pool.map(mypartial,items)
 
 if __name__ == "__main__":
     mod = MakePointMatchPlots()

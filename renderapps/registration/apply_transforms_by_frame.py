@@ -1,6 +1,5 @@
 import renderapi 
 import json
-import pathos.multiprocessing as mp
 from functools import partial
 import tempfile
 from ..module.render_module import RenderModule,RenderParameters
@@ -83,8 +82,7 @@ class ApplyTransforms(RenderModule):
             schema_type = ApplyTransformParameters
         super(ApplyTransforms,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        print json.dumps(self.args,indent=4)
-        pool = mp.ProcessingPool(int(self.args['pool_size']))
+        self.logger.debug(json.dumps(self.args,indent=4))
 
         #STEP 2: get z values that exist in aligned stack
         zvalues=self.render.run(renderapi.stack.get_z_values_for_stack,self.args['alignedStack'])
@@ -94,7 +92,8 @@ class ApplyTransforms(RenderModule):
         # run the stitching jar to produce a new json for that z 
         #call the creation of this in a parallel way
         mypartial = partial(process_z,self.render,self.args['alignedStack'],self.args['inputStack'],self.args['outputStack'])
-        jsonFilePaths = pool.map(mypartial,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            jsonFilePaths = pool.map(mypartial,zvalues)
 
         #upload the resulting stack to render
         self.render.run(renderapi.stack.create_stack,self.args['outputStack'])

@@ -2,7 +2,6 @@ import renderapi
 import numpy as np
 import marshmallow as mm
 from ..module.render_module import RenderModule,RenderParameters
-from pathos.multiprocessing import Pool
 from functools import partial
 import os
 import tifffile
@@ -106,7 +105,6 @@ class RenderStack(RenderModule):
             os.makedirs(stack_dir)
         self.logger.debug('DownloadVolume: stack_dir {}'.format(stack_dir))
 
-        pool = Pool(self.args['pool_size'])
         my_partial = partial(process_z,
                              self.render,
                              self.args['stack'],
@@ -119,8 +117,8 @@ class RenderStack(RenderModule):
                              self.args['scale'],
                              self.args['minIntensity'],
                              self.args['maxIntensity'])
-
-        files = pool.map(my_partial,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            files = pool.map(my_partial,zvalues)
         self.logger.debug('DownloadVolue:saved files {}'.format(files))
 
 

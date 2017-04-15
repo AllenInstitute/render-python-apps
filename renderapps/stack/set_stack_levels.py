@@ -1,6 +1,5 @@
 import os
 import renderapi
-from pathos.multiprocessing import Pool
 from functools import partial
 from ..module.render_module import RenderModule,RenderParameters
 from ..module.json_module import InputFile,InputDir
@@ -51,13 +50,13 @@ class SetStackLevels(RenderModule):
             schema_type = SetStackLevelsParameters
         super(SetStackLevels,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        pool = Pool(self.args['pool_size'])
         zvalues=self.render.run(renderapi.stack.get_z_values_for_stack,self.args['stack'])
         self.logger.info('SetStackLevels: making json files for stack %s'%self.args['stack'])
         self.logger.debug('SetStackLevels: with min{} max {}'.format(self.args['minIntensity'],self.args['maxIntensity']))
 
         mypartial = partial(process_z,self.render,self.args['stack'],self.args['minIntensity'],self.args['maxIntensity'])
-        jsonFilePaths = pool.map(mypartial,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            jsonFilePaths = pool.map(mypartial,zvalues)
         self.logger.info('SetStackLevels: uploading json files for stack %s'%self.args['stack'])
         self.logger.debug('SetStackLevels: temp files {}'.format(jsonFilePaths))
         self.render.run(renderapi.client.import_jsonfiles_parallel,self.args['stack'], jsonFilePaths, poolsize=self.args['pool_size'])

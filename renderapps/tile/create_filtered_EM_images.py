@@ -3,7 +3,6 @@ import renderapi
 from renderapi.transform import AffineModel
 import json
 from ..module.render_module import RenderModule,RenderParameters
-from pathos.multiprocessing import Pool
 from functools import partial
 import tempfile
 import marshmallow as mm
@@ -127,15 +126,13 @@ class FilterEMModule(RenderModule):
         #output_stack defaults to input_stack
         output_stack = self.args.get('output_stack',self.args['input_stack'])
 
-        #define a processing pool
-        pool = Pool(self.args['pool_size'])
-
         #define a partial function for processing a single z value
         mypartial = partial(self.process_z,self.render,self.args['input_stack'])
 
         #mypartial(0)
         #get the filepaths of json files in parallel
-        json_files = pool.map(mypartial,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            json_files = pool.map(mypartial,zvalues)
 
         if self.args['input_stack'] != output_stack:
             sv = renderapi.stack.get_stack_metadata(self.args['input_stack'],render=self.render)

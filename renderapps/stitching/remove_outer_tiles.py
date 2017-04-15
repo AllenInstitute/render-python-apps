@@ -4,7 +4,6 @@ from rtree import index as rindex
 import networkx as nx
 import renderapi
 import os
-from pathos.multiprocessing import Pool
 from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 from json_module import InputFile, InputDir
