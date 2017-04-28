@@ -1,0 +1,15 @@
+{
+    "render":{
+        "host":"ibs-forrestc-ux1",
+        "port":8080,
+        "owner":"Forrest",
+        "project":"M247514_Rorb_1",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "stack":"REGFLATSMALLFIXDAPI_1_deconv_CONS",
+    "matchcollection":"M247514_Rorb_1_DAPI1_deconv_filter_fix2",
+    "minZ":0,
+    "maxZ":101,
+    "dataRoot":"/nas3/data/",
+    "delta":150
+}

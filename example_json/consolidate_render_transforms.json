@@ -1,0 +1,10 @@
+{
+    "render":{
+        "host":"http://ibs-forrestc-ux1",
+        "port":8080,
+        "owner":"Forrest",
+        "project":"M247514_Rorb_1",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "stack":"REGFLATSMALLFIXDAPI_1_deconv"
+}

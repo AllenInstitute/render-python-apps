@@ -1,0 +1,13 @@
+{
+    "render":{
+        "host":"em-131fs",
+        "port":8999,
+        "owner":"gayathri",
+        "project":"EM_Phase1",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "input_stack":"Pinky40_20170313_aibsdata_flipped_shifted",
+    "zmin":3484,
+    "zmax":3500,
+    "pool_size":20
+}

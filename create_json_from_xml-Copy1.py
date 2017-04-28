@@ -24,7 +24,7 @@ if __name__ == '__main__':
     p.add_argument('--outputStack',         help='name of stack to upload to render')
     p.add_argument('--outputDir',           help="name of the output directory", default='.')
     p.add_argument('--host',                help="host name of the render server",default="ibs-forrestc-ux1.corp.alleninstitute.org")
-    p.add_argument('--port',                help="port for render server",default=8080)
+    p.add_argument('--port',                help="port for render server",default=8081)
     p.add_argument('--java_home',           help="directory for java jdk",default='/pipeline/renderdev/deploy/jdk1.8.0_73')
     
     p.add_argument('--verbose',             help="verbose output",default=False)
