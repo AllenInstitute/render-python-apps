@@ -9,5 +9,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    render = Render("ibs-forrestc-ux1.corp.alleninstitute.org", 8080, "Sharmishtaas", "M270907_Scnn1aTg2Tdt_13")
+    render = Render("ibs-forrestc-ux1.corp.alleninstitute.org", 8080, "Sharmishtaas", "M247514_Rorb_1")
     render.delete_stack(args.stackName[0])
