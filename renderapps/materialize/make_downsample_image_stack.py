@@ -7,20 +7,23 @@ from ..module.render_module import RenderModule,RenderParameters
 from json_module import InputFile,InputDir,OutputDir
 import marshmallow as mm
 from functools import partial
+import glob
+import time
 
 
 example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":80,
-        "owner":"Sharmishtaas",
-        "project":"M247514_Rorb_1",
+        "owner":"SC_MT_IUE1_2",
+        "project":"SC_MT22_IUE1_2_PlungeLowicryl",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    'input_stack':'REG_MARCH_21_DAPI_1',
-    'output_stack':'REG_MARCH_21_DAPI_1_sections',
-    'image_directory':'/nas3/data/M247514_Rorb_1/processed/downsampled_sections',
-    'pool_size':5
+    'input_stack':'Stitched_DAPI_1',
+    'output_stack':'Stitched_DAPI_1_Lowres',
+    'image_directory':'/nas3/data/SC_MT22_IUE1_2_PlungeLowicryl/processed/Low_res',
+    'pool_size':5,
+	'scale': 0.05
 }
 
 class MakeDownsampleSectionStackParameters(RenderParameters):
@@ -35,14 +38,51 @@ class MakeDownsampleSectionStackParameters(RenderParameters):
     pool_size = mm.fields.Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
-def process_z(render,stack,output_dir,scale,z):
+def process_z(render,stack,output_dir,scale,project,Z):
+    
+    z = Z[0]
+    newz = Z[1]
+    
     args=['--stack', stack,
-          '--rootDirectory',output_dir ,
           '--scale',str(scale),
+          '--rootDirectory',output_dir ,
           str(z)]
-    self.render.run(renderapi.client.call_run_ws_client,
-        'org.janelia.render.client.RenderSectionClient',
-        add_args = args)
+    
+    
+    print args
+    print project
+    
+    #############render.run(renderapi.client.call_run_ws_client, 'org.janelia.render.client.RenderSectionClient', add_args = args)
+    
+    #renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=False, fillWithNoise=False)
+    
+    
+    tilespecdir = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'tilespecs')
+    if os.path.exists(tilespecdir):
+		print "Path Exists!" 
+    else:
+		os.makedirs(tilespecdir)
+		
+    [q,r] = divmod(z,1000)
+    strz = "%04d"%z
+    filename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'%03d'%q,strz[1],'%s.tif'%str(z))
+    tilespecs = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
+    t = tilespecs[0]
+    d = t.to_dict()
+    d['mipmapLevels'][0]['imageUrl'] = filename
+    d['minIntensity'] = 0
+    d['maxIntensity'] = 255
+    d['width'] = 17091/20
+    d['height'] = 27227/20
+    d['transforms']['specList'][0]['dataString'] = "1.0000000000 0.0000000000 0.0000000000 1.0000000000 0000.00 0000.00"
+    t.from_dict(d) 
+    allts = [t]
+    tilespecfilename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'tilespecs','tilespec_%04d.json'%z)
+    print tilespecfilename
+    fp = open(tilespecfilename,'w')
+    json.dump([ts.to_dict() for ts in allts] ,fp,indent=4)
+    fp.close()
+    
 
 #       @Parameter(names = "--stack", description = "Stack name", required = true)
 # private String stack;
@@ -74,11 +114,27 @@ class MakeDownsampleSectionStack(RenderModule):
     def run(self):
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,
             self.args['input_stack'])
-
-        mypartial = partial(process_z,self.args['input_stack'],
-            self.args['output_dir'],self.args['scale'])
+            
+        newzvalues = range(0,len(zvalues))
+        Z = []
+        for i in range(0,len(zvalues)):
+			Z.append( [zvalues[i], newzvalues[i]])
+        
+        print self.args['input_stack']
+        print self.args['pool_size']
+        print self.args['image_directory']
+        print self.args['scale']
+        render=self.render
+        mypartial = partial(process_z,self.render,self.args['input_stack'],
+            self.args['image_directory'],self.args['scale'],self.args['render']['project'])
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
-            pool.map(mypartial,zvalues)
+            pool.map(mypartial,Z)
+            
+        t = os.path.join(self.args['image_directory'],self.args['render']['project'],self.args['input_stack'],'sections_at_%s'%str(self.args['scale']),'tilespecs') 
+        jsonfiles = glob.glob("%s/*.json"%t)    
+        
+        renderapi.stack.create_stack(self.args['output_stack'],cycleNumber=5,cycleStepNumber=1,stackResolutionX = 20, stackResolutionY = 20, render=self.render)
+        renderapi.client.import_jsonfiles_parallel(self.args['output_stack'],jsonfiles,render=self.render)
 
 
 

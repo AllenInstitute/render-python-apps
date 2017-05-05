@@ -105,6 +105,17 @@ class InputDir(mm.fields.Str):
                 os.access(value,os.R_OK)
             except:
                 raise mm.ValidationError("%s is not a readable directory"%value)
+                
+class OutputDir(mm.fields.Str):
+    def _validate(self,value):
+        if not os.path.isdir(value):
+			os.makedirs(value,os.W_OK)
+            #raise mm.ValidationError("%s is not a directory")
+        else:
+         try:
+             os.access(value,os.W_OK)
+         except:
+             raise mm.ValidationError("%s is not a writeable directory"%value)
 
 class InputFile(mm.fields.Str):
 
