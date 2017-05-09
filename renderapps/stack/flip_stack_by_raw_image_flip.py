@@ -4,7 +4,6 @@ from renderapi.tilespec import MipMapLevel
 from renderapi.transform import AffineModel
 import json
 from ..module.render_module import RenderModule,RenderParameters
-from pathos.multiprocessing import Pool
 from functools import partial
 import subprocess
 import tempfile
@@ -95,14 +94,13 @@ class FlipStack(RenderModule):
         #output_stack defaults to input_stack
         output_stack = mod.args.get('output_stack',mod.args['input_stack'])
 
-        #define a processing pool
-        pool = Pool(mod.args['pool_size'])
         #define a partial function for processing a single z value
         mypartial = partial(process_z,mod.render,mod.args['input_stack'],delete_after=mod.args['delete_after'])
 
         #mypartial(0)
         #get the filepaths of json files in parallel
-        json_files = pool.map(mypartial,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            json_files = pool.map(mypartial,zvalues)
 
         if mod.args['input_stack']!=output_stack:
             renderapi.stack.create_stack(output_stack,render=mod.render)

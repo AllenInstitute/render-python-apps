@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import marshmallow as mm
 from shapely import geometry
 from AnnotationJsonSchema import AnnotationFile
-from pathos.multiprocessing import Pool
 from functools import partial
 
 def merge_bounding_box(box1,box2):
@@ -129,10 +128,9 @@ class MakeTrakEM2QCFigures(JsonModule):
         zipup=zip(volumes,area_lists)
         order = zip(np.argsort(volumes),range(len(volumes)))
 
-        pool = Pool(self.args['pool_size'])
-
         mypartial = partial(make_plot,area_lists,overallbbox,subdir,dzs)
-        results = pool.map(mypartial,order)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            results = pool.map(mypartial,order)
 
 if __name__ == "__main__":
     mod = MakeTrakEM2QCFigures(input_data= parameters)

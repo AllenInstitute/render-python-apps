@@ -2,12 +2,10 @@ import renderapi
 import numpy as np
 from functools import partial
 import os
-import pathos.multiprocessing as mp
 from shapely import geometry
 import logging
 from renderapi.transform import AffineModel
 from ..module.render_module import RenderModule,RenderParameters
-
 
 example_json = {
         "render":{
@@ -137,7 +135,6 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
         stackResolutionY = self.args.get('stackResolutionY',sourcestack['stackResolutionY'])
         stackResolutionZ = self.args.get('stackResolutionZ',sourcestack['stackResolutionZ'])
 
-        pool = mp.ProcessPool(self.args['pool_size'])
 
         outstack = self.args[output_stack]
         myp = partial(process_z, self.render, prealignedstack, postalignedstack, sourcestack, outstack)
@@ -152,7 +149,8 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
         #for z in zvalues:
         #    myp(z)
         #    break
-        res = pool.map(myp, zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            res = pool.map(myp, zvalues)
         #self.render.run(renderapi.stack.set_stack_state,outstack,state='COMPLETE')
         #break
 

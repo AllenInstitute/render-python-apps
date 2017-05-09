@@ -3,7 +3,6 @@ if __name__ == "__main__" and __package__ is None:
 import json
 import os
 import renderapi
-from pathos.multiprocessing import Pool
 from ..module.render_module import RenderModule,RenderParameters
 from json_module import InputFile,InputDir,OutputDir
 import marshmallow as mm
@@ -33,7 +32,7 @@ class MakeDownsampleSectionStackParameters(RenderParameters):
         metadata={'decription','path to save section images'})
     output_stack = mm.fields.Str(required=True,
         metadata={'description':'output stack to name'})
-    pool_size = mm.fields.Int(require=False,default=20,
+    pool_size = mm.fields.Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
 def process_z(render,stack,output_dir,scale,z):
@@ -76,10 +75,10 @@ class MakeDownsampleSectionStack(RenderModule):
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,
             self.args['input_stack'])
 
-        pool = Pool(self.args['pool_size'])
         mypartial = partial(process_z,self.args['input_stack'],
             self.args['output_dir'],self.args['scale'])
-        pool.map(mypartial,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            pool.map(mypartial,zvalues)
 
 
 

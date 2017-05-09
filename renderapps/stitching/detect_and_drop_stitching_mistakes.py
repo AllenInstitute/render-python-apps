@@ -5,7 +5,6 @@ import json
 import numpy as np
 from rtree import index as rindex
 import networkx as nx
-import pathos.multiprocessing as mp
 from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 import marshmallow as mm
@@ -119,7 +118,7 @@ class DetectAndDropStitchingMistakes(RenderModule):
             schema_type = DetectAndDropStitchingMistakesParameters
         super(DetectAndDropStitchingMistakes,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        print self.args
+       
         self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
         if not os.path.isdir(self.args['jsonDirectory']):
                 os.makedirs(self.args['jsonDirectory'])
@@ -127,9 +126,8 @@ class DetectAndDropStitchingMistakes(RenderModule):
         #STEP 2: get z values of stitched stack
         zvalues=renderapi.stack.get_z_values_for_stack(self.args['prestitchedStack'],render=self.render)
         
-        print 'processing %d sections'%len(zvalues)
-        #SETUP a processing pool to process each section
-        pool =mp.ProcessingPool(self.args['pool_size'])
+        self.logger.debug('processing %d sections'%len(zvalues))
+
 
         #define a partial function that takes in a single z
         partial_process = partial(process_section,renderObj=render,prestitchedStack=self.args['prestitchedStack'],
@@ -137,7 +135,8 @@ class DetectAndDropStitchingMistakes(RenderModule):
             distance_threshold=self.args['distance_threshold'],edge_threshold=self.args['edge_threshold'])
 
         #parallel process all sections
-        jsonfiles = pool.map(partial_process,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            jsonfiles = pool.map(partial_process,zvalues)
         
         #create stack and upload to render
         renderapi.stack.create_stack(self.args['outputStack'], render=self.render)

@@ -9,7 +9,6 @@ from renderapi.transform import AffineModel
 from create_mipmaps import create_mipmaps
 my_env = os.environ.copy()
 from itertools import izip_longest
-from multiprocess import Pool
 from ..module.render_module import RenderModule,RenderParameters
 from json_module import InputFile,InputDir
 import marshmallow as mm
@@ -135,11 +134,9 @@ class CreateFastStack(RenderModule):
                 tilespecpaths,mipmap_args = make_tilespec_from_statetable(chan,rootdir,outputProject,outputOwner,outputStack)
                 self.logger.info("importing tilespecs into render....")
                 self.logger.info("creating downsampled images ...")
-                pool = Pool(self.args['pool_size'])
-
-                results=pool.map(create_mipmap_from_tuple,mipmap_args)
-                pool.close()
-                pool.join()
+                with renderapi.client.WithPool(self.args['pool_size']) as pool:
+                    results=pool.map(create_mipmap_from_tuple,mipmap_args)
+    
                 #groups = [(subprocess.Popen(cmd,\
                 # stdout=subprocess.PIPE) for cmd in cmds)] \
                 # * self.args['pool_size'] # itertools' grouper recipe

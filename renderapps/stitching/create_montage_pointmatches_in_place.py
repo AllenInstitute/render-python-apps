@@ -8,7 +8,6 @@ import numpy as np
 import time
 import subprocess
 from ..module.render_module import RenderModule,RenderParameters
-import pathos.multiprocessing as mp
 import marshmallow as mm
 
 example_parameters={
@@ -134,7 +133,6 @@ class CreateMontagePointMatch(RenderModule):
         if not os.path.isdir(json_dir):
             os.makedirs(json_dir)
 
-        pool =mp.ProcessingPool(20)
         #figure out what z values to visit
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,stack)
         minZ = self.args.get('minZ',np.min(zvalues))
@@ -145,7 +143,8 @@ class CreateMontagePointMatch(RenderModule):
 
         kwargs = self.render.make_kwargs()
         make_tile_part = partial(make_tile_pair_json,self.render,self.args['stack'],kwargs['project'],kwargs['owner'],kwargs['host'],kwargs['port'],json_dir)
-        tile_pair_jsons=pool.map(make_tile_part,zvalues)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            tile_pair_jsons=pool.map(make_tile_part,zvalues)
         #for z in zvalues:
         #    make_tile_part(z)
 
@@ -155,7 +154,8 @@ class CreateMontagePointMatch(RenderModule):
             self.args['stack'],
             self.args['render']['owner'],
             delta=self.args['delta'])
-        res=pool.map(myp,tile_pair_jsons)
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            res=pool.map(myp,tile_pair_jsons)
         #for tile_pair in tile_pair_jsons:
             #print tile_pair
             #myp(tile_pair)
