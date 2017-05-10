@@ -11,6 +11,8 @@ import glob
 import time
 
 
+#modified and fixed by Sharmishtaa Seshamani
+
 example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
@@ -19,7 +21,7 @@ example_parameters={
         "project":"SC_MT22_IUE1_2_PlungeLowicryl",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    'input_stack':'Stitched_DAPI_1',
+    'input_stack':'Stitched_DAPI_1_dropped',
     'output_stack':'Stitched_DAPI_1_Lowres',
     'image_directory':'/nas3/data/SC_MT22_IUE1_2_PlungeLowicryl/processed/Low_res',
     'pool_size':5,
@@ -54,7 +56,7 @@ def process_z(render,stack,output_dir,scale,project,Z):
     
     #############render.run(renderapi.client.call_run_ws_client, 'org.janelia.render.client.RenderSectionClient', add_args = args)
     
-    #renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=False, fillWithNoise=False)
+    renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=False, fillWithNoise=False)
     
     
     tilespecdir = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'tilespecs')
@@ -74,7 +76,8 @@ def process_z(render,stack,output_dir,scale,project,Z):
     d['maxIntensity'] = 255
     d['width'] = 17091/20
     d['height'] = 27227/20
-    d['transforms']['specList'][0]['dataString'] = "1.0000000000 0.0000000000 0.0000000000 1.0000000000 0000.00 0000.00"
+    d['z'] = newz
+    d['transforms']['specList'][0]['dataString'] = "20.0000000000 0.0000000000 0.0000000000 20.0000000000 0000.00 0000.00"
     t.from_dict(d) 
     allts = [t]
     tilespecfilename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'tilespecs','tilespec_%04d.json'%z)
@@ -133,7 +136,7 @@ class MakeDownsampleSectionStack(RenderModule):
         t = os.path.join(self.args['image_directory'],self.args['render']['project'],self.args['input_stack'],'sections_at_%s'%str(self.args['scale']),'tilespecs') 
         jsonfiles = glob.glob("%s/*.json"%t)    
         
-        renderapi.stack.create_stack(self.args['output_stack'],cycleNumber=5,cycleStepNumber=1,stackResolutionX = 20, stackResolutionY = 20, render=self.render)
+        renderapi.stack.create_stack(self.args['output_stack'],cycleNumber=5,cycleStepNumber=1,stackResolutionX = 1, stackResolutionY = 1, render=self.render)
         renderapi.client.import_jsonfiles_parallel(self.args['output_stack'],jsonfiles,render=self.render)
 
 

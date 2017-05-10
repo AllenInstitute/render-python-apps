@@ -9,19 +9,20 @@ from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 import marshmallow as mm
 
+#Modified by Sharmishtaa Seshamani
 
 example_json={
         "render":{
             "host":"ibs-forrestc-ux1",
             "port":8080,
-            "owner":"Forrest",
-            "project":"M247514_Rorb_1",
+            "owner":"SC_MT_IUE1_2",
+            "project":"SC_MT22_IUE1_2_PlungeLowicryl",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "prestitchedStack":"my example parameters",
-        "poststitchedStack":"poststack",
-        "outputStack":"name of output stack",
-        "jsonDirectory":"directory to save",
+        "prestitchedStack":"Acquisition_DAPI_1",
+        "poststitchedStack":"Stitched_DAPI_1",
+        "outputStack":"Stitched_DAPI_1_dropped",
+        "jsonDirectory":"/nas3/data/SC_MT22_IUE1_2_PlungeLowicryl/processed/dropped",
         "edge_threshold":1843, #default
         "pool_size":20, #default
         "distance_threshold":50, #default
@@ -47,23 +48,27 @@ class DetectAndDropStitchingMistakesParameters(RenderParameters):
     
 
 
-def process_section(z,
-    render=None,
-    prestitchedStack='',
-    poststitchedStack='',
-    outputStack='',
-    distance_threshold=50,
-    edge_threshold=1843):
+#def process_section(render,
+#    prestitchedStack='',
+#    poststitchedStack='',
+#    outputStack='',
+#    distance_threshold=50,
+#    edge_threshold=1843,z=0):
+
+def process_section(render,prestitchedStack, poststitchedStack, outputStack, distance_threshold, edge_threshold,jsonDirectory, z):
 
     ridx = rindex.Index() #setup an Rtree to find overlapping tiles
     G=nx.Graph() #setup a graph to store overlapping tiles
     Gpos = {} #dictionary to store positions of tiles
     
+    
+    
     #get all the tilespecs for this z from prestitched stack
-    pre_tilespecs = renderapi.tilespec.get_tile_specs_from_z(prestitchedStack, z, render=renderapi)
+    pre_tilespecs = renderapi.tilespec.get_tile_specs_from_z(prestitchedStack, z, render=render)
     #insert them into the Rtree with their bounding boxes to assist in finding overlaps
     #label them by order in pre_tilespecs
     [ridx.insert(i,(ts.minX,ts.minY,ts.maxX,ts.maxY)) for i,ts in enumerate(pre_tilespecs)]
+
     
     post_tilespecs = []
     #loop over each tile in this z to make graph
@@ -79,17 +84,19 @@ def process_section(z,
         #save the tiles position
         Gpos[i]=((ts.minX+ts.maxX)/2,(ts.minY+ts.maxY)/2)
         
+
+    
     #loop over edges in the graph
     for p,q in G.edges():
         #p and q are now indices into the tilespecs, and labels on the graph nodes
-        
         #assuming the first transform is the right one, and is only translation
         #this is the vector between these two tilespecs
-        dpre=pre_tilespecs[p].tforms[0].M[0:2,3]-pre_tilespecs[q].tforms[0].M[0:2,3]
+        dpre=pre_tilespecs[p].tforms[0].M[0:2,2]-pre_tilespecs[q].tforms[0].M[0:2,2]
         #this is therefore the distance between them
         dp = np.sqrt(np.sum(dpre**2))
         #this is the vector between them after stitching
-        dpost=post_tilespecs[p].tforms[0].M[0:2,3]-post_tilespecs[q].tforms[0].M[0:2,3]
+        dpost=post_tilespecs[p].tforms[0].M[0:2,2]-post_tilespecs[q].tforms[0].M[0:2,2]
+        
         #this is the amplitude of the vector between the pre and post vectors (delta delta vector)
         delt = np.sqrt(np.sum((dpre-dpost)**2))
         #store it in the edge property dictionary
@@ -98,6 +105,7 @@ def process_section(z,
         if (delt>distance_threshold) | (dp>edge_threshold):
             #remove the edge
             G.remove_edge(p,q)
+	
 
     #after removing all the bad edges...
     #get the largest connected component of G
@@ -106,7 +114,7 @@ def process_section(z,
     #use it to pick out the good post stitch tilspecs that remain in the graph
     ts_good_json = [post_tilespecs[node].to_dict() for node in Gc.nodes_iter()]
     #formulate a place to save them
-    jsonfilepath = os.path.join(a.jsonDirectory,'%s_z%04.0f.json'%(outputStack,z))
+    jsonfilepath = os.path.join(jsonDirectory,'%s_z%04.0f.json'%(outputStack,z))
     #dump the json to that location
     json.dump(ts_good_json,open(jsonfilepath ,'w'))
     #return the name of the file
@@ -119,7 +127,7 @@ class DetectAndDropStitchingMistakes(RenderModule):
         super(DetectAndDropStitchingMistakes,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
        
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
+        #self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
         if not os.path.isdir(self.args['jsonDirectory']):
                 os.makedirs(self.args['jsonDirectory'])
 
@@ -128,18 +136,17 @@ class DetectAndDropStitchingMistakes(RenderModule):
         
         self.logger.debug('processing %d sections'%len(zvalues))
 
-
         #define a partial function that takes in a single z
-        partial_process = partial(process_section,renderObj=render,prestitchedStack=self.args['prestitchedStack'],
-            poststitchedStack=self.args['poststitchedStack'],outputStack=self.args['outputStack'],
-            distance_threshold=self.args['distance_threshold'],edge_threshold=self.args['edge_threshold'])
+        partial_process = partial(process_section,self.render,self.args['prestitchedStack'],
+            self.args['poststitchedStack'],self.args['outputStack'], self.args['distance_threshold'],self.args['edge_threshold'],self.args['jsonDirectory'])
 
         #parallel process all sections
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             jsonfiles = pool.map(partial_process,zvalues)
         
         #create stack and upload to render
-        renderapi.stack.create_stack(self.args['outputStack'], render=self.render)
+        
+        renderapi.stack.create_stack(self.args['outputStack'], cycleNumber=3,cycleStepNumber=1, render=self.render)
         renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],
                                                     jsonfiles,
                                                     render=self.render)
