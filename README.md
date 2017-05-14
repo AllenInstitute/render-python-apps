@@ -47,7 +47,7 @@ Note that passing in args =[] will bypass the command line parsing.
 
 No matter how the module is run, all input parameters will be validated using the schema which each module has defined using the marshmallow framework. 
 
-#Repo Organization
+# Repo Organization
 
 The code is now organized in a sub-module structure arranged thematically by purpose.
 You can (or will when we are done with documentation) find more detailed descriptions of each submodule in the subfolders. 
