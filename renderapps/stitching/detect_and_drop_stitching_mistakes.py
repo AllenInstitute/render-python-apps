@@ -8,21 +8,22 @@ import networkx as nx
 from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 import marshmallow as mm
+import sys
 
 #Modified by Sharmishtaa Seshamani
 
-example_json={
+example_json1={
         "render":{
             "host":"ibs-forrestc-ux1",
             "port":8080,
-            "owner":"SC_MT_IUE1_2",
-            "project":"SC_MT22_IUE1_2_PlungeLowicryl",
+            "owner":"S3_Run1",
+            "project":"S3_Run1_Rosie",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
         "prestitchedStack":"Acquisition_DAPI_1",
         "poststitchedStack":"Stitched_DAPI_1",
         "outputStack":"Stitched_DAPI_1_dropped",
-        "jsonDirectory":"/nas3/data/SC_MT22_IUE1_2_PlungeLowicryl/processed/dropped",
+        "jsonDirectory":"/nas2/data/S3_Run1_Rosie/processed/dropped",
         "edge_threshold":1843, #default
         "pool_size":20, #default
         "distance_threshold":50, #default
@@ -74,7 +75,12 @@ def process_section(render,prestitchedStack, poststitchedStack, outputStack, dis
     #loop over each tile in this z to make graph
     for i,ts in enumerate(pre_tilespecs):
         #create the list of corresponding post stitched tilespecs
-        post_tilespecs.append(renderapi.tilespec.get_tile_spec(poststitchedStack,ts.tileId,render=render))
+        t = renderapi.tilespec.get_tile_spec(poststitchedStack,ts.tileId,render=render)
+        d= t.to_dict()
+        d['minIntensity'] = 2000
+        d['maxIntensity'] = 5000
+        t.from_dict(d)
+        post_tilespecs.append(t)
         
         #get the list of overlapping nodes
         nodes=list(ridx.intersection((ts.minX,ts.minY,ts.maxX,ts.maxY)))
@@ -132,7 +138,7 @@ class DetectAndDropStitchingMistakes(RenderModule):
                 os.makedirs(self.args['jsonDirectory'])
 
         #STEP 2: get z values of stitched stack
-        zvalues=renderapi.stack.get_z_values_for_stack(self.args['prestitchedStack'],render=self.render)
+        zvalues=renderapi.stack.get_z_values_for_stack(self.args['poststitchedStack'],render=self.render)
         
         self.logger.debug('processing %d sections'%len(zvalues))
 
@@ -153,8 +159,14 @@ class DetectAndDropStitchingMistakes(RenderModule):
                                                     
 
 if __name__ == "__main__":
-    mod = DetectAndDropStitchingMistakes(input_data= example_json)
-    mod.run()
+	#json_file = sys.argv[1]
+	#print json_file
+	#with open(json_file) as json_data:
+	#	input_json = json.load(json_data)
+	#i_data = json.dumps(input_json)
+	
+	mod = DetectAndDropStitchingMistakes(input_data=i_data)
+	mod.run()
 
   
 

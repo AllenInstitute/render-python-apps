@@ -17,13 +17,13 @@ example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":80,
-        "owner":"SC_MT_IUE1_2",
-        "project":"SC_MT22_IUE1_2_PlungeLowicryl",
+        "owner":"S3_Run1",
+        "project":"S3_Run1_Rosie",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
     'input_stack':'Stitched_DAPI_1_dropped',
     'output_stack':'Stitched_DAPI_1_Lowres',
-    'image_directory':'/nas3/data/SC_MT22_IUE1_2_PlungeLowicryl/processed/Low_res',
+    'image_directory':'/nas2/data/S3_Run1_Rosie/processed/Low_res',
     'pool_size':5,
 	'scale': 0.05
 }
@@ -57,7 +57,7 @@ def process_z(render,stack,output_dir,scale,project,Z):
     #############render.run(renderapi.client.call_run_ws_client, 'org.janelia.render.client.RenderSectionClient', add_args = args)
     
     renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=False, fillWithNoise=False)
-    
+    stackbounds = renderapi.stack.get_stack_bounds(stack,render=render)
     
     tilespecdir = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'tilespecs')
     if os.path.exists(tilespecdir):
@@ -66,16 +66,16 @@ def process_z(render,stack,output_dir,scale,project,Z):
 		os.makedirs(tilespecdir)
 		
     [q,r] = divmod(z,1000)
-    strz = "%04d"%z
-    filename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'%03d'%q,strz[1],'%s.tif'%str(z))
+    s = int(r/100)
+    filename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'%03d'%q,"%d"%s,'%s.tif'%str(z))
     tilespecs = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
     t = tilespecs[0]
     d = t.to_dict()
     d['mipmapLevels'][0]['imageUrl'] = filename
     d['minIntensity'] = 0
     d['maxIntensity'] = 255
-    d['width'] = 17091/20
-    d['height'] = 27227/20
+    d['width'] = stackbounds['maxX']/20
+    d['height'] = stackbounds['maxY']/20
     d['z'] = newz
     d['transforms']['specList'][0]['dataString'] = "20.0000000000 0.0000000000 0.0000000000 20.0000000000 0000.00 0000.00"
     t.from_dict(d) 

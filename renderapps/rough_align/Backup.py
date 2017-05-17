@@ -17,15 +17,15 @@ example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":80,
-        "owner":"S3_Run1",
-        "project":"S3_Run1_Rosie",
+        "owner":"SC_MT_IUE1_2",
+        "project":"SC_MT22_IUE1_2_PlungeLowicryl",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    'input_stack':'Stitched_GFP',
+    'input_stack':'Stitched_DAPI_1',
     'prealigned_stack': 'Stitched_DAPI_1_dropped',
-    'lowres_stack':'Stitched_DAPI_1_Lowres_RoughAlign',
-    'output_stack':'Rough_Aligned_GFP',
-    'tilespec_directory':'/nas2/data/S3_Run1_Rosie/processed/RoughAlign',
+    'lowres_stack':'Stitched_DAPI_1_Lowres_RoughAlign3',
+    'output_stack':'Rough_Aligned_DAPI_1',
+    'tilespec_directory':'/nas3/data/SC_MT22_IUE1_2_PlungeLowicryl/processed/RoughAlign',
     'pool_size':5,
 	'scale': 0.05
 }
@@ -53,65 +53,72 @@ def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir
     z = Z[0]; newz = Z[1]
     
     try: 
-		print "A"
+		#highres_ts = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
 		lowres_ts = renderapi.tilespec.get_tile_specs_from_z(lowres_stack,newz,render=render)
-		#highres_ts = renderapi.tilespec.get_tile_spec(stack,lowres_ts[0].tileId,render=render)		
-		highres_ts = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)[0]		
-		tforms = lowres_ts[0].tforms
-		print "B"
-		d = tforms[0].to_dict()
-                dsList = d['dataString'].split()
-                v0 = float(dsList[0])*scale
-                v1 = float(dsList[1])*scale
-                v2 = float(dsList[2])*scale
-                v3 = float(dsList[3])*scale
-                v4 = float(dsList[4])          
-                v5 = float(dsList[5]) 
-                d['dataString'] = "%f %f %f %f %s %s"%(v0,v1,v2,v3, v4,v5)
-                tforms[0].from_dict(d)
-		print "C"
-		stackbounds = renderapi.stack.get_bounds_from_z(stack,z,render=render)
-                prestackbounds = renderapi.stack.get_bounds_from_z(prealigned_stack,z,render=render)
-                tx =  int(stackbounds['minX']) - int(prestackbounds['minX'])
-                ty =  int(stackbounds['minY']) - int(prestackbounds['minY'])
-		print "D"
-		tforms1 = highres_ts.tforms
-                d = tforms1[0].to_dict()
-                dsList = d['dataString'].split()
-                v0 = 1.0
-                v1 = 0.0
-                v2 = 0.0
-                v3 = 1.0
-                v4 = tx          
-                v5 = ty 
-                d['dataString'] = "%f %f %f %f %s %s"%(v0,v1,v2,v3, v4,v5)
-                tforms1[0].from_dict(d)
+		highres_ts = renderapi.tilespec.get_tile_specs(stack,lowres_ts.tileId,render=render)		
 
-		print "E"
+		#stackbounds = renderapi.stack.get_bounds_from_z(stack,z,render=render)
+		#prestackbounds = renderapi.stack.get_bounds_from_z(prealigned_stack,z,render=render)
+		
+		#tx =  int(stackbounds['minX']) - int(prestackbounds['minX'])
+		#ty =  int(stackbounds['minY']) - int(prestackbounds['minY'])
+		#tx1 = int(stackbounds['maxX']) - int(prestackbounds['maxX'])
+                #ty1 =  int(stackbounds['maxY']) - int(prestackbounds['maxY'])
+		
+		tforms = lowres_ts[0].tforms
 
 		#invert orig transformations
-		#tform_orig = highres_ts.tforms
-		#tform_orig_inv = list(tform_orig)
-		#tform_orig_inv.reverse()
-		#tform_orig_inv = [tf.invert() for tf in tform_orig_inv]
+		tform_orig = highres_ts.tforms
+		tform_orig_inv = list(tform_W_to_R)
+		tform_orig_inv.reverse()
+		tform_orig_inv = [tf.invert() for tf in tform_orig_inv]
+
+
 		#final tform
-		#ftform = tform_orig_inv + tforms
-		ftform = tforms1 + tforms
-		print "F"
+		ftform = tform_orig_inv + tforms
+
+		#first append translation
+		#d = tforms[0].to_dict()
+                #dsList = d['dataString'].split()
+                #v0 = 1.0
+                #v1 = 0.0
+                #v2 = 0.0
+                #v3 = 1.0
+                #v4 = tx           
+                #v5 = ty 
+                #d['dataString'] = "%f %f %f %f %s %s"%(v0,v1,v2,v3, v4,v5)
+                #print d['dataString']
+		
+                #tforms[0].from_dict(d)		
+
+
+
+
+		#next append alignment	
+		#d = tforms[0].to_dict()
+		#dsList = d['dataString'].split()
+		#v0 = float(dsList[0])*scale
+		#v1 = float(dsList[1])*scale
+		#v2 = float(dsList[2])*scale
+		#v3 = float(dsList[3])*scale
+		#v4 = float(dsList[4]) 		
+		#v5 = float(dsList[5]) 
+		#d['dataString'] = "%f %f %f %f %s %s"%(v0,v1,v2,v3, v4,v5)
+		#print d['dataString']
+		#tforms[1].from_dict(d)
+		
+		
+		
+		
 		allts = []
-		highres_ts1 = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
-		for t in highres_ts1:
-			print "f1"
-			t.tforms.append(ftform)
-			print "f2" 
+		for t in highres_ts:
+			t.tforms.append(ftforms) 
 			d1 = t.to_dict()
-			print "f3"
-			print d1['mipmapLevels'][0]['imageUrl']
 			d1['z'] = newz
 			t.from_dict(d1)
 			allts.append(t)
-			print d1
-    		print "G"
+		
+    
 		tilespecfilename = os.path.join(output_dir,'tilespec_%04d.json'%newz)
 		print tilespecfilename
 		fp = open(tilespecfilename,'w')
