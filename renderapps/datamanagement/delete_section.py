@@ -22,7 +22,7 @@ example_parameters={
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
     'input_stack':'Registered_DAPI2',
-    'section_z': 302
+    'section_z': 301
 }
 
 class DeleteSectionParameters(RenderParameters):
@@ -54,5 +54,6 @@ class DeleteSection(RenderModule):
 
 
 if __name__ == "__main__":
-    mod = DeleteSection(input_data=example_parameters)
+    #mod = DeleteSection(input_data=example_parameters)
+    mod = DeleteSection(schema_type = DeleteSectionParameters)
     mod.run()

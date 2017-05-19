@@ -18,12 +18,12 @@ example_parameters={
         "host":"ibs-forrestc-ux1",
         "port":80,
         "owner":"S3_Run1",
-        "project":"S3_Run1_Rosie",
+        "project":"S3_Run1_Igor",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
     'input_stack':'Stitched_DAPI_1_dropped',
-    'output_stack':'Stitched_DAPI_1_Lowres',
-    'image_directory':'/nas2/data/S3_Run1_Rosie/processed/Low_res',
+    'output_stack':'Stitched_DAPI_1_Lowres_62_to_67',
+    'image_directory':'/nas3/data/S3_Run1_Igor/processed/Low_res',
     'pool_size':5,
 	'scale': 0.05
 }
@@ -142,5 +142,7 @@ class MakeDownsampleSectionStack(RenderModule):
 
 
 if __name__ == "__main__":
-    mod = MakeDownsampleSectionStack(input_data=example_parameters)
+    #mod = MakeDownsampleSectionStack(input_data=example_parameters)
+    mod = MakeDownsampleSectionStack(schema_type=MakeDownsampleSectionStackParameters)
+    
     mod.run()

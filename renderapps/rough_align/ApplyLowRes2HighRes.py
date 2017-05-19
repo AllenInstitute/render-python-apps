@@ -18,14 +18,14 @@ example_parameters={
         "host":"ibs-forrestc-ux1",
         "port":80,
         "owner":"S3_Run1",
-        "project":"S3_Run1_Rosie",
+        "project":"S3_Run1_Igor",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    'input_stack':'Stitched_GFP',
+    'input_stack':'Stitched_PSD95',
     'prealigned_stack': 'Stitched_DAPI_1_dropped',
-    'lowres_stack':'Stitched_DAPI_1_Lowres_RoughAlign',
-    'output_stack':'Rough_Aligned_GFP',
-    'tilespec_directory':'/nas2/data/S3_Run1_Rosie/processed/RoughAlign',
+    'lowres_stack':'Stitched_DAPI_1_Lowres_62_to_67_RoughAlign',
+    'output_stack':'Rough_Aligned_62_to_67_PSD95',
+    'tilespec_directory':'/nas3/data/S3_Run1_Igor/processed/RoughAlign',
     'pool_size':5,
 	'scale': 0.05
 }
@@ -151,5 +151,6 @@ class ApplyLowRes2HighRes(RenderModule):
 
 
 if __name__ == "__main__":
-    mod = ApplyLowRes2HighRes(input_data=example_parameters)
+    #mod = ApplyLowRes2HighRes(input_data=example_parameters)
+    mod = ApplyLowRes2HighRes(schema_type =ApplyLowRes2HighResParameters)
     mod.run()

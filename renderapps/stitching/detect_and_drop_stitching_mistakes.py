@@ -12,18 +12,18 @@ import sys
 
 #Modified by Sharmishtaa Seshamani
 
-example_json1={
+example_json={
         "render":{
             "host":"ibs-forrestc-ux1",
             "port":8080,
             "owner":"S3_Run1",
-            "project":"S3_Run1_Rosie",
+            "project":"S3_Run1_Igor",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
         "prestitchedStack":"Acquisition_DAPI_1",
         "poststitchedStack":"Stitched_DAPI_1",
         "outputStack":"Stitched_DAPI_1_dropped",
-        "jsonDirectory":"/nas2/data/S3_Run1_Rosie/processed/dropped",
+        "jsonDirectory":"/nas3/data/S3_Run1_Igor/processed/dropped",
         "edge_threshold":1843, #default
         "pool_size":20, #default
         "distance_threshold":50, #default
@@ -159,13 +159,9 @@ class DetectAndDropStitchingMistakes(RenderModule):
                                                     
 
 if __name__ == "__main__":
-	#json_file = sys.argv[1]
-	#print json_file
-	#with open(json_file) as json_data:
-	#	input_json = json.load(json_data)
-	#i_data = json.dumps(input_json)
 	
-	mod = DetectAndDropStitchingMistakes(input_data=i_data)
+	#mod = DetectAndDropStitchingMistakes(input_data=example_json)
+	mod = DetectAndDropStitchingMistakes(schema_type=DetectAndDropStitchingMistakesParameters)
 	mod.run()
 
   
