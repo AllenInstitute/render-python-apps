@@ -34,7 +34,7 @@ class StackTransferParameters(RenderTransferParameters):
     data_description = mm.fields.Str(required=False,default='file:',
         metadata={'description':'replace the ^.*: with this in the image url (default file:)'})
     replace_chars = mm.fields.Boolean(required=False,default=True,
-        metadata={'description':'replace %20 charactesr with spaces (default True)'})
+        metadata={'description':'replace perc20 charactesr with spaces (default True)'})
     remove_masks = mm.fields.Boolean(required=False,default=False,
         metadata={'description':'remove the masks (default False)'})
     upload_json = mm.fields.Boolean(required=False,default=True,
@@ -63,6 +63,7 @@ class StackTransfer(RenderTransfer):
                 stack_in,
                 z,
                 render=self.render_source)
+            self.logger.debug("found %d tilespecs"%len(tilespecs))
             for ts in tilespecs:
                 url = ts.ip.mipMapLevels[0].imageUrl
                 (precolon, postcolon) = url.split(':')
@@ -86,7 +87,7 @@ class StackTransfer(RenderTransfer):
                 tfiles.append(tfile)
         if self.args['upload_json']:
             self.render_target.run(renderapi.stack.create_stack,stack_out)
-            self.render_target.run(renderapi.client.import_jsonfiles_parallel(stack_out,tfile))
+            self.render_target.run(renderapi.client.import_jsonfiles_parallel,stack_out,tfiles)
             self.render_target.run(renderapi.stack.set_stack_state,stack_out,'COMPLETE')
                     # Clean up temp JSON files
             for filename in tfiles:
