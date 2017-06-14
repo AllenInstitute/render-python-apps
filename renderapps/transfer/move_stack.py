@@ -48,7 +48,6 @@ class StackTransfer(RenderTransfer):
             schema_type = StackTransferParameters
         super(StackTransfer,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
         stack_out = self.args.get('stack_out',self.args['stack_in']) 
         stack_in =self.args['stack_in']
 
@@ -63,7 +62,6 @@ class StackTransfer(RenderTransfer):
                 stack_in,
                 z,
                 render=self.render_source)
-            self.logger.debug("found %d tilespecs"%len(tilespecs))
             for ts in tilespecs:
                 url = ts.ip.mipMapLevels[0].imageUrl
                 (precolon, postcolon) = url.split(':')
