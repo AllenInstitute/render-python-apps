@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 
@@ -36,7 +36,7 @@ setup(name='render-python-apps',
       author='Sharmi Seshamani, Forrest Collman, Russel Torres, Eric Perlman, ',
       author_email='shtaa@gmail.com',
       url='https://github.com/sharmishtaa/render-python-apps',
-      packages=['renderapps'],
+      packages=find_packages(),
       install_requires=required,
       setup_requires=['flake8'],
       tests_require=test_required,
