@@ -237,8 +237,10 @@ def build_schema_arguments(schema, arguments=None, path=None):
                 arg['help'] = md['description']
 
             field_type = type(field)
-            if isinstance(field_type, mm.fields.List):
-                raise NotImplementedError("fields.List is not a supported type, YET")
+            if isinstance(field, mm.fields.List):
+                arg['nargs']='*'
+                arg['type']=FIELD_TYPE_MAP[type(field.container)]
+                #raise NotImplementedError("fields.List is not a supported type, YET")
             elif type(field) in FIELD_TYPE_MAP:
                 # it's a simple type, apply the mapping
                 arg['type'] = FIELD_TYPE_MAP[field_type]
