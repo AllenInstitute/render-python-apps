@@ -82,3 +82,7 @@ class CopyPointMatchesByFrame(RenderModule):
             self.args['input_stack'],
             self.args['output_stack'],
             self.args['pool_size'])
+        
+if __name__ == "__main__":
+    mod = CopyPointMatchesByFrame(input_data = example_parameters)
+    mod.run()
