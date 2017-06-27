@@ -60,7 +60,7 @@ class TilePair(mm.Schema):
     q = mm.fields.Nested(Tile, required=True)
 class TilePairFile(mm.Schema):
     renderParametersUrlTemplate = mm.fields.Str(required=True)
-    neighborPairs = mm.fields.List(TilePair)
+    neighborPairs = mm.fields.Nested(TilePair,many=True)
 
 def find_tile_pairs_in_radius(render,ts,z,dz,radius):
     pairs = []
@@ -114,7 +114,7 @@ class CreateTilePairsForSingleZ(RenderModule):
     def run(self):
         
         qp=self.args.get('queryParameters',{})
-        
+
         tile_pair_json = create_tile_pair_for_single_z(self.render,
                                                        self.args['stack'],
                                                        self.args['z'],
