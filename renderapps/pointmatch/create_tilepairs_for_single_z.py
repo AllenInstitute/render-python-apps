@@ -19,12 +19,12 @@ example_parameters={
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
     "stack":"Rough_Aligned_68_to_112_DAPI_1",
-    "tilepair_output":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-z{z}-dz{dz}.json",
+    "tilepair_output":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-z0-dz10.json",
     "queryParameters":{
-        "removeAllOption":"True",
+        "removeAllOption":"true",
         "minIntensity":0,
-        "maxIntensity":655000
-    }
+        "maxIntensity":65500
+    },
     "z":0,
     "dz":10,
     "radius":.1
@@ -84,7 +84,7 @@ def find_tile_pairs_in_radius(render,ts,z,dz,radius):
 
     return pairs
 
-def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20):
+def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20,queryParameters={}):
     tilespecs = render.run(renderapi.stack.get_tile_specs_from_z,stack,z)
     
     pairs = []
@@ -92,7 +92,16 @@ def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20):
         pairs.append(find_tile_pairs_in_radius(render,ts,z,dz,radius))
     
     pairfile = {}
-    pairfile['renderParametersUrlTemplate'] = 
+    template_url = "{baseDataUrl}/owner/{owner}}/project/{project}/stack/{stack}/tile/{id}/render-parameters"
+    template_url = template_url.replace("{owner}",render.DEFAULT_OWNER)
+    template_url = template_url.replace("{project}",render.DEFAULT_PROJECT)
+    template_url = template_url.replace("{stack}",stack)
+    if len(queryParameters.keys())>0:
+        template_url+="?"
+        for key in queryParameters.keys():
+            template_url+="%s=%s&"%(key,str(queryParameters[key]))
+
+    pairfile['renderParametersUrlTemplate'] = template_url
     pairfile['neighborPairs']=pairs
 
     return pairfile
@@ -104,16 +113,20 @@ class CreateTilePairsForSingleZ(RenderModule):
         super(CreateTilePairsForSingleZ,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
         
+        qp=self.args.get('queryParameters',{})
+        
         tile_pair_json = create_tile_pair_for_single_z(self.render,
                                                        self.args['stack'],
                                                        self.args['z'],
                                                        self.args['dz'],
                                                        self.args['radius'],
-                                                       self.args['pool_size'])
-        
+                                                       self.args['pool_size'],
+                                                       qp)
+        tile_pair_schema = TilePairFile()
+        tile_pair_json=tile_pair_schema.load(tile_pair_json)
         tilepair_output = self.args['tilepair_output'].replace('{z}','%d'%z).replace('{dz}'%dz)
         with open(tilepair_output,'w') as fp:
-            json.dump(tile_pair_json,fp)
+            json.dump(tile_pair_schema.dump(tile_pair_json),fp)
         
 if __name__ == "__main__":
     mod = CreateTilePairsForSingleZ(input_data=example_parameters)
