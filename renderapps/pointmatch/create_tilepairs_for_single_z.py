@@ -80,7 +80,7 @@ def find_tile_pairs_in_radius(render,stack,ts,z,dz,radius):
             for ts2 in paired:
                 ts2_geom = tilespec_to_bounding_box_polygon(ts2)
                 overlap = ts_geom.intersection(ts2_geom)
-                frac_overlap = overlap.area/ts.geom.area
+                frac_overlap = overlap.area/ts_geom.area
                 if frac_overlap>.25:
                     q = {}
                     q['id']=ts2.tileId
