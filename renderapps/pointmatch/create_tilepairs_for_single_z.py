@@ -51,7 +51,6 @@ class CreateTilePairsForSingleZParameters(RenderParameters):
     queryParameters = mm.fields.Nested(queryParameters,required=False,
         metadata={'description':'extra query parameters to add on to tilepair file if you have it'})
 
-
 class Tile(mm.Schema):
     groupId = mm.fields.Str(required=True)
     id = mm.fields.Str(required=True)
@@ -74,7 +73,7 @@ def find_tile_pairs_in_radius(render,ts,z,dz,radius):
 
     for z2 in range(z-dz,z+dz+1):
         if (z!=z2):
-            paired = render.run(renderapi.stack.get_tile_specs_from_box,stack,z,minx,miny,width,height)
+            paired = render.run(renderapi.stack.get_tile_specs_from_box,stack,z2,minx,miny,width,height)
             for ts2 in paired:
                 q = {}
                 q['id']=ts2.tileId
@@ -85,7 +84,7 @@ def find_tile_pairs_in_radius(render,ts,z,dz,radius):
     return pairs
 
 def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20,queryParameters={}):
-    tilespecs = render.run(renderapi.stack.get_tile_specs_from_z,stack,z)
+    tilespecs = render.run(renderapi.stack.get_tile_specs_for_z,stack,z)
     
     pairs = []
     for ts in tilespecs:
