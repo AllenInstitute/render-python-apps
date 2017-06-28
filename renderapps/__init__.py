@@ -16,6 +16,6 @@
 
 
 __all__ = ['cross_modal_registration', 'dataimport', 'materialize', 'pointmatch',
-           'module',
+           'module','shapely',
            'refactor', 'registration', 'section_polygons', 'stack',
            'stitching', 'tile', 'TrakEM2','transfer','wrinkle_detection']

@@ -8,6 +8,7 @@ import numpy as np
 import time
 import subprocess
 from ..module.render_module import RenderModule,RenderParameters
+from ..shapely import tilespec_to_bounding_box_polygon
 import marshmallow as mm
 
 example_parameters={
@@ -63,6 +64,8 @@ class TilePairFile(mm.Schema):
 
 def find_tile_pairs_in_radius(render,ts,z,dz,radius):
     pairs = []
+    ts_geom = tilespec_to_bounding_box_polygon(ts)
+
     width = ts.width*(1+2*radius)
     height = ts.height(1+2*radius)
     minx = ts.minx - ts.width*radius
@@ -75,11 +78,15 @@ def find_tile_pairs_in_radius(render,ts,z,dz,radius):
         if (z!=z2):
             paired = render.run(renderapi.stack.get_tile_specs_from_box,stack,z2,minx,miny,width,height)
             for ts2 in paired:
-                q = {}
-                q['id']=ts2.tileId
-                q['groupId']=ts2.layout.sectionId
-                pair = {'p':p,'q':q}
-                pairs.append(pair)
+                ts2_geom = tilespec_to_bounding_box_polygon(ts2)
+                overlap = ts_geom.intersection(ts2_geom)
+                frac_overlap = overlap.area/ts.geom.area
+                if frac_overlap>.25:
+                    q = {}
+                    q['id']=ts2.tileId
+                    q['groupId']=ts2.layout.sectionId
+                    pair = {'p':p,'q':q}
+                    pairs.append(pair)
 
     return pairs
 
@@ -87,7 +94,7 @@ def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20,qu
     tilespecs = render.run(renderapi.stack.get_tile_specs_for_z,stack,z)
     
     pairs = []
-    for ts in tilespecs:
+    for ts in tilespecs:            
         pairs.append(find_tile_pairs_in_radius(render,ts,z,dz,radius))
     
     pairfile = {}

@@ -5,6 +5,7 @@ import json
 import numpy as np
 import os
 from ..module.render_module import RenderTrakEM2Parameters, TrakEM2RenderModule
+from ..shapely import tilespec_to_bounding_box_polygon
 import marshmallow as mm
 from shapely import geometry
 import lxml.etree
@@ -139,13 +140,7 @@ def parse_area_lists(area_lists):
            
         json_output['area_lists'].append(area_list_d)
     return json_output
- 
-#function to convert a tilespec to a shapely polygon with its corners in global coordinates
-def tilespec_to_bounding_box_polygon(ts):
-    corners=np.array([[0,0],[0,ts.height],[ts.width,ts.height],[ts.width,0]])
-    for tform in ts.tforms:
-        corners=tform.tform(corners)
-    return geometry.Polygon(corners) 
+
 
 class ImportTrakEM2Annotations(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
