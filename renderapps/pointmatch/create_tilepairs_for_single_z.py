@@ -62,7 +62,7 @@ class TilePairFile(mm.Schema):
     renderParametersUrlTemplate = mm.fields.Str(required=True)
     neighborPairs = mm.fields.Nested(TilePair,many=True)
 
-def find_tile_pairs_in_radius(render,ts,z,dz,radius):
+def find_tile_pairs_in_radius(render,stack,ts,z,dz,radius):
     pairs = []
     ts_geom = tilespec_to_bounding_box_polygon(ts)
 
@@ -95,7 +95,7 @@ def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20,qu
     
     pairs = []
     for ts in tilespecs:            
-        pairs.append(find_tile_pairs_in_radius(render,ts,z,dz,radius))
+        pairs.append(find_tile_pairs_in_radius(render,stack,ts,z,dz,radius))
     
     pairfile = {}
     template_url = "{baseDataUrl}/owner/{owner}}/project/{project}/stack/{stack}/tile/{id}/render-parameters"
