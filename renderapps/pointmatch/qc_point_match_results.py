@@ -58,6 +58,34 @@ example_parameters={
 #    "figdir":"/nas3/data/S3_Run1_Jarvis/processed/matchfigures",
 #    "min_matches":5
 #}
+example_parameters={
+    "render":{
+        "host":"ibs-forrestc-ux1",
+        "port":80,
+        "owner":"S3_Run1",
+        "project":"S3_Run1_Jarvis",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "matchcollections":['S3_Run1_Jarvis_68_to_112_DAPI_1_highres_R1'],
+    "input_tilepairfile":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-10-655-694-nostitch-EDIT.json",
+    "output_tilepairfile":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-10-655-694-nostitch-QC.json",
+    "figdir":"/nas3/data/S3_Run1_Jarvis/processed/matchfigures",
+    "min_matches":5
+}
+example_parameters={
+    "render":{
+        "host":"ibs-forrestc-ux1",
+        "port":80,
+        "owner":"S3_Run1",
+        "project":"S3_Run1_Jarvis",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "matchcollections":['S3_Run1_Jarvis_68_to_112_DAPI_1_highres_R1'],
+    "input_tilepairfile":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-10-145-165-nostitch-EDIT.json",
+    "output_tilepairfile":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-10-145-165-nostitch-QC.json",
+    "figdir":"/nas3/data/S3_Run1_Jarvis/processed/matchfigures",
+    "min_matches":5
+}
 class QCPointMatchResultsParameters(RenderParameters):
     matchcollections = mm.fields.List(mm.fields.Str,required=True,
         metadata={'description':'list of match collections to analyze'})
