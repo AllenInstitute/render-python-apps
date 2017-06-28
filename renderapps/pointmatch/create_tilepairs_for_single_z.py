@@ -15,18 +15,18 @@ example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
-        "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
+        "owner":"S3_Run1",
+        "project":"S3_Run1_Jarvis",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "stack":"Rough_Aligned_68_to_112_DAPI_1",
-    "tilepair_output":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-z0-dz10.json",
+    "stack":"Rough_Aligned_68_to_112_DAPI_1_fullscale_CONS",
+    "tilepair_output":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-z135-dz10.json",
     "queryParameters":{
         "removeAllOption":"true",
         "minIntensity":0,
         "maxIntensity":65500
     },
-    "z":0,
+    "z":315,
     "dz":10,
     "radius":.1
 }
