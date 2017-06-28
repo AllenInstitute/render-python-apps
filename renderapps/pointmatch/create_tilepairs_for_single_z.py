@@ -128,11 +128,9 @@ class CreateTilePairsForSingleZ(RenderModule):
                                                        self.args['radius'],
                                                        self.args['pool_size'],
                                                        qp)
-        tile_pair_schema = TilePairFile()
-        tile_pair_json=tile_pair_schema.load(tile_pair_json)
-        tilepair_output = self.args['tilepair_output'].replace('{z}','%d'%z).replace('{dz}'%dz)
-        with open(tilepair_output,'w') as fp:
-            json.dump(tile_pair_schema.dump(tile_pair_json),fp)
+
+        with open(self.args['tilepair_output'],'w') as fp:
+            json.dump(tile_pair_json,fp)
         
 if __name__ == "__main__":
     mod = CreateTilePairsForSingleZ(input_data=example_parameters)
