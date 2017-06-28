@@ -76,7 +76,7 @@ def find_tile_pairs_in_radius(render,ts,z,dz,radius):
 
     for z2 in range(z-dz,z+dz+1):
         if (z!=z2):
-            paired = render.run(renderapi.stack.get_tile_specs_from_box,stack,z2,minx,miny,width,height)
+            paired = render.run(renderapi.tilespec.get_tile_specs_from_box,stack,z2,minx,miny,width,height)
             for ts2 in paired:
                 ts2_geom = tilespec_to_bounding_box_polygon(ts2)
                 overlap = ts_geom.intersection(ts2_geom)
@@ -91,7 +91,7 @@ def find_tile_pairs_in_radius(render,ts,z,dz,radius):
     return pairs
 
 def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20,queryParameters={}):
-    tilespecs = render.run(renderapi.stack.get_tile_specs_for_z,stack,z)
+    tilespecs = render.run(renderapi.tilespec.get_tile_specs_for_z,stack,z)
     
     pairs = []
     for ts in tilespecs:            
