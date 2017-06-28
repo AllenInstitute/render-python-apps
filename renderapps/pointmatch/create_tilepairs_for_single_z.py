@@ -69,7 +69,7 @@ def find_tile_pairs_in_radius(render,ts,z,dz,radius):
     width = ts.width*(1+2*radius)
     height = ts.height*(1+2*radius)
     minX = ts.minX - ts.width*radius
-    minY = tx.minY - ts.width*radius
+    minY = ts.minY - ts.width*radius
     p = {}
     p['id']=ts.tileId
     p['groupId']=ts.layout.sectionId
