@@ -91,7 +91,7 @@ def find_tile_pairs_in_radius(render,ts,z,dz,radius):
     return pairs
 
 def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20,queryParameters={}):
-    tilespecs = render.run(renderapi.tilespec.get_tile_specs_for_z,stack,z)
+    tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
     
     pairs = []
     for ts in tilespecs:            
