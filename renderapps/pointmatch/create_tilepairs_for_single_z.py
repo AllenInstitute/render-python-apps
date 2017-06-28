@@ -20,7 +20,7 @@ example_parameters={
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
     "stack":"Rough_Aligned_68_to_112_DAPI_1_fullscale_CONS",
-    "tilepair_output":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-z135-dz10.json",
+    "tilepair_output":"/nas4/data/S3_Run1_Jarvis/processed/tilepairfiles1/tilepairs-z315-dz10.json",
     "queryParameters":{
         "removeAllOption":"true",
         "minIntensity":0,
@@ -45,6 +45,8 @@ class CreateTilePairsForSingleZParameters(RenderParameters):
         metadata={'description':'z value to create tilepairs that include'})
     dz = mm.fields.Int(required=False,default=10,
         metadata ={'description':'number of sections away to include in tilepair'})
+    tilepair_output = mm.fields.Str(required=True,
+        metadata = {'description':'path to save tilepair file output'})
     radius = mm.fields.Float(required=False,default=.1,
         metadata={'description':'fraction of tile radius to look for pairs'})
     pool_size = mm.fields.Int(required=False,default=20,
