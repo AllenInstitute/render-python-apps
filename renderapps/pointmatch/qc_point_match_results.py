@@ -182,7 +182,7 @@ def define_connected_components_by_section(render,tilepairjson,match_numbers,min
 
     zvalues = {}
     with renderapi.client.WithPool(pool_size) as pool:
-        mypartial = partial(renderapi.stack.get_z_value_for_section,stack,render=render)
+        mypartial = partial(renderapi.stack.get_section_z_value,stack,render=render)
         zs = pool.map(mypartial,G.nodes())
     for node,z in zip(G.nodes(),zs):
         zvalues[node]=z
