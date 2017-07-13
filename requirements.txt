@@ -9,3 +9,4 @@ shapely
 rtree
 networkx
 pandas
+json_module
