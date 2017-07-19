@@ -1,21 +1,17 @@
-from renderapi.transform  import AffineModel
-from renderapi.tilespec import TileSpec,Layout
 import numpy as np
 
-import json
 import glob
 import renderapi
 from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import Str
 
-
-import marshmallow as mm
 
 class UploadChannelTileSpecParameters(RenderParameters):
-    inputDir = mm.fields.Str(required=True,
+    inputDir = Str(required=True,
         metadata={'description':'directory to upload'})
-    outputStack = mm.fields.Str(required=True,
+    outputStack = Str(required=True,
         metadata={'description':'directory to upload'})
-    channel = mm.fields.Str(required=True,
+    channel = Str(required=True,
         metadata={'description':'directory to upload'})
 
 class UploadChannelModule(RenderModule):
@@ -32,7 +28,7 @@ class UploadChannelModule(RenderModule):
         print str
 
         jsonfiles = sorted(glob.glob(str))
-        print jsonfiles       
+        print jsonfiles
         renderapi.stack.create_stack(self.args['outputStack'],render=self.render)
         renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],jsonfiles,render=self.render)
 

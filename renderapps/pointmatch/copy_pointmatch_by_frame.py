@@ -4,8 +4,7 @@ from functools import partial
 import pathos.multiprocessing as mp
 import os
 from ..module.render_module import RenderModule, RenderParameters
-from json_module import InputFile,InputDir
-import marshmallow as mm
+from argschema.fields import InputFile, InputDir, Str, Int
 import json
 
 
@@ -49,7 +48,7 @@ def copy_point_matches_by_frame(render,
         qid = match0['qid']
         pid2 = find_corresponding_tile(render, psection, pid, input_stack, output_stack)
         deltId = int(pid2)-int(pid)
-        
+
         for match in matches:
             match['pid']=str(int(match['pid'])+deltId)
             match['qid']=str(int(match['qid'])+deltId)
@@ -57,16 +56,16 @@ def copy_point_matches_by_frame(render,
 
 
 class CopyPointMatchesByFrameParameters(RenderParameters):
-    input_matchcollection = mm.fields.Str(required=True,
+    input_matchcollection = Str(required=True,
         metadata={'description':'match collection to copy point matches from'})
-    output_matchcollection = mm.fields.Str(required=True,
+    output_matchcollection = Str(required=True,
         metadata={'description':'match collection to copy point matches to'})
-    input_stack = mm.fields.Str(required=True,
+    input_stack = Str(required=True,
         metadata={'stack with tiles that input_matchcollection came from'})
-    output_stack = mm.fields.Str(required=True,
+    output_stack = Str(required=True,
         metadata={'description':'stack with tiles that you want to save point matches into\
         matching on the frame number (array tomography specific)'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
 class CopyPointMatchesByFrame(RenderModule):
@@ -82,7 +81,7 @@ class CopyPointMatchesByFrame(RenderModule):
             self.args['input_stack'],
             self.args['output_stack'],
             self.args['pool_size'])
-        
+
 if __name__ == "__main__":
     mod = CopyPointMatchesByFrame(input_data = example_parameters)
     mod.run()

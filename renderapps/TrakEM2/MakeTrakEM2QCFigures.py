@@ -1,8 +1,7 @@
 import numpy as np
-from json_module import JsonModule, ModuleParameters, InputFile
+import argschema
 import renderapi
 import json
-import numpy as np
 import os
 import matplotlib
 matplotlib.use('Agg')
@@ -17,7 +16,7 @@ def merge_bounding_box(box1,box2):
         return box2
     if box2 is None:
         return box1
-    
+
     outbox = {}
     for dim in ['X','Y','Z']:
         field = 'min'+dim
@@ -55,7 +54,7 @@ def make_plot(area_lists,overallbbox,subdir,dzs,ki):
     #if volumes[k]>.1:
     f,ax = plt.subplots(1,1,figsize=(14,14))
     #print bboxes[i]
-    
+
     if dzs[k]>10:
         c='r-x'
     else:
@@ -72,17 +71,17 @@ def make_plot(area_lists,overallbbox,subdir,dzs,ki):
     ax.set_xlim([overallbbox['minX'],overallbbox['maxX']])
     ax.set_ylim([-overallbbox['maxY'],-overallbbox['minY']])
     f.savefig(os.path.join(subdir,'%07d.png'%i))
-    
+
     f.clf()
     plt.close()
 
-class MakeTrakEM2QCFiguresParameters(ModuleParameters):
-    annotationFile = InputFile(required=True,metadata={'description':'name of stack to with annotations'})
-    outputDir = mm.fields.Str(required=True,metadata={'description':'name of the directory to save files'})
-    pool_size = mm.fields.Int(required=False,default=20,
+class MakeTrakEM2QCFiguresParameters(argschema.schemas.ArgSchema):
+    annotationFile = argschema.fields.InputFile(required=True,metadata={'description':'name of stack to with annotations'})
+    outputDir = argschema.fields.Str(required=True,metadata={'description':'name of the directory to save files'})
+    pool_size = argschema.fields.Int(required=False,default=20,
         metadata={'description':'degree of parallelism to use'})
 
-class MakeTrakEM2QCFigures(JsonModule):
+class MakeTrakEM2QCFigures(argschema.ArgSchemaParser):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = MakeTrakEM2QCFiguresParameters
@@ -101,20 +100,20 @@ class MakeTrakEM2QCFigures(JsonModule):
 
         area_lists = json_output['area_lists']
         #calculate the bounding boxes
-        bboxes= []    
+        bboxes= []
         volumes = np.zeros(len(area_lists))
         dzs = np.zeros(len(area_lists))
         overallbbox = None
         for i,al in enumerate(area_lists):
             bbox = None
             points = None
-            
+
             for area in al['areas']:
                 for path in area['paths']:
                     p = path['orig_path']
                     pathbox = get_box_of_path(path)
                     bbox=merge_bounding_box(bbox,pathbox)
-            
+
             bboxes.append(bbox)
             volumes[i]=box_volume(bbox)/(1000*1000*1000)
             dzs[i] = bbox['maxZ']-bbox['minZ']
@@ -135,4 +134,3 @@ class MakeTrakEM2QCFigures(JsonModule):
 if __name__ == "__main__":
     mod = MakeTrakEM2QCFigures(input_data= parameters)
     mod.run()
-

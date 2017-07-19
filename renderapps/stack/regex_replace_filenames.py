@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 import renderapi
-from renderapi.transform import AffineModel
-import json
-from ..module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
 from functools import partial
 import tempfile
-import marshmallow as mm
 import os
 import re
-#An example set of parameters for this module
+from argschema.fields import Str, Int
+
+# An example set of parameters for this module
 example_parameters = {
 	"render":{
 		"host":"em-131fs",
@@ -25,11 +24,11 @@ example_parameters = {
 
 
 class ReplaceFileNameParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,metadata={'description':'stack to apply affine to'})
-    output_stack = mm.fields.Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
-    regex_find = mm.fields.Str(required=True,metadata={'description':'regular expression to search for in imageUrl'})
-    regex_replace = mm.fields.Str(required=True,metadata={'description':'regular expression replacement string'})
-    pool_size = mm.fields.Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+    input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
+    output_stack = Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
+    regex_find = Str(required=True,metadata={'description':'regular expression to search for in imageUrl'})
+    regex_replace = Str(required=True,metadata={'description':'regular expression replacement string'})
+    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
 
 class ReplaceFileNames(RenderModule):
     def __init__(self,*args,**kwargs):

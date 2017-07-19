@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import renderapi
-from ..module.render_module import RenderModule,RenderParameters
-import marshmallow as mm
+from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import Str
 
 #An example set of parameters for this module
 example_parameters = {
@@ -16,8 +16,8 @@ example_parameters = {
     'output_stack':'ALIGNEM_reg2_clahe'
 }
 class CopyMetaDataParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,metadata={'description':'stack to copy from'})
-    output_stack = mm.fields.Str(required=True,metadata={'description':'stack to copy to'})
+    input_stack = Str(required=True,metadata={'description':'stack to copy from'})
+    output_stack = Str(required=True,metadata={'description':'stack to copy to'})
 
 class CopyMetaDataModule(RenderModule):
     def __init__(self,*args,**kwargs):

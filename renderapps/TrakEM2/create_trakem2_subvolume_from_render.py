@@ -1,17 +1,12 @@
 #!/usr/bin/env python
 import os
-import sys
 #sys.path.insert(0,'/data/array_tomography/ImageProcessing/render-python/')
 #sys.path.insert(0,'/nas3/data/M270907_Scnn1aTg2Tdt_13/scripts_ff/')
 import renderapi
-import logging
-from renderapi.utils import stripLogger
-import argparse
-from ..TrakEM2.trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
-import json
+from ..TrakEM2.trakem2utils import (createchunks, createheader, createproject,
+                                    createlayerset, createfooters,
+                                    createlayer_fromtilespecs, Chunk)
 from ..module.render_module import RenderModule, RenderParameters, TEM2ProjectTransfer
-import json_module
-import marshmallow as mm
 import numpy as np
 
 
@@ -78,9 +73,9 @@ class CreateTrakEM2Project(RenderModule):
             #create layerset
             createlayerset(outfile,width=(self.args['maxX']-self.args['minX']),height=(self.args['maxY']-self.args['minY']))
             #add layers
-            
+
             for layerid in range(x.first, x.last+1):
-                print "This is layerid:"        
+                print "This is layerid:"
                 print layerid
                 tilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(
                         self.args['inputStack'],
@@ -92,7 +87,7 @@ class CreateTrakEM2Project(RenderModule):
                         render=self.render)
                 print "Now adding layer: %d \n %d tiles"%(layerid,len(tilespecs))
                 createlayer_fromtilespecs(tilespecs, outfile,layerid,shiftx=-self.args['minX'],shifty=-self.args['minY'])
-                    
+
             #footers
             print outfile
             createfooters(outfile)

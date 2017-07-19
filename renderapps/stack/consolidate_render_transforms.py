@@ -1,14 +1,10 @@
 import numpy as np
 from renderapi.transform import AffineModel
-import json
 from functools import partial
-import argparse
-from renderapi.utils import stripLogger
 import os
 import renderapi
 from ..module.render_module import RenderModule, RenderParameters
-from json_module import InputFile, InputDir
-import marshmallow as mm
+from argschema.fields import InputFile, InputDir, Str, Int
 
 example_json={
     "render":{
@@ -22,13 +18,13 @@ example_json={
     "pool_size":20
 }
 class ConsolidateTransformsParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = Str(required=True,
         metadata={'description':'stack to consolidate'})
-    postfix = mm.fields.Str(required=False, default="_CONS",
+    postfix = Str(required=False, default="_CONS",
         metadata={'description':'postfix to add to stack name on saving if no output defined (default _CONS)'})
-    output_stack = mm.fields.Str(required=False,
+    output_stack = Str(required=False,
         metadata={'description':'name of output stack (default to adding postfix to input)'})
-    pool_size = mm.fields.Int(required=False, default=20,
+    pool_size = Int(required=False, default=20,
         metadata={'description':'name of output stack (default to adding postfix to input)'})
 
 def consolidate_transforms(tforms, logger, makePolyDegree=0):
@@ -62,7 +58,7 @@ def consolidate_transforms(tforms, logger, makePolyDegree=0):
         else:
             new_tform_list.append(tform_total)
     return new_tform_list
-        
+
 def process_z_make_json(r, logger, json_dir, z):
     tilespecs = r.run(renderapi.tilespec.get_tile_specs_from_z, stack, z)
 
@@ -100,10 +96,8 @@ class ConsolidateTransforms(RenderModule):
         r.run(renderapi.stack.delete_stack,outstack)
         r.run(renderapi.stack.create_stack,outstack)
         r.run(renderapi.client.import_jsonfiles_parallel, outstack, json_files)
-        
+
 
 if __name__ == "__main__":
     mod = ConsolidateTransforms(input_data=example_json)
     mod.run()
-
-    

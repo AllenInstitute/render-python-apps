@@ -1,11 +1,10 @@
 import renderapi
 import numpy as np
 from functools import partial
-import os
-from shapely import geometry
 import logging
 from renderapi.transform import AffineModel
-from ..module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import Str, Int
 
 example_json = {
         "render":{
@@ -26,23 +25,23 @@ example_json = {
 }
 
 class ApplyAlignmentFromRegisteredStackParametersBase(RenderParameters):
-    prealigned_stack = mm.fields.Str(required=True,
+    prealigned_stack = Str(required=True,
         metadata={'description':'stack has same tiles as aligned stack but is registered with source_stack(s) example'})
-    postaligned_stack = mm.fields.Str(required=True,
+    postaligned_stack = Str(required=True,
         metadata={'description':'stack has same tiles as prealignedstack stack but is in the desired aligned space'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'degree of parallelism (default 20)'})
-    stackResolutionX = mm.fields.Int(required=False,default=1,
+    stackResolutionX = Int(required=False,default=1,
         metadata={'description':'X stack resolution (nm)  to save in output stack (default use source stack)'})
-    stackResolutionY = mm.fields.Int(required=False,default=1,
+    stackResolutionY = Int(required=False,default=1,
         metadata={'description':'Y stack resolution (nm)  to save in output stack (default use source stack)'})
-    stackResolutionZ = mm.fields.Int(required=False,default=1,
+    stackResolutionZ = Int(required=False,default=1,
         metadata={'description':'Z stack resolution (nm) to save in output stack (default use source stack)'})
 
 class ApplyAlignmentFromRegisteredStackParameters(ApplyAlignmentFromRegisteredStackParametersBase):
-    source_stack = mm.fields.Str(required=True,
+    source_stack = Str(required=True,
         metadata={'description':'stack that is registered with prealignedstack, but which you want to re-express in the space of postalignedstack'})
-    output_stack = mm.fields.Str(required=True,
+    output_stack = Str(required=True,
         metadata={'description':'name to call output stack version of source stack'})
 
 logger = logging.getLogger(__name__)

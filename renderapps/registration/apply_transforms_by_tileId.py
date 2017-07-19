@@ -1,10 +1,8 @@
 import renderapi
-import json
 from functools import partial
 import tempfile
 from ..module.render_module import RenderModule,RenderParameters
-import os
-import marshmallow as mm
+from argchema.fields import Str, Int
 
 # "Apply set of alignmnet transformations derived by EM aligner \
 #         or any alignmnet pipeline where there are seperate transforms for every tile, \
@@ -29,13 +27,13 @@ example_json={
     }
 
 class ApplyTransformParameters(RenderParameters):
-    alignedStack = mm.fields.Str(required=True,
+    alignedStack = Str(required=True,
         metadata={'description':'stack whose transforms you want to copy'})
-    inputStack = mm.fields.Str(required=True,
+    inputStack = Str(required=True,
         metadata={'description':'stack you want to apply transforms to'})
-    outputStack = mm.fields.Str(required=True,
+    outputStack = Str(required=True,
         metadata={'description':'stack name to save result'})
-    pool_size =  mm.fields.Int(required=True,default=20,
+    pool_size =  Int(required=True,default=20,
         metadata={'description':'number of parallel threads'})
 
 #define a function for a single z value

@@ -9,8 +9,7 @@ import pathos.multiprocessing as mp
 from matplotlib.patches import FancyArrowPatch, Circle, ConnectionStyle
 import os
 from ..module.render_module import RenderModule, RenderParameters
-from json_module import InputFile,InputDir
-import marshmallow as mm
+from argschema.fields import InputFile, InputDir, List, Str, Int
 import json
 import networkx as nx
 
@@ -59,17 +58,17 @@ example_parameters={
 #    "min_matches":5
 #}
 class QCPointMatchResultsParameters(RenderParameters):
-    matchcollections = mm.fields.List(mm.fields.Str,required=True,
+    matchcollections = List(Str,required=True,
         metadata={'description':'list of match collections to analyze'})
-    input_tilepairfile = InputFile(required=True, 
+    input_tilepairfile = InputFile(required=True,
         metadata = {'description':'file path of tile pair file to qc'})
-    output_tilepairfile = mm.fields.Str(required=True,
+    output_tilepairfile = Str(required=True,
         metadata = {'description':'file path of where to save the tile pair file to qc'})
-    figdir = mm.fields.Str(required=True,
+    figdir = Str(required=True,
         metadata={'description':'directory to save images'})
-    min_matches = mm.fields.Int(required=False,default=5,
+    min_matches = Int(required=False,default=5,
         metadata={'description':'number of matches between tiles to be considered a valid match'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
 def make_plot(r,matchcollection,zvalues,figdir,item):
@@ -138,7 +137,7 @@ def check_pair(render,matchcollections,pair):
         return 0
 
 def get_bad_pairs(render,tilepairjson,matchcollections,min_matches,pool_size=20):
-    
+
     stack= tilepairjson['renderParametersUrlTemplate'].split('/')[6]
 
     zvals = np.array(render.run(renderapi.stack.get_z_values_for_stack,stack))
@@ -194,7 +193,7 @@ def define_connected_components_by_section(render,tilepairjson,match_numbers,min
     for i,sG in enumerate(subgraphs):
         zs = np.array([G.node[node]['z'] for node in sG])
         print np.min(zs),'-',np.max(zs)
-    
+
 class QCPointMatchResults(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
@@ -204,7 +203,7 @@ class QCPointMatchResults(RenderModule):
     def run(self):
         with open(self.args['input_tilepairfile'],'r') as fp:
             tilepairjson = json.load(fp)
-    
+
         bad_tilepairjson,match_numbers = get_bad_pairs(self.render,
             tilepairjson,
             self.args['matchcollections'],
@@ -223,9 +222,8 @@ class QCPointMatchResults(RenderModule):
         #if not os.path.isdir(figdir):
         #     os.makedirs(figdir)
 
- 
-        
+
+
 if __name__ == "__main__":
     mod = QCPointMatchResults(input_data = example_parameters)
     mod.run()
-

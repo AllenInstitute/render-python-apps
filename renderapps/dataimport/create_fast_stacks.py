@@ -1,17 +1,11 @@
-import argparse
-import json
 import os
-import subprocess
-import copy
 import renderapi
-from renderapi.tilespec import TileSpec,Layout,MipMapLevel
+from renderapi.tilespec import TileSpec, Layout, MipMapLevel
 from renderapi.transform import AffineModel
 from create_mipmaps import create_mipmaps
 my_env = os.environ.copy()
-from itertools import izip_longest
-from ..module.render_module import RenderModule,RenderParameters
-from json_module import InputFile,InputDir
-import marshmallow as mm
+from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import InputFile, InputDir, Str, Int
 import pandas as pd
 
 class CreateFastStacksParameters(RenderParameters):
@@ -19,9 +13,9 @@ class CreateFastStacksParameters(RenderParameters):
         metadata={'description':'state table file'})
     projectDirectory = InputDir(required=True,
         metadata={'description':'path to project root'})
-    outputStackPrefix = mm.fields.Str(required=False,default="ACQ",
+    outputStackPrefix = Str(required=False,default="ACQ",
         metadata={'description':'prefix to include in front of channel name for render stack'})
-    pool_size = mm.fields.Int(require=False,default=20,
+    pool_size = Int(require=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
 def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputStack,minval=0,maxval=50000):
@@ -136,7 +130,7 @@ class CreateFastStack(RenderModule):
                 self.logger.info("creating downsampled images ...")
                 with renderapi.client.WithPool(self.args['pool_size']) as pool:
                     results=pool.map(create_mipmap_from_tuple,mipmap_args)
-    
+
                 #groups = [(subprocess.Popen(cmd,\
                 # stdout=subprocess.PIPE) for cmd in cmds)] \
                 # * self.args['pool_size'] # itertools' grouper recipe

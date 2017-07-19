@@ -1,7 +1,7 @@
 import renderapi
 import numpy as np
-import marshmallow as mm
-from ..module.render_module import RenderModule,RenderParameters
+from argschema.fields import Str, Int, Float
+from ..module.render_module import RenderModule, RenderParameters
 from functools import partial
 import os
 import tifffile
@@ -30,32 +30,32 @@ parameters={
 }
 
 class RenderStackParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = Str(required=True,
         metadata={'description':'stack to render'})
-    channel = mm.fields.Str(required=False,
+    channel = Str(required=False,
         metadata={'description':'name to use instead of stack to name files/directories'})
-    minX = mm.fields.Int(required=False,
+    minX = Int(required=False,
         metadata={'description':'minimum X of box (else default to stack bounds)'})
-    minY = mm.fields.Int(required=False,
+    minY = Int(required=False,
         metadata={'description':'minimum Y of box (else default to stack bounds)'})
-    width = mm.fields.Int(required=False,
+    width = Int(required=False,
         metadata={'description':'width of box (else default to stack bounds)'})
-    height = mm.fields.Int(required=False,
+    height = Int(required=False,
         metadata={'description':'height of box (else default to stack bounds)'})
-    scale = mm.fields.Float(required=False,default=1.0,
+    scale = Float(required=False,default=1.0,
         metadata={'description':'scale to render (default is 1.0)'})
-    minZ = mm.fields.Int(required=False,
+    minZ = Int(required=False,
         metadata={'description':'minimum Z to use to render (default to stack bounds)'})
-    maxZ = mm.fields.Int(required=False,
+    maxZ = Int(required=False,
         metadata={'description':'maximum Z to use to render (default to stack bounds)'})
-    minIntensity = mm.fields.Int(required=False,default=0,
+    minIntensity = Int(required=False,default=0,
         metadata={'description':'minimum Intensity used to render tiles(default to 0)'})
-    maxIntensity = mm.fields.Int(required=False,default=65535,
+    maxIntensity = Int(required=False,default=65535,
         metadata={'description':'maximum Intensity used to render tiles(default to 65535)'})
 
-    volume_dir = mm.fields.Str(required=True,
+    volume_dir = Str(required=True,
         metadata={'description':'root folder to save images.. volume_dir/channel/channel_XXXXXX.tif'})
-    pool_size = mm.fields.Int(required=False,default=5,
+    pool_size = Int(required=False,default=5,
         metadata={'description':'degree of parallelism to use (default to 5)'})
 
 

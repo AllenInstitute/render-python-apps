@@ -1,16 +1,12 @@
-import tempfile
 import os
-import argparse
 import re
 
-import logging
-import renderapi
 import boto3
 import botocore
 
 from .transfer_module import RenderTransfer, RenderTransferParameters
 from .move_stack import StackTransfer
-import marshmallow as mm
+from argschema.fields import Str
 
 example_parameters={
     "source_render":{
@@ -33,15 +29,15 @@ example_parameters={
     "upload_json": "true",
     "upload_data": "true",
     "check_only": "false"
-} 
+}
 
 
 class MoveStackAndDataToS3Parameters(RenderTransferParameters):
-    example = mm.fields.Str(required=True,
+    example = Str(required=True,
         metadata={'description':'an example'})
-    default_val = mm.fields.Str(required=False,default="a default value",
+    default_val = Str(required=False,default="a default value",
         metadata={'description':'an example with a default'})
-    
+
 
 
 class MoveStackAndDataToS3(RenderTransfer):
@@ -52,18 +48,18 @@ class MoveStackAndDataToS3(RenderTransfer):
     def run(self):
         print self.args
         self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
-        
-        stack_move_params = dict(self.args)      
+
+        stack_move_params = dict(self.args)
         stack_move_params.pop('upload_data')
         stack_move_params.pop('check_only')
         stack_move_params['replace_chars']=True
-        stack_move_params['remove_masks']=True   
+        stack_move_params['remove_masks']=True
         submod = StackTransfer(input_data = stack_move_params,args=[])
         datalist=submod.run()
-        
+
         if self.args['upload_data']:
             self.upload_to_s3(datalist)
-        
+
     def upload_to_s3(self,datalist):
         s3 = boto3.resource('s3')
         bucket_name = re.match(r's3://([^/]*).*', self.args['data_description']).group(1)
@@ -97,5 +93,3 @@ class MoveStackAndDataToS3(RenderTransfer):
 if __name__ == "__main__":
     mod = MoveStackAndDataToS3(input_data= example_parameters)
     mod.run()
-
-

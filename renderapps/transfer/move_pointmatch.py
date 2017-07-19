@@ -1,10 +1,9 @@
-
-import os
 import renderapi
-from .transfer_module import RenderTransferParameters,RenderTransfer
-import marshmallow as mm
+from .transfer_module import RenderTransferParameters, RenderTransfer
 from functools import partial
+from argschema.fields import Str, Int
 import json
+
 example_parameters={
     "source_render":{
         'host':'ibs-forrestc-ux1',
@@ -22,15 +21,15 @@ example_parameters={
     },
     "collection_in" : 'ALIGNMBP_deconv',
     "collection_out" : 'ALIGNMBP_deconv',
-}      
+}
 
 
 class PointMatchTransferParameters(RenderTransferParameters):
-    collection_source = mm.fields.Str(required=True,
+    collection_source = Str(required=True,
         metadata={'description':'point match collection to move from source_render'})
-    collection_target = mm.fields.Str(required=False,
+    collection_target = Str(required=False,
         metadata={'description':'point match colleciton to move to target_render (default to the same)'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'point match colleciton to move to target_render (default to the same)'})
 
 def process_group(render_source,collection_source,render_target,collection_target,pgroup):
@@ -45,7 +44,7 @@ class PointMatchTransfer(RenderTransfer):
 
     def run(self):
         self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
-        collection_target = self.args.get('collection_target',self.args['collection_source']) 
+        collection_target = self.args.get('collection_target',self.args['collection_source'])
         collection_source =self.args['collection_source']
 
         pgroups = renderapi.pointmatch.get_match_groupIds_from_only(collection_source, render=self.render_source)
@@ -57,8 +56,7 @@ class PointMatchTransfer(RenderTransfer):
             collection_target)
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             pool.map(mypartial, pgroups)
-        
+
 if __name__ == "__main__":
     mod = PointMatchTransfer(input_data= example_parameters)
     mod.run()
-

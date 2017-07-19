@@ -3,9 +3,8 @@ if __name__ == "__main__" and __package__ is None:
 import json
 import os
 import renderapi
-from ..module.render_module import RenderModule,RenderParameters
-from json_module import InputFile,InputDir,OutputDir
-import marshmallow as mm
+from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import InputFile, InputDir, OutputDir, Str, Float, Int
 from functools import partial
 
 
@@ -24,15 +23,15 @@ example_parameters={
 }
 
 class MakeDownsampleSectionStackParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,
+    input_stack = Str(required=True,
         metadata={'description':'stack to make a downsample version of'})
-    scale = mm.fields.Float(required=False,default = .01,
+    scale = Float(required=False,default = .01,
         metadata={'description':'scale to make images'})
     image_directory = OutputDir(required=True,
         metadata={'decription','path to save section images'})
-    output_stack = mm.fields.Str(required=True,
+    output_stack = Str(required=True,
         metadata={'description':'output stack to name'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
 def process_z(render,stack,output_dir,scale,z):
