@@ -13,8 +13,6 @@ RUN apt-get install libspatialindex-dev -y
 RUN apt-get install nano -y
 COPY . /usr/local/render-python-apps
 
-RUN pip install argschema
-
 #RUN git clone https://github.com/fcollman/render-python-apps
 #WORKDIR render-python-apps
 #RUN git pull && git checkout newrender
