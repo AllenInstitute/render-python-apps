@@ -9,8 +9,7 @@ import pathos.multiprocessing as mp
 from matplotlib.patches import FancyArrowPatch, Circle, ConnectionStyle
 import os
 from ..module.render_module import RenderModule, RenderParameters
-from json_module import InputFile,InputDir
-import marshmallow as mm
+from argschema.fields import InputFile, InputDir, Str, Int
 
 parameters={
     "render":{
@@ -30,19 +29,19 @@ parameters={
 
 
 class MakePointMatchPlotsParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = Str(required=True,
         metadata={'description':'stack to use to make point match plots'})
-    matchcollection = mm.fields.Str(required=True,
+    matchcollection = Str(required=True,
         metadata={'description':'match collection to use to make point match plots'})
-    figdir = mm.fields.Str(required=True,
+    figdir = Str(required=True,
         metadata={'description':'directory to save images'})
-    dz = mm.fields.Int(required=False,default=10,
+    dz = Int(required=False,default=10,
         metadata={'description':'integer number of z planes away to make point match plots (default 10)'})
-    minZ = mm.fields.Int(required=False,
+    minZ = Int(required=False,
         metadata={'description':'minimum Z to make plots for (default to whole stack)'})
-    maxZ = mm.fields.Int(required=False,
+    maxZ = Int(required=False,
         metadata={'description':'maximum Z to make plots for (default to whole stack)'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
 def make_plot(r,matchcollection,zvalues,figdir,item):
@@ -95,7 +94,7 @@ def make_plot(r,matchcollection,zvalues,figdir,item):
     f.savefig(figpath)
     plt.close(f)
     return figpath
-    
+
 class MakePointMatchPlots(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
@@ -122,10 +121,10 @@ class MakePointMatchPlots(RenderModule):
             if z is not None:
                 zvalues[group]=int(z)
 
-        
+
         items = []
         for group,z in zvalues.items():
-            if (z>=minZ)&(z<=maxZ): 
+            if (z>=minZ)&(z<=maxZ):
                 for k in range(self.args['dz']+1):
                     z2=z+k
                     group2 = [g for g in zvalues.keys() if zvalues[g]==z2]
@@ -140,4 +139,3 @@ class MakePointMatchPlots(RenderModule):
 if __name__ == "__main__":
     mod = MakePointMatchPlots()
     mod.run()
-

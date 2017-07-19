@@ -1,15 +1,10 @@
 import numpy as np
-from renderapi.transform import AffineModel
 import renderapi
 import json
-import os
-from functools import partial
 import numpy as np
-import time
-import subprocess
-from ..module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
 from ..shapely import tilespec_to_bounding_box_polygon
-import marshmallow as mm
+import argschema
 
 example_parameters={
     "render":{
@@ -30,39 +25,39 @@ example_parameters={
     "dz":10,
     "radius":.1
 }
-class queryParameters(mm.Schema):
-    removeAllOption = mm.fields.Boolean(required=False,
+class queryParameters(argschema.schemas.mm.Schema):
+    removeAllOption = argschema.fields.Boolean(required=False,
         metadata={'description':'boolean to include as to whether to strip all transforms when rendering for normalizeForMatching=true'})
-    minIntensity = mm.fields.Int(required=False,
+    minIntensity = argschema.fields.Int(required=False,
         metadata={'description':'option to override minIntensity settings of each tilespec to this value'})
-    maxIntensity = mm.fields.Int(required=False,
+    maxIntensity = argschema.fields.Int(required=False,
         metadata={'description':'option to override maxIntensity settings of each tilespec to this value'})
 
 class CreateTilePairsForSingleZParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = argschema.fields.Str(required=True,
         metadata={'description':'stack to take stitching from'})
-    z = mm.fields.Int(required=True,
+    z = argschema.fields.Int(required=True,
         metadata={'description':'z value to create tilepairs that include'})
-    dz = mm.fields.Int(required=False,default=10,
+    dz = argschema.fields.Int(required=False,default=10,
         metadata ={'description':'number of sections away to include in tilepair'})
-    tilepair_output = mm.fields.Str(required=True,
+    tilepair_output = argschema.fields.Str(required=True,
         metadata = {'description':'path to save tilepair file output'})
-    radius = mm.fields.Float(required=False,default=.1,
+    radius = argschema.fields.Float(required=False,default=.1,
         metadata={'description':'fraction of tile radius to look for pairs'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = argschema.fields.Int(required=False,default=20,
         metadata={'description':'number of parallel processes (default 20)'})
-    queryParameters = mm.fields.Nested(queryParameters,required=False,
+    queryParameters = argschema.fields.Nested(queryParameters,required=False,
         metadata={'description':'extra query parameters to add on to tilepair file if you have it'})
 
-class Tile(mm.Schema):
-    groupId = mm.fields.Str(required=True)
-    id = mm.fields.Str(required=True)
-class TilePair(mm.Schema):
-    p = mm.fields.Nested(Tile, required=True)
-    q = mm.fields.Nested(Tile, required=True)
-class TilePairFile(mm.Schema):
-    renderParametersUrlTemplate = mm.fields.Str(required=True)
-    neighborPairs = mm.fields.Nested(TilePair,many=True)
+class Tile(argschema.schemas.mm.Schema):
+    groupId = argschema.fields.Str(required=True)
+    id = argschema.fields.Str(required=True)
+class TilePair(argschema.schemas.mm.Schema):
+    p = argschema.fields.Nested(Tile, required=True)
+    q = argschema.fields.Nested(Tile, required=True)
+class TilePairFile(argschema.schemas.mm.Schema):
+    renderParametersUrlTemplate = argschema.fields.Str(required=True)
+    neighborPairs = argschema.fields.Nested(TilePair,many=True)
 
 def find_tile_pairs_in_radius(render,stack,ts,z,dz,radius,area_overlap_frac=.25):
     pairs = []
@@ -94,11 +89,11 @@ def find_tile_pairs_in_radius(render,stack,ts,z,dz,radius,area_overlap_frac=.25)
 
 def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20,queryParameters={}):
     tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
-    
+
     pairs = []
-    for ts in tilespecs:            
+    for ts in tilespecs:
         pairs+=find_tile_pairs_in_radius(render,stack,ts,z,dz,radius)
-    
+
     pairfile = {}
     template_url = "{baseDataUrl}/owner/{owner}}/project/{project}/stack/{stack}/tile/{id}/render-parameters"
     template_url = template_url.replace("{owner}",render.DEFAULT_OWNER)
@@ -113,14 +108,14 @@ def create_tile_pair_for_single_z(render,stack,z,dz=10,radius=.1,pool_size=20,qu
     pairfile['neighborPairs']=pairs
 
     return pairfile
-    
+
 class CreateTilePairsForSingleZ(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = CreateTilePairsForSingleZParameters
         super(CreateTilePairsForSingleZ,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        
+
         qp=self.args.get('queryParameters',{})
 
         tile_pair_json = create_tile_pair_for_single_z(self.render,
@@ -133,7 +128,7 @@ class CreateTilePairsForSingleZ(RenderModule):
 
         with open(self.args['tilepair_output'],'w') as fp:
             json.dump(tile_pair_json,fp)
-        
+
 if __name__ == "__main__":
     mod = CreateTilePairsForSingleZ(input_data=example_parameters)
     mod.run()
