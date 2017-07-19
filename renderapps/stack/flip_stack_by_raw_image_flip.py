@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 import renderapi
-from renderapi.tilespec import MipMapLevel
 from renderapi.transform import AffineModel
-import json
-from ..module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
+import os
 from functools import partial
 import subprocess
 import tempfile
-import marshmallow as mm
-import os
-#An example set of parameters for this module
+from argschema.fields import Str, Int, Boolean
+
+# An example set of parameters for this module
 example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
@@ -26,12 +25,12 @@ example_parameters = {
 }
 
 class FlipStackParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,metadata={'description':'stack to apply affine to'})
-    output_stack = mm.fields.Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
-    minZ = mm.fields.Int(required=True,metadata={'description':'minimum Z to flip'})
-    maxZ = mm.fields.Int(required=True,metadata={'description':'maximum Z to flip'})
-    pool_size = mm.fields.Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
-    delete_after = mm.fields.Boolean(required=False,default=False,metadata={'description':'whether to delete the old image files or not after flipping'})
+    input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
+    output_stack = Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
+    minZ = Int(required=True,metadata={'description':'minimum Z to flip'})
+    maxZ = Int(required=True,metadata={'description':'maximum Z to flip'})
+    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+    delete_after = Boolean(required=False,default=False,metadata={'description':'whether to delete the old image files or not after flipping'})
 
 def fix_url(url):
     path = url.replace('file:','')
@@ -78,7 +77,7 @@ def process_z(render,input_stack,z,delete_after=False):
 
     #return the filepath
     return tfile
-    
+
 class FlipStack(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:

@@ -1,14 +1,10 @@
-import numpy as np
-from renderapi.transform import AffineModel
 import renderapi
-import json
 import os
 from functools import partial
 import numpy as np
-import time
 import subprocess
-from ..module.render_module import RenderModule,RenderParameters
-import marshmallow as mm
+from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import Str, Int
 
 example_parameters={
     "render":{
@@ -27,19 +23,19 @@ example_parameters={
 }
 
 class CreateMontagePointMatchParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = Str(required=True,
         metadata={'description':'stack to take stitching from'})
-    matchCollection = mm.fields.Str(required=True,
+    matchCollection = Str(required=True,
         metadata={'description':'collection to save to'})
-    minZ = mm.fields.Int(required=False,
+    minZ = Int(required=False,
         metadata={'description':'min Z to consider'})
-    maxZ = mm.fields.Int(required=False,
+    maxZ = Int(required=False,
         metadata={'description':'min Z to consider (default min in stack)'})
-    dataRoot = mm.fields.Str(required = True,
+    dataRoot = Str(required = True,
         metadata={'description':'max Z to consider (default max in stack)'})
-    delta = mm.fields.Int(required=False,default=150,
+    delta = Int(required=False,default=150,
         metadata ={'description':'number of pixels between artificial matches'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'number of parallel processes (default 20)'})
 
 def make_tile_pair_json(r,stack,project,owner,host,port,json_dir,z):

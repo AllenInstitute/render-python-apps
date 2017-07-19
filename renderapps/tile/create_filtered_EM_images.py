@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 import renderapi
-from renderapi.transform import AffineModel
-import json
-from ..module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
 from functools import partial
 import tempfile
-import marshmallow as mm
 import os
 import cv2
 import numpy as np
+from argschema.fields import Str, Int, Float, Boolean
 
-#An example set of parameters for this module
+# An example set of parameters for this module
 example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
@@ -24,14 +22,14 @@ example_parameters = {
     'pool_size':20
 }
 class FilterEMParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,metadata={'description':'stack to apply affine to'})
-    output_stack = mm.fields.Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
-    pool_size = mm.fields.Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
-    sat_pix = mm.fields.Float(required=False,default=.2,metadata={'description':'percent of pixels to saturate when normalizing contrast (default .2%)'})
-    contrast_adjust = mm.fields.Float(required=False,default=.85,metadata={'description':'constrast fraction to adjust before CLAHE (default .85)'})
-    clahe_size = mm.fields.Int(required=False,default=90,metadata={'description':'CLAHE parameter for grid size.. smaller is less strong, larger is stronger (default 90)'})
-    clahe_clip_limit = mm.fields.Float(required=False,default=1.5,metadata={'description':'clip limit for CLAHE normalization (default 1.5)'})
-    vert_flip = mm.fields.Boolean(required=False,default=True,metadata={'description':'vertically flip the image (default True)'})
+    input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
+    output_stack = Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
+    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+    sat_pix = Float(required=False,default=.2,metadata={'description':'percent of pixels to saturate when normalizing contrast (default .2%)'})
+    contrast_adjust = Float(required=False,default=.85,metadata={'description':'constrast fraction to adjust before CLAHE (default .85)'})
+    clahe_size = Int(required=False,default=90,metadata={'description':'CLAHE parameter for grid size.. smaller is less strong, larger is stronger (default 90)'})
+    clahe_clip_limit = Float(required=False,default=1.5,metadata={'description':'clip limit for CLAHE normalization (default 1.5)'})
+    vert_flip = Boolean(required=False,default=True,metadata={'description':'vertically flip the image (default True)'})
 def fix_url(url):
     path = url.replace('file:','')
     path = path.replace('%20',' ')

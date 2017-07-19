@@ -42,10 +42,10 @@ def createlayer(jsonfile, outfile, layerid):
     patchid = 0
     #Ntiles = len(tilespecs['tileSpecs'])
     Ntiles = len(tilespecs)
-    
+
     print "This is the number of tiles:"
     print Ntiles
-    
+
     y = 0
     while patchid < Ntiles:
     #print patchid
@@ -73,10 +73,10 @@ def createlayer_fromtilespecs(tilespecs, outfile, layerid,shiftx=0.0,shifty=0.0,
     patchid = 0
     #Ntiles = len(tilespecs['tileSpecs'])
     Ntiles = len(tilespecs)
-    
+
     #print "This is the number of tiles:"
     #print Ntiles
-    
+
     y = 0
     while patchid < Ntiles:
     #print patchid
@@ -105,7 +105,7 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0,affineOn
     lenspeclist = len(ts.tforms)
     #tString = tilespecs[patchid]['transforms']['specList'][lenspeclist-1]['dataString']
     #print tilespecs[patchid].tforms[lenspeclist-1]
-    
+
     if affineOnly:
         tform_total = AffineModel()
         for tform in ts.tforms:
@@ -135,7 +135,7 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0,affineOn
     fname = fp.split('/')
     filename_only = fp
     filename_only=filename_only.replace('file:','').replace('%20',' ')
-    
+
     lines.append("\t<t2_patch\n")
     #lines.append("\toid='" + str(patchid+(1000*layerid)) + "'\n")
     lines.append("\toid= '" + ts.tileId +  "'\n")
@@ -144,7 +144,7 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0,affineOn
     #lines.append("\ttransform='matrix(" + t[0] + "," + t[1] + "," + t[2] + "," + t[3] + "," + t[4] + "," + t[5] + ")'\n")
     lines.append("\ttransform='matrix(" + M00 + "," + M01 + "," + M10 + "," + M11 + "," + B0 + "," + B1 + ")'\n")
     lines.append("\tlinks=''\n")
-    lines.append("\ttype='1'\n")    
+    lines.append("\ttype='1'\n")
     lines.append("\tfile_path='" + filename_only + "'\n")
     lines.append("\ttitle= '" + ts.tileId +  "'\n")
     lines.append("\tstyle='fill-opacity:1.0;stroke:#ffff00;'\n")
@@ -201,7 +201,7 @@ def createfooters(outfile):
     lines = []
     lines.append("\t</t2_layer_set>\n")
     lines.append("\t</trakem2>\n")
-    
+
     with open(outfile, "a") as f1:
         print lines
         f1.writelines(lines)
@@ -227,12 +227,10 @@ def createchunks(firstSection,lastSection,sectionsPerChunk):
         ck.first = x
         if (x + sectionsPerChunk > lastSection):
             ck.last = lastSection + 1
-        else:   
-            ck.last = x + sectionsPerChunk 
+        else:
+            ck.last = x + sectionsPerChunk
         ck.dir = str(ck.first)+ "-" + str(ck.last)
         allchunks.append(ck)
-        x = x + halfsz  
-        
-    return allchunks
-        
+        x = x + halfsz
 
+    return allchunks

@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 import renderapi
-from renderapi.transform import AffineModel
-import json
 from ..module.render_module import RenderModule, RenderParameters
 from functools import partial
 import tempfile
-import marshmallow as mm
 import os
 import numpy as np
-#An example set of parameters for this module
+from argschema.fields import Str, Int, Boolean
+
+# An example set of parameters for this module
 example_parameters ={
     "render":{
         "host":"em-131fs",
@@ -27,15 +26,15 @@ example_parameters ={
 
 
 class MergeStacksParameters(RenderParameters):
-    stack1 = mm.fields.Str(required=True,metadata={'description':'first stack to merge'})
-    stack2 = mm.fields.Str(required=True,metadata={'description':'second stack to merge'})
-    output_stack = mm.fields.Str(required=True,metadata={'description':'stack to save answer into'})
-    zmin = mm.fields.Int(required=False,metadata={'description':'zvalue to start'})
-    zmax = mm.fields.Int(required=False,metadata={'description':'zvalue to end'})
-    z_intersection = mm.fields.Boolean(required=False,default=False,
+    stack1 = Str(required=True,metadata={'description':'first stack to merge'})
+    stack2 = Str(required=True,metadata={'description':'second stack to merge'})
+    output_stack = Str(required=True,metadata={'description':'stack to save answer into'})
+    zmin = Int(required=False,metadata={'description':'zvalue to start'})
+    zmax = Int(required=False,metadata={'description':'zvalue to end'})
+    z_intersection = Boolean(required=False,default=False,
         metadata={'description':'only output z values that appears in both stacks\
         (default False, output z values in either stack)'})
-    pool_size = mm.fields.Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
 
 class MergeStacks(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -116,5 +115,3 @@ class MergeStacks(RenderModule):
 if __name__ == "__main__":
     mod = MergeStacks(input_data= example_parameters)
     mod.run()
-
-

@@ -1,8 +1,9 @@
 import tempfile
 import os
 import renderapi
-from .transfer_module import RenderTransferParameters,RenderTransfer
-import marshmallow as mm
+from .transfer_module import RenderTransferParameters, RenderTransfer
+from argschema.fields import Str, Boolean
+
 
 example_parameters={
     "source_render":{
@@ -25,21 +26,21 @@ example_parameters={
     "replace_chars": "false",
     "remove_masks": "false",
     "upload_json": "true"
-}       
+}
 class StackTransferParameters(RenderTransferParameters):
-    stack_in = mm.fields.Str(required=True,
+    stack_in = Str(required=True,
         metadata={'description':'stack to move from source_render'})
-    stack_out = mm.fields.Str(required=False,
+    stack_out = Str(required=False,
         metadata={'description':'stack to move to target_render (default to the same)'})
-    data_description = mm.fields.Str(required=False,default='file:',
+    data_description = Str(required=False,default='file:',
         metadata={'description':'replace the ^.*: with this in the image url (default file:)'})
-    replace_chars = mm.fields.Boolean(required=False,default=True,
+    replace_chars = Boolean(required=False,default=True,
         metadata={'description':'replace perc20 charactesr with spaces (default True)'})
-    remove_masks = mm.fields.Boolean(required=False,default=False,
+    remove_masks = Boolean(required=False,default=False,
         metadata={'description':'remove the masks (default False)'})
-    upload_json = mm.fields.Boolean(required=False,default=True,
+    upload_json = Boolean(required=False,default=True,
         metadata={'description':'actually do the upload to the adjacent render,\
-         false will still return list of to/from image destinations (default True)'})   
+         false will still return list of to/from image destinations (default True)'})
 
 
 class StackTransfer(RenderTransfer):
@@ -48,7 +49,7 @@ class StackTransfer(RenderTransfer):
             schema_type = StackTransferParameters
         super(StackTransfer,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        stack_out = self.args.get('stack_out',self.args['stack_in']) 
+        stack_out = self.args.get('stack_out',self.args['stack_in'])
         stack_in =self.args['stack_in']
 
         zvalues = renderapi.stack.get_z_values_for_stack(stack_in, render=self.render_source)
@@ -66,7 +67,7 @@ class StackTransfer(RenderTransfer):
                 url = ts.ip.mipMapLevels[0].imageUrl
                 (precolon, postcolon) = url.split(':')
                 newurl = self.args['data_description'] + postcolon
- 
+
                 ts.ip.mipMapLevels[0].imageUrl = newurl
                 if self.args['replace_chars']:
                     url = url.replace("%20", " ")
@@ -96,4 +97,3 @@ class StackTransfer(RenderTransfer):
 if __name__ == "__main__":
     mod = StackTransfer(input_data= example_parameters)
     mod.run()
-

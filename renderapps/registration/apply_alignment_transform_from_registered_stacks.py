@@ -2,7 +2,7 @@
 from .apply_alignment_transform_from_registered_stack import ApplyAlignmentFromRegisteredStackParametersBase,ApplyAlignmentFromRegisteredStack
 
 from renderapps.module.render_module import RenderModule
-import marshmallow as mm
+from argschema.fields import List, Str
 
 example_json = {
     "render":{
@@ -33,14 +33,14 @@ example_json = {
 }
 
 class ApplyAlignmentFromRegisteredStacksParameters(ApplyAlignmentFromRegisteredStackParametersBase):
-    registered_stacks = mm.fields.List(mm.fields.Str,required=True,
+    registered_stacks = List(Str,required=True,
         metadata={'description':'list of source_stacks that are registered with prealignedstack,\
-                   but which you want to re-express in the space of postalignedstack'})           
+                   but which you want to re-express in the space of postalignedstack'})
 
-    old_prefix = mm.fields.Str(required=False,default = None,
+    old_prefix = Str(required=False,default = None,
         metadata={'description':'old prefix to strip off of stack names'})
 
-    new_prefix = mm.fields.Str(required=False,default = None,
+    new_prefix = Str(required=False,default = None,
         metadata={'description':'new prefix to add to stack names for output stacks'})
 
 
@@ -73,8 +73,7 @@ class ApplyAlignmentFromRegisteredStacks(RenderModule):
             submod = ApplyAlignmentFromRegisteredStack(input_data = params,args=[])
             submod.run()
 
- 
+
 if __name__ == "__main__":
     mod = ApplyAlignmentFromRegisteredStacks(input_data= example_json)
     mod.run()
-

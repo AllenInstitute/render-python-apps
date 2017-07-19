@@ -1,13 +1,10 @@
-import json
 import numpy as np
 from rtree import index as rindex
 import networkx as nx
 import renderapi
 import os
-from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
-from json_module import InputFile, InputDir
-import marshmallow as mm
+from argschema.fields import InputFile, InputDir, Str, Int
 
 example_json={
         "render":{
@@ -24,15 +21,15 @@ example_json={
 }
 
 class RemoveOuterTilesParameters(RenderParameters):
-    pool_size  = mm.fields.Int(required=False,default=20,
+    pool_size  = Int(required=False,default=20,
         metadata={'description:':'degree of parallelism (default=20)'})
-    edge_threshold  = mm.fields.Int(required=False,default=1843,
+    edge_threshold  = Int(required=False,default=1843,
         metadata={'description:':'distance between tilespecs to consider as edges(default=1843)'})
-    inputStack = mm.fields.Str(required=True,
+    inputStack = Str(required=True,
         metadata={'description':'name of render stack to input'})
-    outputStack = mm.fields.Str(required=True,
-        metadata={'description':'name of render stack to output with outer tiles dropped'})    
-    jsonDirectory = mm.fields.Str(required=True,
+    outputStack = Str(required=True,
+        metadata={'description':'name of render stack to output with outer tiles dropped'})
+    jsonDirectory = Str(required=True,
         metadata={'description:':'directory to save json files'})
 
 
@@ -56,7 +53,7 @@ class RemoveOuterTiles(RenderModule):
             #setup a graph to store overlapping tiles
             G=nx.Graph()
             Gpos = {}
-            #get all the tilespecs for this z 
+            #get all the tilespecs for this z
             tilespecs = renderapi.tilespec.get_tile_specs_from_z(a.inputStack,z,render=self.render)
             #insert them into the Rtree with their bounding boxes to assist in finding overlaps
             #label them by order in pre_tilespecs
@@ -95,10 +92,8 @@ class RemoveOuterTiles(RenderModule):
         #create stack and upload to render
         renderapi.stack.create_stack(a.outputStack,render=self.render)
         renderapi.client.import_jsonfiles(a.outputStack,jsonfiles,render=self.render)
-        
+
 
 if __name__ == "__main__":
     mod = RemoveOuterTiles(input_data= example_json)
     mod.run()
-
-
