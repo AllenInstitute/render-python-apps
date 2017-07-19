@@ -3,16 +3,15 @@ import numpy as np
 import glob
 import renderapi
 from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import Str
 
-
-import marshmallow as mm
 
 class UploadChannelTileSpecParameters(RenderParameters):
-    inputDir = mm.fields.Str(required=True,
+    inputDir = Str(required=True,
         metadata={'description':'directory to upload'})
-    outputStack = mm.fields.Str(required=True,
+    outputStack = Str(required=True,
         metadata={'description':'directory to upload'})
-    channel = mm.fields.Str(required=True,
+    channel = Str(required=True,
         metadata={'description':'directory to upload'})
 
 class UploadChannelModule(RenderModule):
