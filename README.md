@@ -3,7 +3,8 @@
 These are a set of python based processing modules that do a broad assortment of steps in various image processing workflows whose results are ultimately stored in render.  They make extensive use of the render-python library (www.github.com/fcollman/render-python) for reading metadata from render and sending it back.
 
 # running a module
-Each module is designed to be run using a common pattern for defining inputs that is setup using the json_module pattern.
+Each module is designed to be run using a common pattern for defining inputs that is setup using the argschema pattern.
+www.github.com/AllenInstitute/argschema
 
 module can be run in 3 different ways
 
@@ -101,18 +102,15 @@ start of work on a module to detect wrinkles in sections
 # other folders
 
 ## module
-the base module classes for writing json_module style modules
+the base module classes for writing argschema style modules
 includes a template module example to work from
-
-## json_module
-a subpackage related to providing a unified interface for setting parameters from a json file, or the command line, or via passing a dictionary to a class. this should go in a seperate repo eventually.
 
 ## obsolete
 modules that were written with deprecated version of render python and would need to be rewritten in the new format
 hopefully will go away over time.. leaving useful code here for now.
 
 ## refactor
-modules that don't use the consistent json_module pattern and should be refactored
+modules that don't use the consistent argschema pattern and should be refactored
 hopefully will go away as code is moved out of this..
 
 # allen_utils
