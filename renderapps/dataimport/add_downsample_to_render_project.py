@@ -1,12 +1,10 @@
-import json
 import os
 from create_mipmaps import create_mipmaps
 import renderapi
 from renderapi.tilespec import MipMapLevel
-import argparse
 from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
-import marshmallow as mm
+from argschema.fields import Str, Boolean, Int
 import tempfile
 
 example_json={
@@ -23,13 +21,13 @@ example_json={
 }
 
 class AddDownSampleParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,
+    input_stack = Str(required=True,
         metadata={'description':'stack to input'})
-    output_stack = mm.fields.Str(required=True,
+    output_stack = Str(required=True,
         metadata={'description':'stack to output (deletes before upload)'})
-    convert_to_8bit = mm.fields.Boolean(required=False,default=True,
+    convert_to_8bit = Boolean(required=False,default=True,
         metadata={'description':'convert the data from 16 to 8 bit (default True)'})
-    pool_size = mm.fields.Int(required=False, default=20,
+    pool_size = Int(required=False, default=20,
         metadata={'description':'size of parallelism'})
 
 def make_tilespecs_and_cmds(render,inputStack,outputStack):
@@ -38,7 +36,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack):
     tilespecpaths=[]
     for z in zvalues:
         tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,inputStack,z)
-        
+
         for i,tilespec in enumerate(tilespecs):
             mml = tilespec.ip.mipMapLevels[0]
 
@@ -64,7 +62,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack):
                 scUrl = 'file:' + os.path.join(downdir2,filename[0:-4]+'_mip0%d.jpg'%i)
                 mml = MipMapLevel(level=i,imageUrl=scUrl)
                 tilespec.ip.update(mml)
-      
+
         tempjson = tempfile.NamedTemporaryFile(
             suffix=".json", mode='r', delete=False)
         tempjson.close()
@@ -74,12 +72,12 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack):
             f.close()
         tilespecpaths.append(tsjson)
 
-  
+
     return tilespecpaths,mipmap_args
 
 def create_mipmap_from_tuple(mipmap_tuple,convertTo8bit=True):
     (filepath,downdir)=mipmap_tuple
-    return create_mipmaps(filepath,downdir,convertTo8bit=convertTo8bit) 
+    return create_mipmaps(filepath,downdir,convertTo8bit=convertTo8bit)
 
 class AddDownSample(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -99,13 +97,13 @@ class AddDownSample(RenderModule):
         tilespecpaths,mipmap_args = make_tilespecs_and_cmds(self.render,
                                                             self.args['input_stack'],
                                                             self.args['output_stack'])
-    
+
         self.logger.debug("uploading to render...")
         #upload created tilespecs to render
         self.render.run(renderapi.client.import_jsonfiles_parallel,
                 self.args['output_stack'],
                 tilespecpaths)
-    
+
         self.logger.debug("making mipmaps images")
         self.logger.debug("convert_to_8bit:{}".format(self.args['convert_to_8bit']))
 
@@ -116,5 +114,3 @@ class AddDownSample(RenderModule):
 if __name__ == "__main__":
     mod = AddDownSample(input_data= example_json)
     mod.run()
-
-

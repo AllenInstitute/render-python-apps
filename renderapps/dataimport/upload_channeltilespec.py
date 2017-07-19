@@ -1,8 +1,5 @@
-from renderapi.transform  import AffineModel
-from renderapi.tilespec import TileSpec,Layout
 import numpy as np
 
-import json
 import glob
 import renderapi
 from ..module.render_module import RenderModule, RenderParameters
@@ -32,7 +29,7 @@ class UploadChannelModule(RenderModule):
         print str
 
         jsonfiles = sorted(glob.glob(str))
-        print jsonfiles       
+        print jsonfiles
         renderapi.stack.create_stack(self.args['outputStack'],render=self.render)
         renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],jsonfiles,render=self.render)
 
