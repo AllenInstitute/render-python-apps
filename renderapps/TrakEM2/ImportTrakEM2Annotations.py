@@ -1,12 +1,10 @@
 import numpy as np
-import json_module
 import renderapi
 import json
-import numpy as np
 import os
 from ..module.render_module import RenderTrakEM2Parameters, TrakEM2RenderModule
 from ..shapely import tilespec_to_bounding_box_polygon
-import marshmallow as mm
+from argschema.fields import Str, InputFile
 from shapely import geometry
 import lxml.etree
 from AnnotationJsonSchema import AnnotationFile
@@ -54,18 +52,18 @@ parameters={
 }
 
 class ImportTrakEM2AnnotationParameters(RenderTrakEM2Parameters):
-    EMstack = mm.fields.Str(required=True,metadata={'description':'stack to look for trakem2 patches in'})
-    trakem2project = json_module.InputFile(required=True,metadata={'description':'trakem2 file to read in'})
-    outputAnnotationFile = mm.fields.Str(required=True,metadata={'description':'name of stack to save annotation tilespecs'})
+    EMstack = Str(required=True,metadata={'description':'stack to look for trakem2 patches in'})
+    trakem2project = InputFile(required=True,metadata={'description':'trakem2 file to read in'})
+    outputAnnotationFile = Str(required=True,metadata={'description':'name of stack to save annotation tilespecs'})
 
 
 def convert_path(path,tform):
-    #function to convert TEM2 path using the transformation tform 
+    #function to convert TEM2 path using the transformation tform
     #convert_path(path,tform):
     d = path.attrib['d'].split(' ')
     Nelem = int(np.ceil(len(d)*1.0/3))
     points = np.zeros((Nelem,2))
-    
+
     for k,i in enumerate(range(0,len(d)+1,3)):
 
         if d[i]=='M':
@@ -75,7 +73,7 @@ def convert_path(path,tform):
         elif d[i]=='z':
             points[k,:]=points[0,:]
     return tform.tform(points)
-            
+
 def convert_transform(tfs):
     tfs=tfs.replace('matrix(','')
     tfs=tfs.replace(')','')
@@ -97,27 +95,27 @@ def parse_area_lists(area_lists):
         area_list_d = dict(al.attrib)
         area_list_d['areas']=[]
         for area in areas:
-            
+
             layerid=area.attrib['layer_id']
-           
+
             area_d = dict(area.attrib)
-            
+
             layer=root.find('//t2_layer[@oid="%s"]'%layerid)
             patches = [patch for patch in layer.getchildren()]
             patchids = [patch.attrib['oid'] for patch in patches]
             layer_tilespecs = [(poly,ts,t) for poly,ts,t in zip(tem2_polygons,tem2_tilespecs,render_tilespecs) if ts.tileId in patchids]
-            
+
             paths = area.findall('t2_path')
             area_d['paths']=[]
             for path in paths:
                 path_d = {}
                 path_d['tile_paths']=[]
-                path_numpy= convert_path(path,tform)            
+                path_numpy= convert_path(path,tform)
                 path_poly = geometry.Polygon(path_numpy)
                 for poly,ts,rts in layer_tilespecs:
                     if poly.intersects(path_poly):
                         tile_path_d={}
-                    
+
                         local_path = path_numpy
                         tmp=list(ts.tforms)
                         tmp.reverse()
@@ -133,11 +131,11 @@ def parse_area_lists(area_lists):
                 path_d['orig_path']=np.hstack((path_numpy,path_d['z']*np.ones((path_numpy.shape[0],1),np.float)))
 
                 area_d['paths'].append(path_d)
-               
+
             #for ts in linked_tilespecs:
             #    print ts.to_dict()
             area_list_d['areas'].append(area_d)
-           
+
         json_output['area_lists'].append(area_list_d)
     return json_output
 
@@ -148,7 +146,7 @@ class ImportTrakEM2Annotations(RenderModule):
             schema_type = ImportTrakEM2AnnotationParameters
         super(ImportTrakEM2Annotations,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-       
+
         self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
 
         tem2file = self.args['trakem2project']
