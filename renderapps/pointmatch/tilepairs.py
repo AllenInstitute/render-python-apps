@@ -1,5 +1,6 @@
-import renderapi
+import renderapi.stack
 from ..shapely import tilespec_to_bounding_box_polygon
+import marshmallow as mm
 
 class Tile(mm.Schema):
     groupId = mm.fields.Str(required=True)
