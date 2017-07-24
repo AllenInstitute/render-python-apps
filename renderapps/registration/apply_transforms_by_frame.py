@@ -19,13 +19,13 @@ example_json={
         "render":{
             "host":"ibs-forrestc-ux1",
             "port":8080,
-            "owner":"Forrest",
-            "project":"M247514_Rorb_1",
+            "owner":"S3_Run1",
+            "project":"S3_Run1_Jarvis",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "alignedStack":"ALIGNED_TrakEM2_DAPI_cell1",
-        "inputStack":"ACQ_GFP",
-        "outputStack":"ALIGNED_TrakEM2_GFP_cell1",
+        "alignedStack":"Fine_Aligned_68_to_112_DAPI_1_fullscale_final_weight_1_30",
+        "inputStack":"Rough_Aligned_68_to_112_GFP_fullscale_CONS",
+        "outputStack":"Fine_Aligned_68_to_112_GFP_fullscale_final_weight_1_30",
         "pool_size":20
     }
 

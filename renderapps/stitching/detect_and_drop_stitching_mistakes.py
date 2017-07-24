@@ -66,6 +66,7 @@ def process_section(render,prestitchedStack, poststitchedStack, outputStack, dis
     
     #get all the tilespecs for this z from prestitched stack
     pre_tilespecs = renderapi.tilespec.get_tile_specs_from_z(prestitchedStack, z, render=render)
+    tilespecs = renderapi.tilespec.get_tile_specs_from_z(poststitchedStack, z, render=render)
     #insert them into the Rtree with their bounding boxes to assist in finding overlaps
     #label them by order in pre_tilespecs
     [ridx.insert(i,(ts.minX,ts.minY,ts.maxX,ts.maxY)) for i,ts in enumerate(pre_tilespecs)]
@@ -76,22 +77,17 @@ def process_section(render,prestitchedStack, poststitchedStack, outputStack, dis
     for i,ts in enumerate(pre_tilespecs):
         #create the list of corresponding post stitched tilespecs
         t = renderapi.tilespec.get_tile_spec(poststitchedStack,ts.tileId,render=render)
-        d= t.to_dict()
-        d['minIntensity'] = 2000
-        d['maxIntensity'] = 5000
+        d= t.to_dict() #d['minIntensity'] = 2000 #d['maxIntensity'] = 10000
         t.from_dict(d)
         post_tilespecs.append(t)
-        
         #get the list of overlapping nodes
         nodes=list(ridx.intersection((ts.minX,ts.minY,ts.maxX,ts.maxY)))
         nodes.remove(i) #remove itself
         [G.add_edge(i,node) for node in nodes] #add these nodes to the undirected graph
-        
         #save the tiles position
         Gpos[i]=((ts.minX+ts.maxX)/2,(ts.minY+ts.maxY)/2)
-        
-
-    
+	
+	
     #loop over edges in the graph
     for p,q in G.edges():
         #p and q are now indices into the tilespecs, and labels on the graph nodes
@@ -113,10 +109,12 @@ def process_section(render,prestitchedStack, poststitchedStack, outputStack, dis
             G.remove_edge(p,q)
 	
 
+
     #after removing all the bad edges...
     #get the largest connected component of G
     Gc = max(nx.connected_component_subgraphs(G), key=len)
     
+   
     #use it to pick out the good post stitch tilspecs that remain in the graph
     ts_good_json = [post_tilespecs[node].to_dict() for node in Gc.nodes_iter()]
     #formulate a place to save them
@@ -141,6 +139,9 @@ class DetectAndDropStitchingMistakes(RenderModule):
         zvalues=renderapi.stack.get_z_values_for_stack(self.args['poststitchedStack'],render=self.render)
         
         self.logger.debug('processing %d sections'%len(zvalues))
+        #process_section(self.render, self.args['prestitchedStack'],self.args['poststitchedStack'],self.args['outputStack'], self.args['distance_threshold'],self.args['edge_threshold'],self.args['jsonDirectory'], 15706)
+        #exit(0)
+
 
         #define a partial function that takes in a single z
         partial_process = partial(process_section,self.render,self.args['prestitchedStack'],

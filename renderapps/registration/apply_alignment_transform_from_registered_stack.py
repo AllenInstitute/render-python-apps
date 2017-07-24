@@ -6,6 +6,7 @@ from shapely import geometry
 import logging
 from renderapi.transform import AffineModel
 from ..module.render_module import RenderModule,RenderParameters
+import marshmallow as mm
 
 example_json = {
         "render":{
@@ -122,7 +123,7 @@ def process_z(r,prealignedstack,postalignedstack,sourcestack,outstack,z,num_poin
 class ApplyAlignmentFromRegisteredStack(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
-            schema_type = ApplyAlignmentFromRegisteredStacksParameters
+            schema_type = ApplyAlignmentFromRegisteredStackParameters
         super(ApplyAlignmentFromRegisteredStack,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
         self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
@@ -131,12 +132,17 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
         postalignedstack = self.args['postaligned_stack']
         sourcestack = self.args['source_stack']
         stackMetadata = renderapi.stack.get_stack_metadata(sourcestack,render=self.render)
-        stackResolutionX = self.args.get('stackResolutionX',sourcestack['stackResolutionX'])
-        stackResolutionY = self.args.get('stackResolutionY',sourcestack['stackResolutionY'])
-        stackResolutionZ = self.args.get('stackResolutionZ',sourcestack['stackResolutionZ'])
+        sd = stackMetadata.to_dict()
+        stackResolutionX = sd['stackResolutionX']
+        stackResolutionY = sd['stackResolutionY']
+        stackResolutionZ = sd['stackResolutionZ']
+        
+        #stackResolutionX = self.args.get('stackResolutionX',stackMetadata['stackResolutionX'])
+        #stackResolutionY = self.args.get('stackResolutionY',stackMetadata['stackResolutionY'])
+        #stackResolutionZ = self.args.get('stackResolutionZ',stackMetadata['stackResolutionZ'])
 
 
-        outstack = self.args[output_stack]
+        outstack = self.args['output_stack']
         myp = partial(process_z, self.render, prealignedstack, postalignedstack, sourcestack, outstack)
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack, sourcestack)
 
@@ -152,6 +158,7 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             res = pool.map(myp, zvalues)
         #self.render.run(renderapi.stack.set_stack_state,outstack,state='COMPLETE')
+        #renderapi.client.set_stack_state(outstack,state='COMPLETE',render=self.render)
         #break
 
 if __name__ == "__main__":

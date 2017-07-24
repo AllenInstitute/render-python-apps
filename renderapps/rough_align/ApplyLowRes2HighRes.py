@@ -9,6 +9,7 @@ import marshmallow as mm
 from functools import partial
 import glob
 import time
+import numpy as np
 
 
 #Author: Sharmishtaa Seshamani
@@ -18,14 +19,14 @@ example_parameters={
         "host":"ibs-forrestc-ux1",
         "port":80,
         "owner":"S3_Run1",
-        "project":"S3_Run1_Igor",
+        "project":"S3_Run1_Jarvis",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    'input_stack':'Stitched_PSD95',
+    'input_stack':'Stitched_Gephyrin_dropped',
     'prealigned_stack': 'Stitched_DAPI_1_dropped',
-    'lowres_stack':'Stitched_DAPI_1_Lowres_62_to_67_RoughAlign',
-    'output_stack':'Rough_Aligned_62_to_67_PSD95',
-    'tilespec_directory':'/nas3/data/S3_Run1_Igor/processed/RoughAlign',
+    'lowres_stack':'Stitched_DAPI_1_Lowres_68_to_223_RoughAlign_filter1_round1111_FIXED_CONS',
+    'output_stack':'Rough_Aligned_68_to_112_Gephyrin',
+    'tilespec_directory':'/nas4/data/S3_Run1_Jarvis/processed/RoughAlign_filter1_round1111_Gephyrin_test',
     'pool_size':5,
 	'scale': 0.05
 }
@@ -47,6 +48,10 @@ class ApplyLowRes2HighResParameters(RenderParameters):
         metadata={'description':'output stack to name'})
     pool_size = mm.fields.Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
+    minZ = mm.fields.Int(required=False,default=0,
+        metadata={'description':'Minimum Z value'})
+    maxZ = mm.fields.Int(required=False,default=100000000,
+        metadata={'description':'Maximum Z value'})
 
 def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir,scale,project,Z):
     
@@ -129,8 +134,12 @@ class ApplyLowRes2HighRes(RenderModule):
             schema_type = ApplyLowRes2HighResParameters
         super(ApplyLowRes2HighRes,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,
+        allzvalues = self.render.run(renderapi.stack.get_z_values_for_stack,
             self.args['input_stack'])
+           
+        allzvalues = np.array(allzvalues)
+        zvalues = allzvalues[(allzvalues >= self.args['minZ']) & (allzvalues <=self.args['maxZ'])]
+        
             
         newzvalues = range(0,len(zvalues))
         Z = []
@@ -145,12 +154,12 @@ class ApplyLowRes2HighRes(RenderModule):
             pool.map(mypartial,Z)
             
         jsonfiles = glob.glob("%s/*.json"%self.args['tilespec_directory'])    
-        renderapi.stack.create_stack(self.args['output_stack'],cycleNumber=5,cycleStepNumber=1, render=self.render)
+        renderapi.stack.create_stack(self.args['output_stack'],cycleNumber=11,cycleStepNumber=1, render=self.render)
         renderapi.client.import_jsonfiles_parallel(self.args['output_stack'],jsonfiles,render=self.render)
 
 
 
 if __name__ == "__main__":
-    #mod = ApplyLowRes2HighRes(input_data=example_parameters)
-    mod = ApplyLowRes2HighRes(schema_type =ApplyLowRes2HighResParameters)
+    mod = ApplyLowRes2HighRes(input_data=example_parameters)
+    #mod = ApplyLowRes2HighRes(schema_type =ApplyLowRes2HighResParameters)
     mod.run()

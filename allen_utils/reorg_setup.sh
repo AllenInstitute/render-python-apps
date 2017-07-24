@@ -12,7 +12,7 @@ docker run -d --name renderapps_testsharmi \
 -v /nas4:/nas4 \
 -v /data:/data \
 -v /pipeline:/pipeline \
--v /data/array_tomography/Sharmi_tools/render-python-apps:/usr/local/render-python-apps \
+-v /pipeline/sharmi/Sharmi_tools/render-python-apps:/usr/local/render-python-apps \
 -v /etc/hosts:/etc/hosts \
 -p 9999:9999 \
 -e "PASSWORD=$JUPYTERPASSWORD" \

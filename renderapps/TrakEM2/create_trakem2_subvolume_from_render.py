@@ -20,20 +20,20 @@ example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "owner":"S3_Run1",
+        "project":"S3_Run1_Jarvis",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    'minX':59945,
-    'maxX':83341,
-    'minY':84722,
-    'maxY':138658,
-    'minZ':24,
-    'maxZ':24,
-    'inputStack':'EM_fix',
-    'outputStack':'EM_Site4_stitched',
+    'minX':-871,
+    'maxX':1417,
+    'minY':-1239,
+    'maxY':2017,
+    'minZ':0,
+    'maxZ':694,
+    'inputStack':'Stitched_DAPI_1_Lowres_68_to_223_RoughAlign_filter1_round1111_concat_ds',
+    'outputStack':'Stitched_DAPI_1_Lowres_68_to_223_RoughAlign_filter1_round1111_concat_fixed',
     "doChunk":False,
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/Site4StitchFix/",
+    "outputXMLdir":"/nas4/data/S3_Run1_Jarvis/processed/TRAKEM2/",
     "renderHome":"/pipeline/forrestrender/"
 }
 
@@ -61,8 +61,8 @@ class CreateTrakEM2Project(RenderModule):
             ck.dir = str(ck.first)+ "-" + str(ck.last)
             allchunks.append(ck)
 
-        layersetfile = "layerset.xml"
-        headerfile = "header.xml"
+        layersetfile = "renderapps/TrakEM2/layerset.xml"
+        headerfile = "renderapps/TrakEM2/header.xml"
 
         for x in allchunks:
 

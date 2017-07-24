@@ -14,16 +14,16 @@ example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "owner":"S3_Run1",
+        "project":"S3_Run1_Jarvis",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    "stack":"ROUGHALIGN_MARCH_21_DAPI_1_CONS",
-    "matchCollection":"M247514_Rorb_1_DAPI1_deconv_stitching",
-    "minZ":0,
-    "maxZ":101,
-    "delta":150,
-    "dataRoot":"/nas3/data/"
+    "stack":"Stitched_DAPI_1_dropped",
+    "matchCollection":"S3_Run1_Jarvis_68_to_112_DAPI_1_highres_2D_75",
+    "minZ":6800,
+    "maxZ":11299,
+    "delta":75,
+    "dataRoot":"/nas2/data/"
 }
 
 class CreateMontagePointMatchParameters(RenderParameters):
@@ -116,7 +116,11 @@ def process_tile_pair_json_file(r,matchcollection,stack,owner,tile_pair_json_fil
             newpair['matches']['q']=[int_local_q[:,0].tolist(),int_local_q[:,1].tolist()]
             newpair['matches']['w']=np.ones(len(xx)).tolist()
             pairs.append(newpair)
+      
+           
     resp=r.run(renderapi.pointmatch.import_matches,matchcollection,json.dumps(pairs))
+    print "Putting %d pairs in %s"%(len(pairs),matchcollection)
+    
 
 class CreateMontagePointMatch(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -148,6 +152,9 @@ class CreateMontagePointMatch(RenderModule):
         #for z in zvalues:
         #    make_tile_part(z)
 
+
+		
+
         myp = partial(process_tile_pair_json_file,
             self.render,
             self.args['matchCollection'],
@@ -163,4 +170,5 @@ class CreateMontagePointMatch(RenderModule):
 
 if __name__ == "__main__":
     mod = CreateMontagePointMatch(input_data=example_parameters)
+    #mod = CreateMontagePointMatch(schema_type=CreateMontagePointMatchParameters)
     mod.run()

@@ -108,7 +108,7 @@ def process_z(render,stack,output_dir,scale,project,tagstr,Z):
     filename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'%03d'%q,"%d"%s,'%s.tif'%str(z))
     
     if not os.path.isfile(filename):
-		renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=True, fillWithNoise=False)
+		renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=False, fillWithNoise=False)
     
     tilespecs = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
     t = tilespecs[0]

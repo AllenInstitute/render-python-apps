@@ -9,7 +9,7 @@ import marshmallow as mm
 from functools import partial
 import glob
 import time
-
+import numpy as np
 
 #Author: Sharmishtaa Seshamani
 
@@ -38,7 +38,11 @@ class DeleteSection(RenderModule):
             schema_type = DeleteSectionParameters
         super(DeleteSection,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-		
+
+		allzvalues = self.render.run(renderapi.stack.get_z_values_for_stack,self.args['input_stack'])
+		print "Number of z values:"
+		a = np.array(allzvalues)
+		print a
 		print self.args['input_stack']
 		print self.args['section_z']
 		

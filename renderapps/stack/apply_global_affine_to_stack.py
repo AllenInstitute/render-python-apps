@@ -13,18 +13,18 @@ example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "owner":"S3_Run1",
+        "project":"S3_Run1_Jarvis",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    'input_stack':'EM_Site4_stitched',
-    'output_stack':'EM_Site4_stitched',
-    'M00':1,
-    'M10':0,
-    'M01':0,
-    'M11':1,
-    'B0':2*15294,
-    'B1':-2*1515,
+    'input_stack':'Rough_Aligned_DAPI_1',
+    'output_stack':'Rough_Aligned_DAPI_1_fullscale',
+    'M00':20.0,
+    'M10':0.0,
+    'M01':0.0,
+    'M11':20.0,
+    'B0':0.0,
+    'B1':0.0,
     'pool_size':20
 }
 
@@ -72,27 +72,27 @@ class ApplyAffine(RenderModule):
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,self.args['input_stack'])
         zvalues = np.array(zvalues)
         print zvalues
-        zmin = self.argsargs.get('zmin',np.min(zvalues))
-        zmax = self.argsargs.get('zmax',np.max(zvalues))
+        zmin = self.args.get('zmin',np.min(zvalues))
+        zmax = self.args.get('zmax',np.max(zvalues))
         zvalues = zvalues[zvalues>=zmin]
         zvalues = zvalues[zvalues<=zmax]  
-
+        #print zvalues
         #define the affine transform to apply everywhere
-        global_tform = AffineModel(M00=self.argsargs['M00'],
-                            M10=self.argsargs['M10'],
-                            M01=self.argsargs['M01'],
-                            M11=self.argsargs['M11'],
-                            B0=self.argsargs['B0'],
-                            B1=self.argsargs['B1'])
+        global_tform = AffineModel(M00=self.args['M00'],
+                            M10=self.args['M10'],
+                            M01=self.args['M01'],
+                            M11=self.args['M11'],
+                            B0=self.args['B0'],
+                            B1=self.args['B1'])
 
         #output_stack defaults to input_stack
         output_stack = self.args.get('output_stack',self.args['input_stack'])
 
         #define a processing pool
-        #pool = Pool(self.argsargs['pool_size'])
+        #pool = Pool(self.args['pool_size'])
         #define a partial function for processing a single z value
         mypartial = partial(process_z,
-                            self.args.render,
+                            self.render,
                             self.args['input_stack'],
                             global_tform)
         #get the filepaths of json files in parallel
@@ -105,7 +105,7 @@ class ApplyAffine(RenderModule):
             json_files = pool.map(mypartial,zvalues)
         #import the json_files into the output stack
         if (self.args['input_stack'] != output_stack):
-            self.render.run(renderapi.stack.create_stack,output_stack)
+            self.render.run(renderapi.stack.create_stack,output_stack,cycleNumber=11,cycleStepNumber=1)
 
         renderapi.client.import_jsonfiles_parallel( output_stack,
                                                     json_files,
@@ -117,8 +117,9 @@ class ApplyAffine(RenderModule):
 
 
 if __name__ == "__main__":
-    mod = ApplyAffine(input_data= example_json)
-    mod.run()
+    #mod = ApplyAffine(input_data= example_parameters)
+	mod = ApplyAffine(schema_type = ApplyAffineParameters)
+	mod.run()
     
 
     
