@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 import renderapi
-from renderapi.transform import AffineModel
-import json
-from ..module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
 from functools import partial
 import tempfile
-import marshmallow as mm
 import os
 import numpy as np
-#An example set of parameters for this module
+from argschema.fields import Str, Int
+
+# An example set of parameters for this module
 example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
@@ -23,11 +22,11 @@ example_parameters = {
 }
 
 class RenameSectionIdsParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,metadata={'description':'stack to apply affine to'})
-    output_stack = mm.fields.Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
-    zmin = mm.fields.Int(required=False,metadata={'description':'zvalue to start'})
-    zmax = mm.fields.Int(required=False,metadata={'description':'zvalue to end'})
-    pool_size = mm.fields.Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+    input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
+    output_stack = Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
+    zmin = Int(required=False,metadata={'description':'zvalue to start'})
+    zmax = Int(required=False,metadata={'description':'zvalue to end'})
+    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
 
 #define a function to process one z value
 def process_z(render,input_stack,z):

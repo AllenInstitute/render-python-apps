@@ -1,10 +1,9 @@
-import os
 import renderapi
-from functools import partial
-from ..module.render_module import RenderModule,RenderParameters
-from ..module.json_module import InputFile,InputDir
-import marshmallow as mm
 import tempfile
+from functools import partial
+from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import InputFile, InputDir, Str, Int
+
 example_json = {
     "render":{
         "host":"ibs-forrestc-ux1",
@@ -20,13 +19,13 @@ example_json = {
 }
 
 class SetStackLevelsParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = Str(required=True,
         metadata={'description':'name of stack to edit'})
-    minIntensity = mm.fields.Int(required=False,default=None,
+    minIntensity = Int(required=False,default=None,
         metadata={'description':'minIntensity to set for stack (default: do not change)'})
-    maxIntensity = mm.fields.Int(required=False,default=None,
+    maxIntensity = Int(required=False,default=None,
                 metadata={'description':'maxIntensity to set for stack (default: do not change)'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'degree of parallelism to use (default to 20)'})
 
 #define a function for a single z value

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import renderapi
 from renderapi.transform import AffineModel
-import json
-from ..module.render_module import RenderModule,RenderParameters
+from ..module.render_module import RenderModule, RenderParameters
 from functools import partial
 import tempfile
-import marshmallow as mm
 import os
 import numpy as np
+from argschema.fields import Str, Float, Int
+
 #An example set of parameters for this module
 example_parameters = {
     "render":{
@@ -29,17 +29,17 @@ example_parameters = {
 }
 
 class ApplyAffineParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,metadata={'description':'stack to apply affine to'})
-    output_stack = mm.fields.Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
-    M00 = mm.fields.Float(required=False,default=1.0,metadata={'description':'M00 (x\'=M00*x element of affine (default 1.0)'})
-    M10 = mm.fields.Float(required=False,default=0.0,metadata={'description':'M10 (y\'=M10*x element of affine (default 0.0)'})
-    M01 = mm.fields.Float(required=False,default=0.0,metadata={'description':'M01 (x\'=M01*y element of affine (default 0.0)'})
-    M11 = mm.fields.Float(required=False,default=1.0,metadata={'description':'M11 (y\'=M11*y) element of affine (default 1.0)'})
-    B0 = mm.fields.Float(required=False,default=0.0,metadata={'description':'B0 (x translation) element of affine (defautl 0.0)'})
-    B1 = mm.fields.Float(required=False,default=0.0,metadata={'description':'B1 (y translation) element of affine (default 0.0)'})
-    zmin = mm.fields.Int(required=False,metadata={'description':'zvalue to start'})
-    zmax = mm.fields.Int(required=False,metadata={'description':'zvalue to end'})
-    pool_size = mm.fields.Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+    input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
+    output_stack = Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
+    M00 = Float(required=False,default=1.0,metadata={'description':'M00 (x\'=M00*x element of affine (default 1.0)'})
+    M10 = Float(required=False,default=0.0,metadata={'description':'M10 (y\'=M10*x element of affine (default 0.0)'})
+    M01 = Float(required=False,default=0.0,metadata={'description':'M01 (x\'=M01*y element of affine (default 0.0)'})
+    M11 = Float(required=False,default=1.0,metadata={'description':'M11 (y\'=M11*y) element of affine (default 1.0)'})
+    B0 = Float(required=False,default=0.0,metadata={'description':'B0 (x translation) element of affine (defautl 0.0)'})
+    B1 = Float(required=False,default=0.0,metadata={'description':'B1 (y translation) element of affine (default 0.0)'})
+    zmin = Int(required=False,metadata={'description':'zvalue to start'})
+    zmax = Int(required=False,metadata={'description':'zvalue to end'})
+    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
 
 #define a function to process one z value
 def process_z(render,input_stack,tform,z):
@@ -75,7 +75,7 @@ class ApplyAffine(RenderModule):
         zmin = self.argsargs.get('zmin',np.min(zvalues))
         zmax = self.argsargs.get('zmax',np.max(zvalues))
         zvalues = zvalues[zvalues>=zmin]
-        zvalues = zvalues[zvalues<=zmax]  
+        zvalues = zvalues[zvalues<=zmax]
 
         #define the affine transform to apply everywhere
         global_tform = AffineModel(M00=self.argsargs['M00'],
@@ -119,6 +119,3 @@ class ApplyAffine(RenderModule):
 if __name__ == "__main__":
     mod = ApplyAffine(input_data= example_json)
     mod.run()
-    
-
-    

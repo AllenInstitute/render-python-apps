@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 import os
-import sys
-import renderapi 
+import renderapi
 from renderapi.tilespec import TileSpec
 from renderapi.transform import AffineModel
-from renderapi.utils import stripLogger
-import logging
-import argparse
-from trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
-import  json
+from trakem2utils import (createchunks, createheader, createproject,
+                          createlayerset, createfooters,
+                          createlayer_fromtilespecs, Chunk)
+import json
 from ..module.render_module import TEM2ProjectTransfer, TrakEM2RenderModule, EMLMRegistrationParameters
 import numpy as np
 
@@ -71,7 +69,7 @@ class ReImportTrakEM2ToRender(RenderModule):
             output_tilespecs = [TileSpec(json=tsj) for tsj in tsjson]
             shiftTransform = AffineModel(B0=self.args['minX'],B1=self.args['minY'])
             jsonfiles=[]
-            for layerid in range(x.first, x.last+1):    
+            for layerid in range(x.first, x.last+1):
                 self.logger.debug('layerid {}'.format(x.first))
                 jsonfilename = os.path.join(self.args['outputXMLdir'],'%05d.json'%layerid)
                 output_tilespec_list = []
@@ -95,7 +93,7 @@ class ReImportTrakEM2ToRender(RenderModule):
                 jsonfiles.append(jsonfilename)
 
             if not self.args['doChunk']:
-                #renderapi.stack.delete_stack(self.args['outputStack'],render=r) 
+                #renderapi.stack.delete_stack(self.args['outputStack'],render=r)
                 renderapi.stack.create_stack(self.args['outputStack'],render=self.render)
                 renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],jsonfiles,render=self.render)
 
@@ -103,5 +101,3 @@ class ReImportTrakEM2ToRender(RenderModule):
 if __name__ == "__main__":
     mod = ReImportTrakEM2ToRender(input_data= example_parameters)
     mod.run()
-
-

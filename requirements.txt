@@ -1,11 +1,12 @@
+git+git://github.com/fcollman/render-python.git@master
 requests
 numpy
 pillow
 pathos
 tifffile
 opencv-python
-marshmallow
 shapely
 rtree
 networkx
 pandas
+git+git://github.com/AllenInstitute/argschema.git@master

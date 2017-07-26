@@ -1,7 +1,7 @@
 import renderapi
-import marshmallow as mm
 import renderapi.tilespec
 from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import Str
 
 example_json={
         "render":{
@@ -17,11 +17,11 @@ example_json={
 }
 
 class SplitTileParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = Str(required=True,
         metadata={'description':'stack from tile to split'})
-    tileId = mm.fields.Str(required=True,
+    tileId = Str(required=True,
         metadata={'description':'tileId of tile to split'})
-    matchCollection = mm.fields.Str(required=True,
+    matchCollection = Str(required=True,
         metadata={'description':'matchCollection to base splitting on'})
 
 class SplitTile(RenderModule):
@@ -38,7 +38,7 @@ class SplitTile(RenderModule):
         matches = renderapi.pointmatch.get_matches_involving_tile(self.args['matchCollection'],
                                                         self.args['stack'],
                                                         self.args['tileId'])
-        
+
 
 
 if __name__ == "__main__":

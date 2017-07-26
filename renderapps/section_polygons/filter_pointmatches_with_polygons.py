@@ -5,9 +5,8 @@ from functools import partial
 import os
 import pathos.multiprocessing as mp
 from shapely import geometry
-from ..module.render_module import RenderModule,RenderParameters
-from json_module import InputDir
-import marshmallow as mm
+from ..module.render_module import RenderModule, RenderParameters
+from argschema.fields import Str, InputDir
 
 example_json = {
     "render":{
@@ -25,23 +24,23 @@ example_json = {
 
 
 class FilterPointMatchParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = Str(required=True,
         metadata={'description':'stack sectionPolygons are based upon'})
-    
-    polygon_dir = mm.fields.Str(required=True,
+
+    polygon_dir = Str(required=True,
         metadata={'description':'directory to with QCed  json section boundaries'})
 
-    matchcollection = mm.fields.Str(required=True,
+    matchcollection = Str(required=True,
         metadata={'description':'match collection to filter'})
- 
-    targetmatchcollection = mm.fields.Str(required=True,
+
+    targetmatchcollection = Str(required=True,
         metadata={'description':'match collection to output to'})
 
 def mask_points(points,mask):
     p = np.array(points).T
     return p[mask,:].T.tolist()
 
-def mask_match(match,mask):    
+def mask_match(match,mask):
     if np.sum(mask)==0:
         return None
     match['matches']['p']=mask_points(match['matches']['p'],mask)
@@ -63,7 +62,7 @@ def filter_match(r,match,stack,polyp,polyq,tsp,tsq):
     insideboth = insidep & insideq
     newmatch = mask_match(match,insideboth)
     return newmatch
-    
+
 def filter_matches(r,stack,fromcollection,tocollection,polydict,pgroup):
     matches=r.run(renderapi.pointmatch.get_matches_with_group,fromcollection,pgroup)
     new_matches = []
@@ -74,7 +73,7 @@ def filter_matches(r,stack,fromcollection,tocollection,polydict,pgroup):
     for ts in tilespecs:
         tiledict[ts.tileId]=ts
     qgroups = set([match['qGroupId'] for match in matches])
-    
+
     for qgroup in qgroups:
         z = r.run(renderapi.stack.get_z_value_for_section,stack,qgroup)
         tilespecs=r.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
@@ -105,7 +104,7 @@ def create_zdict(r,stack):
     sectionIds=[sd['sectionId'] for sd in sectionData]
     zdict={}
     for sectionId in sectionIds:
-        z = r.run(renderapi.stack.get_z_value_for_section,stack,sectionId) 
+        z = r.run(renderapi.stack.get_z_value_for_section,stack,sectionId)
         zdict[sectionId]=z
     return zdict
 
@@ -124,16 +123,16 @@ class FilterPointMatch(RenderModule):
 
         #define a dictionary of z values for each sectionId
         zdict = create_zdict(r,stack)
-    
-        #define a dictionary of polygons for each sectionId 
+
+        #define a dictionary of polygons for each sectionId
         polydict = create_polydict(r,stack,polygonfolder)
-        
+
         #get the set of starting sectionIds for the point match database
         pgroups = self.render.run(renderapi.pointmatch.get_match_groupIds_from_only,matchcollection)
 
         #define a partial function on filter_matches that takes in a single sectionId
         mypartial=partial(filter_matches,self.render,stack,matchcollection,targetmatchcollection,polydict)
-        
+
         #res = pool.map(mypartial,pgroups)
         for pgroup in pgroups:
             mypartial(pgroup)
@@ -141,6 +140,3 @@ class FilterPointMatch(RenderModule):
 if __name__ == "__main__":
     mod = FilterPointMatch(input_data= example_json)
     mod.run()
-
-
-

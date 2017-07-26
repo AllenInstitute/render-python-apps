@@ -3,7 +3,7 @@ import os
 from pathos.multiprocessing import Pool
 from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
-from json_module import InputFile, InputDir
+import argschema
 import marshmallow as mm
 
 example_json={
@@ -18,9 +18,9 @@ example_json={
 }
 
 class TemplateParameters(RenderParameters):
-    example = mm.fields.Str(required=True,
+    example = argschema.fields.Str(required=True,
         metadata={'description':'an example'})
-    default_val = mm.fields.Str(required=False,default="a default value",
+    default_val = argschema.fields.Str(required=False,default="a default value",
         metadata={'description':'an example with a default'})
 
 

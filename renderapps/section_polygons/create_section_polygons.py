@@ -5,12 +5,8 @@ import os
 import pathos.multiprocessing as mp
 from operator import itemgetter
 import cv2
-import tifffile
-import argparse
-import json
-from renderapi.utils import stripLogger
-import logging
-from ..module.render_module import InputDir
+from ..module.render_module import RenderParameters, RenderModule
+from argschema.fields import InputDir, Str, Boolean
 
 
 example_json = {
@@ -46,7 +42,7 @@ def find_section_boundaries(r,
 
     height = img_bounds['maxY']-img_bounds['minY']
     width = img_bounds['maxX']-img_bounds['minX']
-    
+
     gray=img
     #return img
     #gray = cv2.rotate(gray,cv2.ROTATE_90_CLOCKWISE)
@@ -58,9 +54,9 @@ def find_section_boundaries(r,
         x1,x2,y1,y2 = xy_from_rhotheta(rho,theta)
         if x1==x2:
             a=None
-            b=x1    
+            b=x1
         else:
-            a = (y1-y2)/(x1-x2) 
+            a = (y1-y2)/(x1-x2)
             b=y2-a*x2
         return (a,b)
     def xy_from_rhotheta(rho,theta):
@@ -75,9 +71,9 @@ def find_section_boundaries(r,
             return (x1,x2,y1,y2)
     def get_line_score_horizontal(img,line):
         from operator import itemgetter
-        
+
         a,b=ab_from_rhotheta(line[0],line[1])
-        
+
         if (a is None):
             return np.uint64(0)
         elif (a==0):
@@ -102,9 +98,9 @@ def find_section_boundaries(r,
         return np.sum(vals)
     def get_line_score(img,line):
         from operator import itemgetter
-        
+
         a,b=ab_from_rhotheta(line[0],line[1])
-        
+
         if (a is None):
             xmin = b
             xmax = b
@@ -130,20 +126,20 @@ def find_section_boundaries(r,
             return np.uint64(0)
         vals = img[np.array(y,dtype=np.int),np.array(x,dtype=np.int)]
         return np.sum(vals)
-    
+
     alllines = lines
     lines=lines[:,0,:]
     if isHorizontal:
         scores = [get_line_score_horizontal(img,line) for line in lines]
     else:
         scores = [get_line_score(img,line) for line in lines]
-    
+
     lines = [line for score,line in sorted(zip(scores,lines),key=itemgetter(0),reverse=True)]
     if isHorizontal:
         lines = [line for line in lines if line[1]>(np.pi/2)*.8]
     line1 = lines[0]
     line2 = None
-    
+
     l1x1,l1x2,l1y1,l1y2 = xy_from_rhotheta(line1[0],line1[1])
 
     for rho,theta in lines[1:]:
@@ -161,7 +157,7 @@ def find_section_boundaries(r,
     a,b = ab_from_rhotheta(line1[0],line1[1])
     height = img.shape[0]
     width = img.shape[1]
-    
+
     if isHorizontal:
         x1,x2,y1,y2 = xy_from_rhotheta(line1[0],line1[1])
         coords.append( (x1,y1))
@@ -171,11 +167,11 @@ def find_section_boundaries(r,
             x1,x2,y1,y2 = xy_from_rhotheta(line2[0],line2[1])
             coords.append( (x2,y2))
             coords.append( (x1,y1))
-            
+
         #if there isn't a second line we have to figure out
         #whether we have the right or left
         else:
-            
+
             if (l1y1<(height-l1y1)):
                 #then we are closer to the bottom
                 coords.append((width,height))
@@ -231,7 +227,7 @@ def find_section_boundaries(r,
     #     #ax.imshow(img)
     #     plt.plot(x,y,'r')
     #     plt.tight_layout()
-    
+
     jsonobj={}
     jsonobj['z']=z
     jsonobj['filepath']=filepath
@@ -241,16 +237,16 @@ def find_section_boundaries(r,
 
 
 class CreateSectionPolygonsParameters(RenderParameters):
-    stack = mm.fields.Str(required=True,
+    stack = Str(required=True,
         metadata={'description':'stack sectionImages are based upon (assumes section bounds for images)'})
-    
+
     sectionImageDir = InputDir(required=True,
         metadata={'description':'stack sectionImages directory (assumes section bounds for images)'})
 
-    polygon_dir = mm.fields.Str(required=True,
+    polygon_dir = Str(required=True,
         metadata={'description':'directory to save json seciton boundaries into'})
 
-    isHorizontal = mm.fields.Boolean(required=True,
+    isHorizontal = Boolean(required=True,
         metadata={'description':'flag as to whether the sections are vertically or horizontally oriented'})
 
 
@@ -273,11 +269,11 @@ class CreateSectionPolygons(RenderModule):
         for z in zvalues:
             jsonresults.append(mypartial(z))
 
-        jsonresults=[result[0] for result in jsonresults] 
+        jsonresults=[result[0] for result in jsonresults]
 
         if not os.path.isdir(jsonDir):
             os.makedirs(jsonDir)
-            
+
         for result,z in zip(jsonresults,zvalues):
             jsonfile = os.path.join(jsonDir,'polygon_%05d.json'%z)
             json.dump(result,open(jsonfile,'w'))
@@ -286,4 +282,3 @@ class CreateSectionPolygons(RenderModule):
 if __name__ == "__main__":
     mod = CreateSectionPolygons(input_data= example_json)
     mod.run()
-
