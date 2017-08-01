@@ -11,6 +11,7 @@ COPY . /usr/local/render-python-apps
 COPY jupyter_notebook_config.py /root/.jupyter/
 WORKDIR /usr/local/render-python-apps
 RUN pip install setuptools --upgrade --disable-pip-version-check
+RUN pip install argschema --upgrade --disable-pip-version-check
 RUN python setup.py install
 
 CMD ["jupyter", "notebook", "--no-browser", "--allow-root"]
