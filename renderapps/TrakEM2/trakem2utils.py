@@ -202,7 +202,7 @@ def createfooters(outfile):
     lines.append("\t</trakem2>\n")
 
     with open(outfile, "a") as f1:
-        print lines
+        #print lines
         f1.writelines(lines)
 
 class Chunk:

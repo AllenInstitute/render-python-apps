@@ -41,7 +41,7 @@ example_json = {
     "LMstack":"BIGREG_MARCH_21_MBP_deconvnew",
     "outputStack":"BIGREG_EM_Site4_stitched",
     "renderHome":"/var/www/render",
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects/"
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects_Site4/"
 }
 class makeEMLMRegistrationProjects(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -88,7 +88,7 @@ class makeEMLMRegistrationProjects(RenderModule):
                             render=mod.render)
             createlayer_fromtilespecs(LMtilespecs, outfile,1,shiftx=-mod.args['minX'],shifty=-mod.args['minY'],affineOnly=True)
             createfooters(outfile)
-
+            print(self.args)
 
 if __name__ == "__main__":
     mod = makeEMLMRegistrationProjects(input_data= example_json)
