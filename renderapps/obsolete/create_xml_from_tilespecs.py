@@ -43,7 +43,7 @@ if __name__ == '__main__':
         if not os.path.exists(args.outputDirectory[0]+ "/" + x.dir):
                 os.makedirs(args.outputDirectory[0]+ "/" + x.dir)
         #copy header
-        createheader(headerfile,outfile)
+        createheader(outfile)
         #create project
         createproject(outfile)
         #create layerset

@@ -67,7 +67,7 @@ class CreateTrakEM2Project(RenderModule):
                 os.makedirs(outdir)
 
             #copy header
-            createheader(headerfile,outfile)
+            createheader(outfile)
             #create project
             createproject(outfile)
             #create layerset

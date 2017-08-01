@@ -6,7 +6,7 @@ import os
 import sys
 from renderapi.utils import stripLogger
 import argparse
-from ..module.render_module import TrakEM2RenderModule, RenderParameters, EMLMRegistrationParameters
+from ..module.render_module import TrakEM2RenderModule, RenderParameters, EMLMRegistrationParameters, RenderModule
 import marshmallow as mm
 
 example_json = {
@@ -64,12 +64,9 @@ class makeEMLMRegistrationProjects(RenderModule):
 
         EMz = renderapi.stack.get_z_values_for_stack(self.args['inputStack'],render=self.render)
 
-        layersetfile = "layerset.xml"
-        headerfile = "header.xml"
-
         for z in EMz:
             outfile = os.path.join(self.args['outputXMLdir'],'%05d.xml'%z)
-            createheader(headerfile,outfile)
+            createheader(outfile)
             createproject(outfile)
             createlayerset(outfile,width=(self.args['maxX']-self.args['minX']),height=(self.args['maxY']-self.args['minY']))
             EMtilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(

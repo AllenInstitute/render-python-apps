@@ -85,7 +85,7 @@ if __name__ == '__main__':
                 os.makedirs(outdir)
 
         #copy header
-        createheader(headerfile,outfile)
+        createheader(outfile)
         #create project
         createproject(outfile)
         #create layerset
