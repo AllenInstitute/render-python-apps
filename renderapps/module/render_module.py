@@ -4,7 +4,7 @@ import argschema
 import renderapi
 
 
-class RenderClientParameters(argschema.schemas.mm.Schema):
+class RenderClientParameters(argschema.schemas.DefaultSchema):
     host = argschema.fields.Str(required=True, metadata={
                          'description': 'render host'})
     port = argschema.fields.Int(required=True, metadata={
