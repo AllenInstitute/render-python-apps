@@ -29,7 +29,20 @@ example_json = {
     "maxZ":50,
     "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects/"
 }
-
+example_json = {
+    "render":{
+        "host":"ibs-forrestc-ux1",
+        "port":8080,
+        "owner":"Forrest",
+        "project":"M247514_Rorb_1",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "inputStack":"EM_Site4_stitched_SHIFT",
+    "LMstack":"BIGREG_MARCH_21_MBP_deconvnew",
+    "outputStack":"BIGREG_EM_Site4_stitched",
+    "renderHome":"/var/www/render",
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects/"
+}
 class makeEMLMRegistrationProjects(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:

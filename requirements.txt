@@ -1,4 +1,4 @@
-git+git://github.com/fcollman/render-python.git@master
+render-python
 requests
 numpy
 pillow
@@ -9,4 +9,6 @@ shapely
 rtree
 networkx
 pandas
-git+git://github.com/AllenInstitute/argschema.git@master
+matplotlib
+argschema
+
