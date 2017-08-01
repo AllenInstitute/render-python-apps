@@ -1,6 +1,8 @@
 FROM fcollman/render-python
 MAINTAINER Forrest Collman (forrest.collman@gmail.com)
 
+RUN pip install setuptools --upgrade --disable-pip-version-check
+RUN pip install argschema --upgrade --disable-pip-version-check
 RUN mkdir -p /usr/local/render-python-apps
 COPY . /usr/local/render-python-apps
 
@@ -10,8 +12,7 @@ COPY . /usr/local/render-python-apps
 #RUN python setup.py install
 COPY jupyter_notebook_config.py /root/.jupyter/
 WORKDIR /usr/local/render-python-apps
-RUN pip install setuptools --upgrade --disable-pip-version-check
-RUN pip install argschema --upgrade --disable-pip-version-check
+
 RUN python setup.py install
 
 CMD ["jupyter", "notebook", "--no-browser", "--allow-root"]
