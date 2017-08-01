@@ -3,6 +3,7 @@ import math
 import json
 import random
 from renderapi.transform import AffineModel
+from header import header
 
 def randomDig(digits):
     lower = 10**(digits-1)
@@ -162,11 +163,9 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0,affineOn
         lines.append("\t</ict_transform_list>\n")
     lines.append("\t</t2_patch>\n")
 
-def createheader(headerfile,outfile):
-    with open(headerfile) as f:
-        lines = f.readlines()
-        with open(outfile, "w") as f1:
-            f1.writelines(lines)
+def createheader(outfile):
+    with open(outfile, "w") as f1:
+        f1.writelines(header)
 
 def createlayerset(outfile,width=7000,height=7000):
     lines = []

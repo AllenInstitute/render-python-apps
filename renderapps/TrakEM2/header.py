@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+header="""<?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE trakem2_anything [
 	<!ELEMENT trakem2 (project,t2_layer_set,t2_display)>
 	<!ELEMENT project (anything)>
@@ -263,3 +263,4 @@
 		id='0'
 		title='Project'
 
+"""
