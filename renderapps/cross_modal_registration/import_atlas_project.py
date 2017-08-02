@@ -49,7 +49,7 @@ class ImportAtlasSchema(RenderParameters):
     output_stack = Str(
         required=True, description="name of stack to save into render")
     LM_stack = Str(required=True, default='ACQDAPI_1',
-                description="Name of LM stack in render that was imported into atlas and whose coordinate system the EM tiles will be registered to")
+                   description="Name of LM stack in render that was imported into atlas and whose coordinate system the EM tiles will be registered to")
 
 
 example_parameters = {
@@ -87,26 +87,26 @@ if __name__ == '__main__':
 
     # find the light dataset name
     dataset = find_node_by_field(doc, 'Name', mod.args['LM_dataset_name'])
-    imported_data=find_node_by_field(doc, 'Name', 'Imported Data')
+    imported_data = find_node_by_field(doc, 'Name', 'Imported Data')
 
     # get the important transforms from atlas file
     # transform from EM data>root
-    at=AtlasTransform(dataset['ParentTransform'])
+    at = AtlasTransform(dataset['ParentTransform'])
     # transform from LMdata > root
-    id_at=AtlasTransform(imported_data['ParentTransform'])
+    id_at = AtlasTransform(imported_data['ParentTransform'])
 
     # get the list of sitesets
     if type(project['AtlasCarrier']['SectionSet']) == collections.OrderedDict:
-        sectionsets=[project['AtlasCarrier']['SectionSet']]
+        sectionsets = [project['AtlasCarrier']['SectionSet']]
     else:
-        sectionsets=project['AtlasCarrier']['SectionSet']
-    sectionset=sectionsets[0]
-    numsections=len(sectionset['Section'])
-    sitesets=project['AtlasCarrier']['SiteSet']
+        sectionsets = project['AtlasCarrier']['SectionSet']
+    sectionset = sectionsets[0]
+    numsections = len(sectionset['Section'])
+    sitesets = project['AtlasCarrier']['SiteSet']
     print("analyzing sectionset:%s numsections:%d" %
           (sectionset['Name'], numsections))
-    sitesets=[siteset for siteset in sitesets if siteset['LinkedToUID']
-        == sectionset['UID']]
+    sitesets = [siteset for siteset in sitesets if siteset['LinkedToUID']
+                == sectionset['UID']]
     print("found %d linked site sets" % len(sitesets))
 
     # process the target site, making a tilespec that estimates its place in the
@@ -114,12 +114,12 @@ if __name__ == '__main__':
     for siteset in sitesets:
         if siteset['Name'] == mod.args['site_name']:
             print 'in', siteset['Name']
-            json_files=process_siteset(mod.render,
-                                       siteset,
-                                       sectionset,
-                                       project,
-                                       project_dir,
-                                       lm_stack=mod.args['LM_stack'])
+            json_files = process_siteset(mod.render,
+                                         siteset,
+                                         sectionset,
+                                         project,
+                                         project_dir,
+                                         lm_stack=mod.args['LM_stack'])
 
     # step 5: write conversion of EM tiles to EM tiles + masks
     #     DONE, first try was writing as LZW, binary bit depth with imagemagik convert, very small on disk
@@ -130,8 +130,7 @@ if __name__ == '__main__':
             # uncomment to make masks and flipped images
             make_tile_masks(siteset, sectionset, project, project_dir)
 
-
     # step 7: upload those tilespecs to the render database as a new channel stack (ACQEM)
-    output_stack=mod.args['output_stack']
+    output_stack = mod.args['output_stack']
     renderapi.stack.create_stack(output_stack, render=mod.render)
     renderapi.client.import_jsonfiles_parallel(output_stack, json_files)
