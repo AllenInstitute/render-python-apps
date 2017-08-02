@@ -117,7 +117,7 @@ if __name__ == '__main__':
                                          siteset,
                                          sectionset,
                                          project,
-                                         project_dir,
+                                         project_path,
                                          at,
                                          lm_stack=mod.args['LM_stack'])
 
