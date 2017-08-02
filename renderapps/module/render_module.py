@@ -117,7 +117,6 @@ if __name__ == '__main__':
         }
     }
     module = RenderModule(input_data=example_input)
-    module.run()
 
     bad_input = {
         "render": {
@@ -129,4 +128,3 @@ if __name__ == '__main__':
         }
     }
     module = RenderModule(input_data=bad_input)
-    module.run()
