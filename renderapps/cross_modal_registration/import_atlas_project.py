@@ -39,15 +39,14 @@ from atlas_utils import make_tile_masks, process_siteset
 
 
 class ImportAtlasSchema(RenderParameters):
-    project_path = InputFile(
-        required=True, description='Atlas a5proj file with data to import')
-
+    project_path = InputFile(required=True,
+                             description='Atlas a5proj file with data to import')
     LM_dataset_name = Str(required=True, default='test',
                           description='Name of light microscopy dataset within atlas file')
-    site_name = Str(
-        required=True, description="name of site within Atlas file to import")
-    output_stack = Str(
-        required=True, description="name of stack to save into render")
+    site_name = Str(required=True,
+                    description="name of site within Atlas file to import")
+    output_stack = Str(required=True,
+                       description="name of stack to save into render")
     LM_stack = Str(required=True, default='ACQDAPI_1',
                    description="Name of LM stack in render that was imported into atlas and whose coordinate system the EM tiles will be registered to")
 
