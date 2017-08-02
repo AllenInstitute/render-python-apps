@@ -70,6 +70,7 @@ class RenderModule(argschema.ArgSchemaParser):
     def __init__(self, schema_type=None, *args, **kwargs):
         if schema_type is None:
             schema_type = RenderParameters
+        assert issubclass(schema_type,RenderParameters)
         super(RenderModule, self).__init__(
             schema_type=schema_type, *args, **kwargs)
         self.render = renderapi.render.connect(**self.args['render'])
