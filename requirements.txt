@@ -10,5 +10,6 @@ rtree
 networkx
 pandas
 matplotlib
+xmltodict
 argschema
 
