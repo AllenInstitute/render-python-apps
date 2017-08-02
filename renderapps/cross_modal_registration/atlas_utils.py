@@ -216,7 +216,9 @@ def make_tile_masks(siteset, sectionset, project, project_dir):
 def process_siteset(render,siteset, sectionset, project, project_path,at,lm_stack='ACQDAPI_1'):
     project_dir, project_file = os.path.split(project_path)
     project_base = os.path.splitext(project_file)[0]
-
+    ribnum = project_path.split(os.path.sep)[-2]
+    ribnum = int(ribnum.lower().replace('ribbon', ''))
+    
     nodes, paths=find_nodes_by_field(project, 'Name', siteset['Name'])
     ods=[ods for ods, p in zip(nodes, paths) if 'OrderedDataSet' in p]
     sitename=siteset['Name'].replace(' ', '')

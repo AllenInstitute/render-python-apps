@@ -78,8 +78,7 @@ if __name__ == '__main__':
         doc = xmltodict.parse(fd.read())
     project = doc['F-BioSEM-Project']['BioSemProject']
 
-    ribnum = project_path.split(os.path.sep)[-2]
-    ribnum = int(ribnum.lower().replace('ribbon', ''))
+
 
     projname = project_path.split(os.path.sep)[-4]
     assert (mod.render.DEFAULT_PROJECT == projname)
