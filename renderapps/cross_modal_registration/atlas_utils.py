@@ -218,7 +218,7 @@ def process_siteset(render,siteset, sectionset, project, project_path,at,lm_stac
     project_base = os.path.splitext(project_file)[0]
     ribnum = project_path.split(os.path.sep)[-2]
     ribnum = int(ribnum.lower().replace('ribbon', ''))
-    
+
     nodes, paths=find_nodes_by_field(project, 'Name', siteset['Name'])
     ods=[ods for ods, p in zip(nodes, paths) if 'OrderedDataSet' in p]
     sitename=siteset['Name'].replace(' ', '')
@@ -291,7 +291,7 @@ def process_siteset(render,siteset, sectionset, project, project_path,at,lm_stac
             tilespecs=renderapi.tilespec.get_tile_specs_from_z(
                 lm_stack, sectionZ, render=render)
             LMtile_xy=np.array(
-                [[ts['layout']['stageX'], ts['layout']['stageY']] for ts in tilespecs])
+                [[ts.layout.stageX, ts.layout.stageY] for ts in tilespecs])
             # print LMtile_xy
 
             image_corners=np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
