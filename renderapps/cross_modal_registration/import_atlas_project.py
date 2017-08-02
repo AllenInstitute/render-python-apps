@@ -118,6 +118,7 @@ if __name__ == '__main__':
                                          sectionset,
                                          project,
                                          project_dir,
+                                         at,
                                          lm_stack=mod.args['LM_stack'])
 
     # step 5: write conversion of EM tiles to EM tiles + masks

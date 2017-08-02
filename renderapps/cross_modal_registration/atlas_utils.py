@@ -213,7 +213,7 @@ def make_tile_masks(siteset, sectionset, project, project_dir):
                 #    print tile['UID'],tile['@row'],tile['@col'],tile['StageX'],tile['StageY']
                 # df.to_csv(sitefile,index=False,header=False)
 
-def process_siteset(render,siteset, sectionset, project, project_dir,lm_stack='ACQDAPI_1'):
+def process_siteset(render,siteset, sectionset, project, project_dir,at,lm_stack='ACQDAPI_1'):
     nodes, paths=find_nodes_by_field(project, 'Name', siteset['Name'])
     ods=[ods for ods, p in zip(nodes, paths) if 'OrderedDataSet' in p]
     sitename=siteset['Name'].replace(' ', '')
