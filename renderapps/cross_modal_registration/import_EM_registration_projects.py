@@ -11,7 +11,7 @@ import argparse
 from renderapi.tilespec import TileSpec
 from renderapi.transform import AffineModel
 
-from ..module.render_module import TrakEM2RenderModule, EMLMRegistrationParameters
+from ..module.render_module import TrakEM2RenderModule, EMLMRegistrationParameters, RenderModule
 
 import marshmallow as mm
 
