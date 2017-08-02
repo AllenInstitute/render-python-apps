@@ -35,7 +35,7 @@ import numpy as np
 import renderapi
 from ..module.render_module import RenderParameters, RenderModule
 from argschema.fields import InputFile, Str
-from atlas_utils import make_tile_masks, process_siteset
+from atlas_utils import make_tile_masks, process_siteset, find_node_by_field, AtlasTransform
 
 
 class ImportAtlasSchema(RenderParameters):
