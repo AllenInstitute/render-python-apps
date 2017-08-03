@@ -78,20 +78,8 @@ if __name__ == '__main__':
         doc = xmltodict.parse(fd.read())
     project = doc['F-BioSEM-Project']['BioSemProject']
 
-
-
     projname = project_path.split(os.path.sep)[-4]
     assert (mod.render.DEFAULT_PROJECT == projname)
-
-    # find the light dataset name
-    dataset = find_node_by_field(doc, 'Name', mod.args['LM_dataset_name'])
-    imported_data = find_node_by_field(doc, 'Name', 'Imported Data')
-
-    # get the important transforms from atlas file
-    # transform from EM data>root
-    at = AtlasTransform(dataset['ParentTransform'])
-    # transform from LMdata > root
-    id_at = AtlasTransform(imported_data['ParentTransform'])
 
     # get the list of sitesets
     if type(project['AtlasCarrier']['SectionSet']) == collections.OrderedDict:
@@ -115,9 +103,8 @@ if __name__ == '__main__':
             json_files = process_siteset(mod.render,
                                          siteset,
                                          sectionset,
-                                         project,
+                                         doc,
                                          project_path,
-                                         at,
                                          lm_stack=mod.args['LM_stack'])
 
     # step 5: write conversion of EM tiles to EM tiles + masks

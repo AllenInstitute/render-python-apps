@@ -213,7 +213,19 @@ def make_tile_masks(siteset, sectionset, project, project_dir):
                 #    print tile['UID'],tile['@row'],tile['@col'],tile['StageX'],tile['StageY']
                 # df.to_csv(sitefile,index=False,header=False)
 
-def process_siteset(render,siteset, sectionset, project, project_path,at,lm_stack='ACQDAPI_1'):
+def process_siteset(render,siteset, sectionset, doc, project_path,lm_stack='ACQDAPI_1'):
+    project = doc['F-BioSEM-Project']['BioSemProject']
+
+
+    # find the light dataset name
+    dataset = find_node_by_field(doc, 'Name', mod.args['LM_dataset_name'])
+    imported_data = find_node_by_field(doc, 'Name', 'Imported Data')
+    # get the important transforms from atlas file
+    # transform from EM data>root
+    at = AtlasTransform(dataset['ParentTransform'])
+    # transform from LMdata > root
+    id_at = AtlasTransform(imported_data['ParentTransform'])
+    
     project_dir, project_file = os.path.split(project_path)
     project_base = os.path.splitext(project_file)[0]
     ribnum = project_path.split(os.path.sep)[-2]
