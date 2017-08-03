@@ -38,9 +38,6 @@ class CreateTrakEM2Project(RenderModule):
             schema_type = TEM2ProjectTransfer
         super(CreateTrakEM2Project,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        print self.args
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
-
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,self.args['inputStack'])
 
         minZ = self.args.get('minZ',int(np.min(zvalues)))
