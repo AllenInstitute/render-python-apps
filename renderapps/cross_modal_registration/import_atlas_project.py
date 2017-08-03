@@ -105,6 +105,7 @@ if __name__ == '__main__':
                                          sectionset,
                                          doc,
                                          project_path,
+                                         lm_dataset=mod.args['LM_dataset_name']
                                          lm_stack=mod.args['LM_stack'])
 
     # step 5: write conversion of EM tiles to EM tiles + masks
