@@ -299,7 +299,7 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
             if type(mosaicdoc['Tile']) is not type([]):
                 mosaicdoc['Tile']=[mosaicdoc['Tile']]
             sectnum=int(section['SectionIndex'])
-            # print 'section number',sectnum
+            #print 'section number',sectnum
             sectionId='%d' % (1000 * ribnum + sectnum)
             sectionZ=renderapi.stack.get_section_z_value(
                 lm_stack, sectionId, render=render)
@@ -307,7 +307,7 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
                 lm_stack, sectionZ, render=render)
             LMtile_xy=np.array(
                 [[ts.layout.stageX, ts.layout.stageY] for ts in tilespecs])
-            # print LMtile_xy
+            #print 'sectionZ',sectionZ
 
             image_corners=np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
             # print "at"
@@ -330,14 +330,14 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
                     id_at.inverse_tform(mt.tform(tform.tform(image_corners) + shift)))
                 # EMtile_corners_lm_stage[:,1]+=(2048*.107)
                 # EMtile_corners_lm_stage[:,1]*=-1
-                # print EMtile_corners_lm_stage
+                #print "EMtile_corners_lm_stage",EMtile_corners_lm_stage
 
                 # tranform the EM tile through the transforms to get LM stage coordinates of center
                 # print tform
                 EMtile_center_lm_stage=at.inverse_tform(
                     id_at.inverse_tform(mt.tform(tform.tform(center) + shift)))
                 # EMtile_center_lm_stage[:,1]+=(2048*.107)
-                # print 'EMtile_center_lm_stage',EMtile_center_lm_stage
+                #print 'EMtile_center_lm_stage',EMtile_center_lm_stage
                 # EMtile_center_lm_stage[:,1]*=-1
                 # print [(ts['layout']['stageX']-tile_lm_stage[0,0])**2+(ts['layout']['stageY']+tile_lm_stage[0,1])**2 for ts in tilespecs]
                 # EMtile_xy = np.array([tile_lm_stage[0,0],-tile_lm_stage[0,1]])
@@ -352,7 +352,7 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
                 # this is the tilespec of the closest tile
                 close_spec=tilespecs[LMtile_i]
                 # print 'tile ',LMtile_i,'id',close_spec['tileId'], 'closest at ','%4.2f'%d[LMtile_i],' um'
-                # print close_spec
+                #print close_spec.tileId
 
                 # this calculates the delta from the EM stage coordinates to the LM stage coordinates
                 # and divides by the size of LM pixels, to get delta in pixels from the center of the LM tile
@@ -374,11 +374,12 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
                         [[close_spec.width / 2.0, close_spec.height / 2.0]])
 
                 # use renderapi to map these local pixel coordinates to the global space
-                EMtile_corners_world_coords=renderapi.coordinate.local_to_world_coordinates_array(
-                    lm_stack, EMtile_corners_local_pixels, close_spec.tileId, sectionZ,render=render)
-                EMtile_center_world_coords=renderapi.coordinate.local_to_world_coordinates_array(
-                    lm_stack, EMtile_center_local_pixels, close_spec.tileId, sectionZ,render=render)
-                # print "EMtile_center_world_coords",EMtile_center_world_coords
+                EMtile_corners_world_coords=renderapi.transform.estimate_dstpts(close_spec.tforms,EMtile_corners_local_pixels)
+                EMtile_center_world_coords=renderapi.transform.estimate_dstpts(close_spec.tforms,EMtile_center_local_pixels)
+                #print lm_stack
+                #print "localmap",renderapi.transform.estimate_dstpts(close_spec.tforms,EMtile_center_local_pixels)
+                #print "EMtile_center_local_pixels",EMtile_center_local_pixels
+                #print "EMtile_center_world_coords",EMtile_center_world_coords
 
                 # these are the local coordinates of the corners of the EM tile
                 # listed in the same order as the "corners" variable, but noting
@@ -414,19 +415,19 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
                                 stageY=tform.tform(center)[0, 1],
                                 rotation=0.0,
                                 pixelsize=0.03)
-                flip=AffineModel(M00=1,
-                                    M01=0,
-                                    M10=0,
-                                    M11=1,
-                                    B0=5000 * (col - 1),
-                                    B1=-5000 * (row - 1))
+                # flip=AffineModel(M00=1,
+                #                     M01=0,
+                #                     M10=0,
+                #                     M11=1,
+                #                     B0=5000 * (col - 1),
+                #                     B1=-5000 * (row - 1))
 
-                am=AffineModel(M00=emtform[0, 0],
-                                    M01=emtform[0, 1],
-                                    M10=emtform[1, 0],
-                                    M11=emtform[1, 1],
-                                    B0=emtform[0, 2],
-                                    B1=emtform[1, 2])
+                # am=AffineModel(M00=emtform[0, 0],
+                #                     M01=emtform[0, 1],
+                #                     M10=emtform[1, 0],
+                #                     M11=emtform[1, 1],
+                #                     B0=emtform[0, 2],
+                #                     B1=emtform[1, 2])
 
                 amf=AffineModel(M00=emtform[0, 0],
                                     M01=emtform[0, 1],
@@ -461,4 +462,5 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
             with open(json_file,'w') as fp:
                 renderapi.utils.renderdump(tilespeclist,fp)
             json_files.append(json_file)
+            
     return json_files

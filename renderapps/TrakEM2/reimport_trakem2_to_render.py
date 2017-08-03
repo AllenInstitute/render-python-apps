@@ -31,14 +31,12 @@ example_parameters = {
     "renderHome":"/pipeline/forrestrender/"
 }
 
-class ReImportTrakEM2ToRender(RenderModule):
+class ReImportTrakEM2ToRender(TrakEM2RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = TEM2ProjectTransfer
-        super(Template,self).__init__(schema_type=schema_type,*args,**kwargs)
+        super(ReImportTrakEM2ToRender,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        print self.args
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,self.args['inputStack'])
 
         minZ = self.args.get('minZ',int(np.min(zvalues)))
@@ -94,10 +92,12 @@ class ReImportTrakEM2ToRender(RenderModule):
 
             if not self.args['doChunk']:
                 #renderapi.stack.delete_stack(self.args['outputStack'],render=r)
+                sv = renderapi.stack.get_stack_metadata(self.args['inputStack'],render=self.render)
                 renderapi.stack.create_stack(self.args['outputStack'],render=self.render)
+                renderapi.stack.set_stack_metadata(self.args['outputStack'],sv, render=self.render)
                 renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],jsonfiles,render=self.render)
 
 
 if __name__ == "__main__":
-    mod = ReImportTrakEM2ToRender(input_data= example_parameters)
+    mod = ReImportTrakEM2ToRender()
     mod.run()

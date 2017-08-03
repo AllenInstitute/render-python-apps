@@ -63,7 +63,7 @@ example_parameters = {
     'LM_dataset_name': 'test',
     'site_name': 'Site 3',
     'output_stack': 'EMSite3RAW',
-    'lm_stack': 'ACQDAPI_1'
+    'LM_stack': 'BIGREG_MARCH_21_DAPI_1'
 }
 
 if __name__ == '__main__':
@@ -107,7 +107,7 @@ if __name__ == '__main__':
                                          project_path,
                                          lm_dataset=mod.args['LM_dataset_name'],
                                          lm_stack=mod.args['LM_stack'])
-
+            break
     # step 5: write conversion of EM tiles to EM tiles + masks
     #     DONE, first try was writing as LZW, binary bit depth with imagemagik convert, very small on disk
     #     we will see if render is ok with them
@@ -119,5 +119,9 @@ if __name__ == '__main__':
 
     # step 7: upload those tilespecs to the render database as a new channel stack (ACQEM)
     output_stack = mod.args['output_stack']
-    renderapi.stack.create_stack(output_stack, render=mod.render)
+    renderapi.stack.create_stack(output_stack,
+                                 stackResolutionX=3.0,
+                                 stackResolutionY=3.0,
+                                 stackResolutionZ=50,
+                                 render=mod.render)
     renderapi.client.import_jsonfiles_parallel(output_stack, json_files, render=mod.render)
