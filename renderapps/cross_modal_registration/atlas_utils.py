@@ -139,79 +139,82 @@ def get_protocol_metadata(protocol_id, project):
     return pixsize, width, height
 
 
-def make_tile_masks(siteset, sectionset, project, project_dir):
-        nodes, paths = find_nodes_by_field(project, 'Name', siteset['Name'])
-        ods = [ods for ods, p in zip(nodes, paths) if 'OrderedDataSet' in p]
+def make_tile_masks(siteset, sectionset, project, project_path):
+    project_dir, project_file = os.path.split(project_path)
+    project_base = os.path.splitext(project_file)[0]
 
-        if len(ods) > 0:
-            # print "found it"
-            ods = ods[0]
+    nodes, paths = find_nodes_by_field(project, 'Name', siteset['Name'])
+    ods = [ods for ods, p in zip(nodes, paths) if 'OrderedDataSet' in p]
 
-            outdir = os.path.join(os.path.join(
-                project_dir, 'TEM2_import_files'))
-            if not os.path.isdir(outdir):
-                os.makedirs(outdir)
+    if len(ods) > 0:
+        # print "found it"
+        ods = ods[0]
 
-            for site in siteset['Site']:
-                sitefile = os.path.join(
-                    outdir, site['Name'].replace(' ', '') + '.csv')
-                # print sitefile
+        outdir = os.path.join(os.path.join(
+            project_dir, 'TEM2_import_files'))
+        if not os.path.isdir(outdir):
+            os.makedirs(outdir)
 
-                section = [section for section in sectionset['Section']
-                    if section['UID'] == site['LinkedToUID']][0]
-                if type(ods['PlaceableMosaic']) is not type([]):
-                    ods['PlaceableMosaic'] = [ods['PlaceableMosaic']]
+        for site in siteset['Site']:
+            sitefile = os.path.join(
+                outdir, site['Name'].replace(' ', '') + '.csv')
+            # print sitefile
 
-                mosaic = [pm for pm in ods['PlaceableMosaic'] if pm['UID']
-                    == site['AcquisitionSpec']['AcquiredDataUID']]
+            section = [section for section in sectionset['Section']
+                if section['UID'] == site['LinkedToUID']][0]
+            if type(ods['PlaceableMosaic']) is not type([]):
+                ods['PlaceableMosaic'] = [ods['PlaceableMosaic']]
 
-                if len(mosaic) == 0:
-                    continue
-                else:
-                    mosaic = mosaic[0]
+            mosaic = [pm for pm in ods['PlaceableMosaic'] if pm['UID']
+                == site['AcquisitionSpec']['AcquiredDataUID']]
 
-                relpath = mosaic['FileName'][mosaic['FileName'].find(
-                    project_base):]
-                # print relpath
-                unixpath = relpath.replace('\\', '/')
-                unixpath = os.path.join(project_dir, unixpath)
-                basedir = os.path.split(unixpath)[0]
-                base = os.path.splitext(unixpath)[0]
-                updatespath = base + '.ve-updates'
-                with open(updatespath) as fd:
-                    mosaicdoc = xmltodict.parse(fd.read())['ATLAS-Stitch-Info']
-                rootdir = mosaicdoc['OriginalRoot']
-                if type(mosaicdoc['Tile']) is not type([]):
-                    mosaicdoc['Tile'] = [mosaicdoc['Tile']]
-                cmds = []
-                for i, tile in enumerate(mosaicdoc['Tile']):
-                    path = os.path.join(basedir, tile['Name'] + '.tif')
-                    maskpath = os.path.join(
-                        basedir, tile['Name'][0:-4] + '_mask.tif')
-                    flippath = os.path.join(
-                        basedir, tile['Name'][0:-4] + '_flip.jpg')
-                    maskcmd = ['convert', path, '-threshold', '1',
-                        '-compress', 'LZW', '-depth', '8', '-flip', maskpath]
-                    flipcmd = ['convert', path, '-depth', '8', '-flip',
-                        '-quality', '85', '-negate', flippath]
-                    # print path
-                    # print maskpath
-                    # print cmd
-                    cmds.append(maskcmd)
-                    cmds.append(flipcmd)
+            if len(mosaic) == 0:
+                continue
+            else:
+                mosaic = mosaic[0]
 
-                    # proc=subprocess.Popen(maskcmd,stdout=subprocess.PIPE)
+            relpath = mosaic['FileName'][mosaic['FileName'].find(
+                project_base):]
+            # print relpath
+            unixpath = relpath.replace('\\', '/')
+            unixpath = os.path.join(project_dir, unixpath)
+            basedir = os.path.split(unixpath)[0]
+            base = os.path.splitext(unixpath)[0]
+            updatespath = base + '.ve-updates'
+            with open(updatespath) as fd:
+                mosaicdoc = xmltodict.parse(fd.read())['ATLAS-Stitch-Info']
+            rootdir = mosaicdoc['OriginalRoot']
+            if type(mosaicdoc['Tile']) is not type([]):
+                mosaicdoc['Tile'] = [mosaicdoc['Tile']]
+            cmds = []
+            for i, tile in enumerate(mosaicdoc['Tile']):
+                path = os.path.join(basedir, tile['Name'] + '.tif')
+                maskpath = os.path.join(
+                    basedir, tile['Name'][0:-4] + '_mask.tif')
+                flippath = os.path.join(
+                    basedir, tile['Name'][0:-4] + '_flip.jpg')
+                maskcmd = ['convert', path, '-threshold', '1',
+                    '-compress', 'LZW', '-depth', '8', '-flip', maskpath]
+                flipcmd = ['convert', path, '-depth', '8', '-flip',
+                    '-quality', '85', '-negate', flippath]
+                # print path
+                # print maskpath
+                # print cmd
+                cmds.append(maskcmd)
+                cmds.append(flipcmd)
 
-                    # proc.wait()
-                groups = [(subprocess.Popen(cmd, stdout=subprocess.PIPE)
-                         for cmd in cmds)] * 12  # itertools' grouper recipe
-                # run len(processes) == limit at a time
-                for processes in izip_longest(*groups):
-                    for p in filter(None, processes):
-                        p.wait()
-                # for tile in mosaicdoc['Tiles']['Tile']:
-                #    print tile['UID'],tile['@row'],tile['@col'],tile['StageX'],tile['StageY']
-                # df.to_csv(sitefile,index=False,header=False)
+                # proc=subprocess.Popen(maskcmd,stdout=subprocess.PIPE)
+
+                # proc.wait()
+            groups = [(subprocess.Popen(cmd, stdout=subprocess.PIPE)
+                        for cmd in cmds)] * 12  # itertools' grouper recipe
+            # run len(processes) == limit at a time
+            for processes in izip_longest(*groups):
+                for p in filter(None, processes):
+                    p.wait()
+            # for tile in mosaicdoc['Tiles']['Tile']:
+            #    print tile['UID'],tile['@row'],tile['@col'],tile['StageX'],tile['StageY']
+            # df.to_csv(sitefile,index=False,header=False)
 
 def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='test',lm_stack='ACQDAPI_1'):
     project = doc['F-BioSEM-Project']['BioSemProject']
@@ -365,16 +368,16 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
                 # are in such a manner that positive y is down, and positive x is to the right
                 EMtile_corners_local_pixels=delt + \
                     np.array(
-                        [[close_spec['width'] / 2.0, close_spec['height'] / 2.0]])
+                        [[close_spec.width / 2.0, close_spec.height / 2.0]])
                 EMtile_center_local_pixels=delt_center + \
                     np.array(
-                        [[close_spec['width'] / 2.0, close_spec['height'] / 2.0]])
+                        [[close_spec.width / 2.0, close_spec.height / 2.0]])
 
                 # use renderapi to map these local pixel coordinates to the global space
                 EMtile_corners_world_coords=renderapi.coordinate.local_to_world_coordinates_array(
-                    lm_stack, EMtile_corners_local_pixels, close_spec['tileId'], sectionZ,render=render)
+                    lm_stack, EMtile_corners_local_pixels, close_spec.tileId, sectionZ,render=render)
                 EMtile_center_world_coords=renderapi.coordinate.local_to_world_coordinates_array(
-                    lm_stack, EMtile_center_local_pixels, close_spec['tileId'], sectionZ,render=render)
+                    lm_stack, EMtile_center_local_pixels, close_spec.tileId, sectionZ,render=render)
                 # print "EMtile_center_world_coords",EMtile_center_world_coords
 
                 # these are the local coordinates of the corners of the EM tile
@@ -451,7 +454,8 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
             # for tile in mosaicdoc['Tiles']['Tile']:
             #    print tile['UID'],tile['@row'],tile['@col'],tile['StageX'],tile['StageY']
             # df.to_csv(sitefile,index=False,header=False)
-   
+            tilespec_path = os.path.join(project_dir,'tilespecs')
+
             json_file=os.path.join(
                 tilespec_path, 'EM_rib%04dsect%04d_%s.json' % (ribnum, sectnum, sitename))
             with open(json_file,'w') as fp:

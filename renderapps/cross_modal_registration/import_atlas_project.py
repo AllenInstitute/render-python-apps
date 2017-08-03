@@ -35,7 +35,7 @@ import numpy as np
 import renderapi
 from ..module.render_module import RenderParameters, RenderModule
 from argschema.fields import InputFile, Str
-from atlas_utils import make_tile_masks, process_siteset, find_node_by_field, AtlasTransform
+from atlas_utils import make_tile_masks, process_siteset
 
 
 class ImportAtlasSchema(RenderParameters):
@@ -111,13 +111,13 @@ if __name__ == '__main__':
     # step 5: write conversion of EM tiles to EM tiles + masks
     #     DONE, first try was writing as LZW, binary bit depth with imagemagik convert, very small on disk
     #     we will see if render is ok with them
-    for siteset in sitesets:
-        if siteset['Name'] == mod.args['site_name']:
-            print 'in', siteset['Name']
-            # uncomment to make masks and flipped images
-            make_tile_masks(siteset, sectionset, project, project_dir)
+    # for siteset in sitesets:
+    #     if siteset['Name'] == mod.args['site_name']:
+    #         print 'in', siteset['Name']
+    #         # uncomment to make masks and flipped images
+    #         make_tile_masks(siteset, sectionset, project, project_path)
 
     # step 7: upload those tilespecs to the render database as a new channel stack (ACQEM)
     output_stack = mod.args['output_stack']
     renderapi.stack.create_stack(output_stack, render=mod.render)
-    renderapi.client.import_jsonfiles_parallel(output_stack, json_files)
+    renderapi.client.import_jsonfiles_parallel(output_stack, json_files, render=mod.render)
