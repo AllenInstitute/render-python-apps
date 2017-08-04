@@ -24,19 +24,7 @@ note for each module you can get help about the parameters by running
 python -m renderapps.module.example_module --help
 
 2) passing a json file from command line
-```JSON
-    {
-        "render":{
-            "host":"RENDERHOST",
-            "port":$RENDERPORT,
-            "owner":"OWNERNAME",
-            "project":"PROJECTNAME",
-            "client_scripts":"PATHTORENDERSCRIPTS"
-        },
-        "param1":"P1",
-        "param2":10,
-    } 
-```
+
 ```Shell
     python -m renderapps.module.example_module --input_json path_to_json_file
 ```
@@ -70,7 +58,7 @@ No matter how the module is run, all input parameters will be validated using th
 
 # Repo Organization
 
-The code is now organized in a sub-module structure arranged thematically by purpose.
+The code is organized in a sub-module structure arranged thematically by purpose.
 You can (or will when we are done with documentation) find more detailed descriptions of each submodule in the subfolders. 
 
 Here are the thematic areas
