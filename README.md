@@ -30,6 +30,7 @@ This will read the parameters from the json file passed in.  Note that command l
 
 3) calling the module from another python program
 
+```Python
         from renderapps.module.example_module import ExampleModule
 
         module_parameters = {
@@ -46,6 +47,7 @@ This will read the parameters from the json file passed in.  Note that command l
 
         mod = ExampleModule(input_data=module_parameters, args = [])
         mod.run()
+```
 
 Note that passing in args =[] will bypass the command line parsing.
 
