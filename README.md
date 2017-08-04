@@ -10,6 +10,7 @@ module can be run in 3 different ways
 
 1) passing parameters via command line parameters
 
+```bash
         python -m renderapps.module.example_module\
         --render.host RENDERHOST_DNS_OR_IP\
         --render.port RENDERPORT\
@@ -18,7 +19,7 @@ module can be run in 3 different ways
         --render.client_scripts PATHTORENDERSCRIPTS \
         --param1 P1\
         --param2 P2
-
+```
 note for each module you can get help about the parameters by running
 python -m renderapps.module.example_module --help
 
