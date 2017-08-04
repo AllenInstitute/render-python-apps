@@ -28,13 +28,13 @@ python -m renderapps.module.example_module --help
     {
         "render":{
             "host":"RENDERHOST",
-            "port":RENDERPORT,
+            "port":$RENDERPORT,
             "owner":"OWNERNAME",
             "project":"PROJECTNAME",
             "client_scripts":"PATHTORENDERSCRIPTS"
         },
         "param1":"P1",
-        "param2":P2,
+        "param2":10,
     } 
 ```
 ```Shell
