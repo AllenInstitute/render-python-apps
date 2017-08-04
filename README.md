@@ -9,14 +9,15 @@ www.github.com/AllenInstitute/argschema
 module can be run in 3 different ways
 
 1) passing parameters via command line parameters
-python -m renderapps.module.example_module\
- --render.host RENDERHOST_DNS_OR_IP\
- --render.port RENDERPORT\
- --render.owner OWNERNAME\
- --render.project PROJECTNAME\
- --render.client_scripts PATHTORENDERSCRIPTS \
- --param1 P1\
- --param2 P2
+
+        python -m renderapps.module.example_module\
+        --render.host RENDERHOST_DNS_OR_IP\
+        --render.port RENDERPORT\
+        --render.owner OWNERNAME\
+        --render.project PROJECTNAME\
+        --render.client_scripts PATHTORENDERSCRIPTS \
+        --param1 P1\
+        --param2 P2
 
 note for each module you can get help about the parameters by running
 python -m renderapps.module.example_module --help
@@ -28,21 +29,22 @@ This will read the parameters from the json file passed in.  Note that command l
 
 3) calling the module from another python program
 
-from renderapps.module.example_module import ExampleModule
+        from renderapps.module.example_module import ExampleModule
 
-module_parameters = {
-    "render":{
-        "host":"RENDERHOST",
-        "port":RENDERPORT,
-        "owner":"OWNERNAME",
-        "project":"PROJECTNAME",
-        "client_scripts":"PATHTORENDERSCRIPTS"
-    },
-    "param1":"P1",
-    "param2":P2,
-}    
-mod = ExampleModule(input_data=module_parameters, args = [])
-mod.run()
+        module_parameters = {
+            "render":{
+                "host":"RENDERHOST",
+                "port":RENDERPORT,
+                "owner":"OWNERNAME",
+                "project":"PROJECTNAME",
+                "client_scripts":"PATHTORENDERSCRIPTS"
+            },
+            "param1":"P1",
+            "param2":P2,
+        }    
+
+        mod = ExampleModule(input_data=module_parameters, args = [])
+        mod.run()
 
 Note that passing in args =[] will bypass the command line parsing.
 
