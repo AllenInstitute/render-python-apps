@@ -24,7 +24,22 @@ note for each module you can get help about the parameters by running
 python -m renderapps.module.example_module --help
 
 2) passing a json file from command line
-python -m renderapps.module.example_module --input_json path_to_json_file
+```JSON
+    {
+        "render":{
+            "host":"RENDERHOST",
+            "port":RENDERPORT,
+            "owner":"OWNERNAME",
+            "project":"PROJECTNAME",
+            "client_scripts":"PATHTORENDERSCRIPTS"
+        },
+        "param1":"P1",
+        "param2":P2,
+    } 
+```
+```Shell
+    python -m renderapps.module.example_module --input_json path_to_json_file
+```
 
 This will read the parameters from the json file passed in.  Note that command line arguments can be mixed with json definitions, and command line arguments overwrite parameters specified in the json.
 
