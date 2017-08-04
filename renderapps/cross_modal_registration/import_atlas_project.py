@@ -33,8 +33,11 @@ import collections
 import os
 import numpy as np
 import renderapi
+import sys
+if __name__ == '__main__':
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ..module.render_module import RenderParameters, RenderModule
-from argschema.fields import InputFile, Str
+from argschema.fields import InputFile, Str, Bool
 from atlas_utils import make_tile_masks, process_siteset
 
 
@@ -49,7 +52,8 @@ class ImportAtlasSchema(RenderParameters):
                        description="name of stack to save into render")
     LM_stack = Str(required=True, default='ACQDAPI_1',
                    description="Name of LM stack in render that was imported into atlas and whose coordinate system the EM tiles will be registered to")
-
+    make_tiles = Bool(required=False, default=True,
+                      description="whether to launch jobs to make jpg img tiles of raw atlas tif's (inverting and flipping)")
 
 example_parameters = {
     "render": {
@@ -61,8 +65,8 @@ example_parameters = {
     },
     'project_path': '/nas/data/M247514_Rorb_1/EMraw/ribbon0000/M247514_Rorb_1_Ribbon0000_take2.a5proj',
     'LM_dataset_name': 'test',
-    'site_name': 'Site 3',
-    'output_stack': 'EMSite3RAW',
+    'site_name': 'Site 5',
+    'output_stack': 'EMSite5_take2RAW',
     'LM_stack': 'BIGREG_MARCH_21_DAPI_1'
 }
 
@@ -111,17 +115,18 @@ if __name__ == '__main__':
     # step 5: write conversion of EM tiles to EM tiles + masks
     #     DONE, first try was writing as LZW, binary bit depth with imagemagik convert, very small on disk
     #     we will see if render is ok with them
-    # for siteset in sitesets:
-    #     if siteset['Name'] == mod.args['site_name']:
-    #         print 'in', siteset['Name']
-    #         # uncomment to make masks and flipped images
-    #         make_tile_masks(siteset, sectionset, project, project_path)
+    if mod.args['make_tiles']:
+        for siteset in sitesets:
+            if siteset['Name'] == mod.args['site_name']:
+                print 'in', siteset['Name']
+                # uncomment to make masks and flipped images
+                make_tile_masks(siteset, sectionset, project, project_path)
 
     # step 7: upload those tilespecs to the render database as a new channel stack (ACQEM)
     output_stack = mod.args['output_stack']
+    sv = renderapi.stack.get_stack_metadata(mod.args['LM_stack'], render=mod.render)
+
     renderapi.stack.create_stack(output_stack,
-                                 stackResolutionX=3.0,
-                                 stackResolutionY=3.0,
-                                 stackResolutionZ=50,
                                  render=mod.render)
+    renderapi.stack.set_stack_metadata(output_stack,sv,render=mod.render)
     renderapi.client.import_jsonfiles_parallel(output_stack, json_files, render=mod.render)

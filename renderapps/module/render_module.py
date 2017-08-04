@@ -65,6 +65,23 @@ class EMLMRegistrationParameters(TEM2ProjectTransfer):
     maxZ = argschema.fields.Int(
         required=False, description='maximum z (default to EM stack bounds)')
 
+class EMLMRegistrationMultiParameters(TEM2ProjectTransfer):
+    LMstacks = argschema.fields.List(argschema.fields.Str,
+        required=True, description='names of LM stack to use for registration')
+    minX = argschema.fields.Int(
+        required=False, description='minimum x (default to EM stack bounds)')
+    minY = argschema.fields.Int(
+        required=False, description='minimum y (default to EM stack bounds)')
+    maxX = argschema.fields.Int(
+        required=False, description='maximum x (default to EM stack bounds)')
+    maxY = argschema.fields.Int(
+        required=False, description='maximum y (default to EM stack bounds)')
+    minZ = argschema.fields.Int(
+        required=False, description='minimum z (default to EM stack bounds)')
+    maxZ = argschema.fields.Int(
+        required=False, description='maximum z (default to EM stack bounds)')
+
+
 
 class RenderModule(argschema.ArgSchemaParser):
     def __init__(self, schema_type=None, *args, **kwargs):

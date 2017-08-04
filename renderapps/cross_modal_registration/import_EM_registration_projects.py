@@ -23,23 +23,17 @@ example_json = {
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "inputStack":"EM_fix_stitch3",
-    "LMstack":"REGFLATMBP_deconv",
-    "outputStack":"EM_reg2",
-    "renderHome":"/pipeline/render",
-    "minX":190000,
-    "minY":90000,
-    "maxX":225424,
-    "maxY":123142,
-    "minZ":0,
-    "maxZ":50,
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects/"
+    "inputStack":"EM_Site4_stitched_SHIFT",
+    "LMstack":"BIGREG_MARCH_21_MBP_deconvnew",
+    "outputStack":"BIGREG_EM_Site4_stitched",
+    "renderHome":"/var/www/render",
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects_Site4/"
 }
 class ImportEMRegistrationProjects(TrakEM2RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = EMLMRegistrationParameters
-        super(Template,self).__init__(schema_type=schema_type,*args,**kwargs)
+        super(ImportEMRegistrationProjects,self).__init__(schema_type=schema_type,*args,**kwargs)
 
     def run(self):
         print mod.args
@@ -47,22 +41,25 @@ class ImportEMRegistrationProjects(TrakEM2RenderModule):
         if not os.path.isdir(self.args['outputXMLdir']):
             os.makedirs(self.args['outputXMLdir'])
         xmlDir = self.args['outputXMLdir']
-
-        EMz = renderapi.stack.get_z_values_for_stack(self.args['EMstack'],render=self.render)
+        #fill in missing bounds with the input stack bounds
+        bounds = self.render.run(renderapi.stack.get_stack_bounds,self.args['inputStack'])
+        for key in bounds.keys():
+            self.args[key]=self.args.get(key,bounds[key])
+        EMz = renderapi.stack.get_z_values_for_stack(self.args['inputStack'],render=self.render)
 
         tilespecsfiles = []
-        shiftTransform = AffineModel(B0=args['minX'],B1=args['minY'])
+        shiftTransform = AffineModel(B0=self.args['minX'],B1=self.args['minY'])
 
         for z in EMz:
             infile = os.path.join(xmlDir,'%05d.xml'%z)
             outfile = os.path.join(xmlDir,'%05d.json'%z)
             newoutfile = os.path.join(xmlDir,'%05d-new.json'%z)
-            self.convert_trakem2_project(self,infile,xmlDir,outfile)
+            self.convert_trakem2_project(infile,xmlDir,outfile)
          
             newtilejson = json.load(open(outfile,'r'))
             newEMtilespecs = [TileSpec(json=tsj) for tsj in newtilejson]
             EMtilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(
-                            EMstack,
+                            self.args['inputStack'],
                             z,
                             self.args['minX'],
                             self.args['maxX'],
@@ -76,9 +73,9 @@ class ImportEMRegistrationProjects(TrakEM2RenderModule):
             tilespecsfiles.append(newoutfile)
             renderapi.utils.renderdump(EMtilespecs,open(newoutfile,'w'))
 
-        renderapi.stack.delete_stack(self.args['outputEMStack'],render=self.render)
-        renderapi.stack.create_stack(self.args['outputEMStack'],render=self.render)
-        renderapi.client.import_jsonfiles_parallel(self.args['outputEMStack'],tilespecsfiles,render=self.render)
+        renderapi.stack.delete_stack(self.args['outputStack'],render=self.render)
+        renderapi.stack.create_stack(self.args['outputStack'],render=self.render)
+        renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],tilespecsfiles,render=self.render)
 
 if __name__ == "__main__":
     mod = ImportEMRegistrationProjects(input_data= example_json)

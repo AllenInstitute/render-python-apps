@@ -19,7 +19,7 @@ example_parameters = {
     },
     'input_stack':'ALIGNEM_reg2',
     'output_stack':'ALIGNEM_reg2_clahe',
-    'pool_size':20
+    'pool_size':10
 }
 class FilterEMParameters(RenderParameters):
     input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
