@@ -10,8 +10,8 @@ module can be run in 3 different ways
 
 1) passing parameters via command line parameters
 
-```bash
-        python -m renderapps.module.example_module\
+```Shell
+        $ python -m renderapps.module.example_module\
         --render.host RENDERHOST_DNS_OR_IP\
         --render.port RENDERPORT\
         --render.owner OWNERNAME\
