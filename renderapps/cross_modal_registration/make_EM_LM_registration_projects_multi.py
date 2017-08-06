@@ -19,7 +19,7 @@ example_json = {
     },
     "inputStack":"BIGREG_EM_Site4_stitched",
     "LMstacks":["BIGREG_MARCH_21_PSD95","BIGREG_MARCH_21_MBP_deconvnew","BIGREG_MARCH_21_DAPI_1"],
-    "outputStack":"BIGREG_EM_Site4_stitched",
+    "outputStack":"BIGREG_EM_Site4",
     "renderHome":"/var/www/render",
     "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegMultiProjects_Site4b/"
 }
