@@ -73,7 +73,7 @@ class ImportEMRegistrationProjects(TrakEM2RenderModule):
             tilespecsfiles.append(newoutfile)
             renderapi.utils.renderdump(EMtilespecs,open(newoutfile,'w'))
 
-        sv = renderapi.stack.get_stack_metadata(self.args['inputStack'],render=render)
+        sv = renderapi.stack.get_stack_metadata(self.args['inputStack'],render=self.render)
         renderapi.stack.create_stack(self.args['outputStack'],render=self.render)
         renderapi.stack.set_stack_metadata(self.args['outputStack'],sv,render=self.render)
         renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],tilespecsfiles,render=self.render)
