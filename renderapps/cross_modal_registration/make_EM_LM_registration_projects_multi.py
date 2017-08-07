@@ -57,6 +57,10 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
                             self.args['minY'],
                             self.args['maxY'],
                             render=self.render)
+            if 'DAPI' in EMstack:
+                for ts in EMtilespecs:
+                    ts.minint = 0
+                    ts.maxint = 6000
             createlayer_fromtilespecs(EMtilespecs, outfile,0,shiftx=-self.args['minX'],shifty=-self.args['minY'])
             for i,LMstack in enumerate(LMstacks):
                 LMtilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(
@@ -72,6 +76,10 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
                         ts.minint = 2400
                         ts.maxint = 7000
                 if 'MBP' in LMstack:
+                    for ts in LMtilespecs:
+                        ts.minint = 0
+                        ts.maxint = 6000
+                if 'DAPI' in LMstack:
                     for ts in LMtilespecs:
                         ts.minint = 0
                         ts.maxint = 6000
