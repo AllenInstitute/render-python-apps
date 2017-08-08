@@ -45,22 +45,22 @@ class AddDownSampleParameters(RenderParameters):
                                    default=False,
                                    description="whether this module shoudl re-create already existing mipmaps or simply skip their creation")
     input_stack = mm.fields.Str(required=True,
-        metadata={'description':'stack to input'})
+        description='stack to input')
     output_stack = mm.fields.Str(required=True,
-        metadata={'description':'stack to output (deletes before upload)'})
+        description='stack to output (deletes before upload)')
     convert_to_8bit = mm.fields.Boolean(required=False,default=True,
-        metadata={'description':'convert the data from 16 to 8 bit (default True)'})
+        description='convert the data from 16 to 8 bit (default True)')
     path_find = mm.fields.Str(required=False,default = 'raw/data',
         metadata = {'description':'string to find in original image path to replace with path_replace'})
     path_replace = mm.fields.Str(required=False,default = 'processed/downsampled_images',
         metadata = {'description':'string to replace path_find in original image path'})
     pool_size = mm.fields.Int(required=False, default=20,
-        metadata={'description':'size of parallelism'})
+        description='size of parallelism')
     mipmapspecs = mm.fields.Nested(MipMapCreationParameter,
                                    many=True,
                                    required=True,
                                    description="list of mipmap compression specs to apply")
-                                   
+
 
 
 def make_tilespecs_and_cmds(render,inputStack,outputStack,path_find,path_replace):

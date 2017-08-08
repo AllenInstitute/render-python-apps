@@ -8,11 +8,11 @@ from argschema.fields import Str
 
 class UploadChannelTileSpecParameters(RenderParameters):
     inputDir = Str(required=True,
-        metadata={'description':'directory to upload'})
+        description='directory to upload')
     outputStack = Str(required=True,
-        metadata={'description':'directory to upload'})
+        description='directory to upload')
     channel = Str(required=True,
-        metadata={'description':'directory to upload'})
+        description='directory to upload')
 
 class UploadChannelModule(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):

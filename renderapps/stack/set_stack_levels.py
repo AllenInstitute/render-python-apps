@@ -20,13 +20,13 @@ example_json = {
 
 class SetStackLevelsParameters(RenderParameters):
     stack = Str(required=True,
-        metadata={'description':'name of stack to edit'})
+        description='name of stack to edit')
     minIntensity = Int(required=False,default=None,
-        metadata={'description':'minIntensity to set for stack (default: do not change)'})
+        description='minIntensity to set for stack (default: do not change)')
     maxIntensity = Int(required=False,default=None,
-                metadata={'description':'maxIntensity to set for stack (default: do not change)'})
+                description='maxIntensity to set for stack (default: do not change)')
     pool_size = Int(required=False,default=20,
-        metadata={'description':'degree of parallelism to use (default to 20)'})
+        description='degree of parallelism to use (default to 20)')
 
 #define a function for a single z value
 def process_z(render,stack,minIntensity,maxIntensity, z):

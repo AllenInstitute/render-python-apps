@@ -10,13 +10,13 @@ import pandas as pd
 
 class CreateFastStacksParameters(RenderParameters):
     statetableFile = InputFile(required=True,
-        metadata={'description':'state table file'})
+        description='state table file')
     projectDirectory = InputDir(required=True,
-        metadata={'description':'path to project root'})
+        description='path to project root')
     outputStackPrefix = Str(required=False,default="ACQ",
-        metadata={'description':'prefix to include in front of channel name for render stack'})
+        description='prefix to include in front of channel name for render stack')
     pool_size = Int(require=False,default=20,
-        metadata={'description':'number of parallel threads to use'})
+        description='number of parallel threads to use')
 
 def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputStack,minval=0,maxval=50000):
     df = df[df['zstack']==0]

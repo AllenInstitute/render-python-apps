@@ -27,29 +27,29 @@ example_parameters={
 }
 class queryParameters(argschema.schemas.mm.Schema):
     removeAllOption = argschema.fields.Boolean(required=False,
-        metadata={'description':'boolean to include as to whether to strip all transforms when rendering for normalizeForMatching=true'})
+        description='boolean to include as to whether to strip all transforms when rendering for normalizeForMatching=true')
     minIntensity = argschema.fields.Int(required=False,
-        metadata={'description':'option to override minIntensity settings of each tilespec to this value'})
+        description='option to override minIntensity settings of each tilespec to this value')
     maxIntensity = argschema.fields.Int(required=False,
-        metadata={'description':'option to override maxIntensity settings of each tilespec to this value'})
+        description='option to override maxIntensity settings of each tilespec to this value')
 
 class CreateTilePairsForSingleZParameters(RenderParameters):
     stack = argschema.fields.Str(required=True,
-        metadata={'description':'stack to take stitching from'})
+        description='stack to take stitching from')
     z = argschema.fields.Int(required=True,
-        metadata={'description':'z value to create tilepairs that include'})
+        description='z value to create tilepairs that include')
     dz = argschema.fields.Int(required=False,default=10,
         metadata ={'description':'number of sections away to include in tilepair'})
     tilepair_output = argschema.fields.Str(required=True,
         metadata = {'description':'path to save tilepair file output'})
     radius = argschema.fields.Float(required=False,default=.1,
-        metadata={'description':'fraction of tile radius to look for pairs'})
+        description='fraction of tile radius to look for pairs')
     overlap_frac = mm.fields.Float(required=False,default=.25,
-        metadata={'description':'fraction of tile area overlap necessary to include in pairfile'})
+        description='fraction of tile area overlap necessary to include in pairfile')
     pool_size = mm.fields.Int(required=False,default=20,
-        metadata={'description':'number of parallel processes (default 20)'})
+        description='number of parallel processes (default 20)')
     queryParameters = argschema.fields.Nested(queryParameters,required=False,
-        metadata={'description':'extra query parameters to add on to tilepair file if you have it'})
+        description='extra query parameters to add on to tilepair file if you have it')
 
 class Tile(argschema.schemas.mm.Schema):
     groupId = argschema.fields.Str(required=True)

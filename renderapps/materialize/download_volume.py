@@ -31,32 +31,32 @@ parameters={
 
 class RenderStackParameters(RenderParameters):
     stack = Str(required=True,
-        metadata={'description':'stack to render'})
+        description='stack to render')
     channel = Str(required=False,
-        metadata={'description':'name to use instead of stack to name files/directories'})
+        description='name to use instead of stack to name files/directories')
     minX = Int(required=False,
-        metadata={'description':'minimum X of box (else default to stack bounds)'})
+        description='minimum X of box (else default to stack bounds)')
     minY = Int(required=False,
-        metadata={'description':'minimum Y of box (else default to stack bounds)'})
+        description='minimum Y of box (else default to stack bounds)')
     width = Int(required=False,
-        metadata={'description':'width of box (else default to stack bounds)'})
+        description='width of box (else default to stack bounds)')
     height = Int(required=False,
-        metadata={'description':'height of box (else default to stack bounds)'})
+        description='height of box (else default to stack bounds)')
     scale = Float(required=False,default=1.0,
-        metadata={'description':'scale to render (default is 1.0)'})
+        description='scale to render (default is 1.0)')
     minZ = Int(required=False,
-        metadata={'description':'minimum Z to use to render (default to stack bounds)'})
+        description='minimum Z to use to render (default to stack bounds)')
     maxZ = Int(required=False,
-        metadata={'description':'maximum Z to use to render (default to stack bounds)'})
+        description='maximum Z to use to render (default to stack bounds)')
     minIntensity = Int(required=False,default=0,
-        metadata={'description':'minimum Intensity used to render tiles(default to 0)'})
+        description='minimum Intensity used to render tiles(default to 0)')
     maxIntensity = Int(required=False,default=65535,
-        metadata={'description':'maximum Intensity used to render tiles(default to 65535)'})
+        description='maximum Intensity used to render tiles(default to 65535)')
 
     volume_dir = Str(required=True,
-        metadata={'description':'root folder to save images.. volume_dir/channel/channel_XXXXXX.tif'})
+        description='root folder to save images.. volume_dir/channel/channel_XXXXXX.tif')
     pool_size = Int(required=False,default=5,
-        metadata={'description':'degree of parallelism to use (default to 5)'})
+        description='degree of parallelism to use (default to 5)')
 
 
 

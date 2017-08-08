@@ -24,15 +24,15 @@ example_parameters={
 
 class MakeDownsampleSectionStackParameters(RenderParameters):
     input_stack = Str(required=True,
-        metadata={'description':'stack to make a downsample version of'})
+        description='stack to make a downsample version of')
     scale = Float(required=False,default = .01,
-        metadata={'description':'scale to make images'})
+        description='scale to make images')
     image_directory = OutputDir(required=True,
-        metadata={'decription','path to save section images'})
+        decription='path to save section images')
     output_stack = Str(required=True,
-        metadata={'description':'output stack to name'})
+        description='output stack to name')
     pool_size = Int(required=False,default=20,
-        metadata={'description':'number of parallel threads to use'})
+        description='number of parallel threads to use')
 
 def process_z(render,stack,output_dir,scale,z):
     args=['--stack', stack,

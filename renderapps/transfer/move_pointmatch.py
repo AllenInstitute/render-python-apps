@@ -26,11 +26,11 @@ example_parameters={
 
 class PointMatchTransferParameters(RenderTransferParameters):
     collection_source = Str(required=True,
-        metadata={'description':'point match collection to move from source_render'})
+        description='point match collection to move from source_render')
     collection_target = Str(required=False,
-        metadata={'description':'point match colleciton to move to target_render (default to the same)'})
+        description='point match colleciton to move to target_render (default to the same)')
     pool_size = Int(required=False,default=20,
-        metadata={'description':'point match colleciton to move to target_render (default to the same)'})
+        description='point match colleciton to move to target_render (default to the same)')
 
 def process_group(render_source,collection_source,render_target,collection_target,pgroup):
     matches=renderapi.pointmatch.get_matches_with_group(collection_source,pgroup,render=render_source)

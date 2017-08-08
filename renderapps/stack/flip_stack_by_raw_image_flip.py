@@ -25,12 +25,12 @@ example_parameters = {
 }
 
 class FlipStackParameters(RenderParameters):
-    input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
-    output_stack = Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
-    minZ = Int(required=True,metadata={'description':'minimum Z to flip'})
-    maxZ = Int(required=True,metadata={'description':'maximum Z to flip'})
-    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
-    delete_after = Boolean(required=False,default=False,metadata={'description':'whether to delete the old image files or not after flipping'})
+    input_stack = Str(required=True,description='stack to apply affine to')
+    output_stack = Str(required=False,description='stack to save answer into (defaults to overwriting input_stack)')
+    minZ = Int(required=True,description='minimum Z to flip')
+    maxZ = Int(required=True,description='maximum Z to flip')
+    pool_size = Int(required=False,default=20,description='size of pool for parallel processing (default=20)')
+    delete_after = Boolean(required=False,default=False,description='whether to delete the old image files or not after flipping')
 
 def fix_url(url):
     path = url.replace('file:','')

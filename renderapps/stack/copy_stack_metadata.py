@@ -16,8 +16,8 @@ example_parameters = {
     'output_stack':'ALIGNEM_reg2_clahe'
 }
 class CopyMetaDataParameters(RenderParameters):
-    input_stack = Str(required=True,metadata={'description':'stack to copy from'})
-    output_stack = Str(required=True,metadata={'description':'stack to copy to'})
+    input_stack = Str(required=True,description='stack to copy from')
+    output_stack = Str(required=True,description='stack to copy to')
 
 class CopyMetaDataModule(RenderModule):
     def __init__(self,*args,**kwargs):

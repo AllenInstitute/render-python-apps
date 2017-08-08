@@ -22,11 +22,11 @@ example_parameters = {
 }
 
 class RenameSectionIdsParameters(RenderParameters):
-    input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
-    output_stack = Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
-    zmin = Int(required=False,metadata={'description':'zvalue to start'})
-    zmax = Int(required=False,metadata={'description':'zvalue to end'})
-    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+    input_stack = Str(required=True,description='stack to apply affine to')
+    output_stack = Str(required=False,description='stack to save answer into (defaults to overwriting input_stack)')
+    zmin = Int(required=False,description='zvalue to start')
+    zmax = Int(required=False,description='zvalue to end')
+    pool_size = Int(required=False,default=20,description='size of pool for parallel processing (default=20)')
 
 #define a function to process one z value
 def process_z(render,input_stack,z):

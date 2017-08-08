@@ -22,13 +22,13 @@ example_json={
 
 class AddDownSampleParameters(RenderParameters):
     input_stack = Str(required=True,
-        metadata={'description':'stack to input'})
+        description='stack to input')
     output_stack = Str(required=True,
-        metadata={'description':'stack to output (deletes before upload)'})
+        description='stack to output (deletes before upload)')
     convert_to_8bit = Boolean(required=False,default=True,
-        metadata={'description':'convert the data from 16 to 8 bit (default True)'})
+        description='convert the data from 16 to 8 bit (default True)')
     pool_size = Int(required=False, default=20,
-        metadata={'description':'size of parallelism'})
+        description='size of parallelism')
 
 def make_tilespecs_and_cmds(render,inputStack,outputStack):
     zvalues=render.run(renderapi.stack.get_z_values_for_stack,inputStack)

@@ -29,18 +29,18 @@ example_parameters={
 }
 class StackTransferParameters(RenderTransferParameters):
     stack_in = Str(required=True,
-        metadata={'description':'stack to move from source_render'})
+        description='stack to move from source_render')
     stack_out = Str(required=False,
-        metadata={'description':'stack to move to target_render (default to the same)'})
+        description='stack to move to target_render (default to the same)')
     data_description = Str(required=False,default='file:',
-        metadata={'description':'replace the ^.*: with this in the image url (default file:)'})
+        description='replace the ^.*: with this in the image url (default file:)')
     replace_chars = Boolean(required=False,default=True,
-        metadata={'description':'replace perc20 charactesr with spaces (default True)'})
+        description='replace perc20 charactesr with spaces (default True)')
     remove_masks = Boolean(required=False,default=False,
-        metadata={'description':'remove the masks (default False)'})
+        description='remove the masks (default False)')
     upload_json = Boolean(required=False,default=True,
-        metadata={'description':'actually do the upload to the adjacent render,\
-         false will still return list of to/from image destinations (default True)'})
+        description='actually do the upload to the adjacent render,\
+         false will still return list of to/from image destinations (default True)')
 
 
 class StackTransfer(RenderTransfer):

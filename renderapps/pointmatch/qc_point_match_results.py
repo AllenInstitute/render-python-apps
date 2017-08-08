@@ -87,17 +87,17 @@ example_parameters={
 }
 class QCPointMatchResultsParameters(RenderParameters):
     matchcollections = List(Str,required=True,
-        metadata={'description':'list of match collections to analyze'})
+        description='list of match collections to analyze')
     input_tilepairfile = InputFile(required=True,
-        metadata = {'description':'file path of tile pair file to qc'})
+        description = 'file path of tile pair file to qc')
     output_tilepairfile = Str(required=True,
-        metadata = {'description':'file path of where to save the tile pair file to qc'})
+        description = 'file path of where to save the tile pair file to qc')
     figdir = Str(required=True,
-        metadata={'description':'directory to save images'})
+        description='directory to save images')
     min_matches = Int(required=False,default=5,
-        metadata={'description':'number of matches between tiles to be considered a valid match'})
+        description='number of matches between tiles to be considered a valid match')
     pool_size = Int(required=False,default=20,
-        metadata={'description':'number of parallel threads to use'})
+        description='number of parallel threads to use')
 
 def make_plot(r,matchcollection,zvalues,figdir,item):
     section_p,section_q = item

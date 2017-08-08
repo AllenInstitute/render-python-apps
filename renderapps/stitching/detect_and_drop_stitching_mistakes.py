@@ -29,20 +29,20 @@ example_json={
 
 class DetectAndDropStitchingMistakesParameters(RenderParameters):
     prestitchedStack = Str(required=True,
-        metadata={'description':'name of render stack of tiles before stitching'})
+        description='name of render stack of tiles before stitching')
     poststitchedStack = Str(required=True,
-        metadata={'description':'name of render stack of tiles after stitching'})
+        description='name of render stack of tiles after stitching')
     outputStack = Str(required=True,
-        metadata={'description':'name of render stack to output with stitching fixed'})
+        description='name of render stack to output with stitching fixed')
     jsonDirectory = Str(required=True,
-        metadata={'description:':'directory to save json files'})
+        description='directory to save json files')
     edge_threshold  = Int(required=False,default=1843,
-        metadata={'description:':'distance between tilespecs to consider as edges(default=1843)'})
+        description='distance between tilespecs to consider as edges(default=1843)')
     pool_size  = Int(required=False,default=20,
-        metadata={'description:':'degree of parallelism (default=20)'})
+        description='degree of parallelism (default=20)')
     distance_threshold  = Int(required=False,default=50,
-        metadata={'description:':'amplitude difference between pre and post stitching results,\
-         that causes edge to be tossed (units of render)(default=50)'})
+        description='amplitude difference between pre and post stitching results,\
+         that causes edge to be tossed (units of render)(default=50)')
 
 
 

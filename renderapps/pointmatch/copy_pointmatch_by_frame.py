@@ -57,16 +57,16 @@ def copy_point_matches_by_frame(render,
 
 class CopyPointMatchesByFrameParameters(RenderParameters):
     input_matchcollection = Str(required=True,
-        metadata={'description':'match collection to copy point matches from'})
+        description='match collection to copy point matches from')
     output_matchcollection = Str(required=True,
-        metadata={'description':'match collection to copy point matches to'})
+        description='match collection to copy point matches to')
     input_stack = Str(required=True,
         metadata={'stack with tiles that input_matchcollection came from'})
     output_stack = Str(required=True,
         metadata={'description':'stack with tiles that you want to save point matches into\
         matching on the frame number (array tomography specific)'})
     pool_size = Int(required=False,default=20,
-        metadata={'description':'number of parallel threads to use'})
+        description='number of parallel threads to use')
 
 class CopyPointMatchesByFrame(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):

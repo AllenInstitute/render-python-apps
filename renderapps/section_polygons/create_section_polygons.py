@@ -238,16 +238,16 @@ def find_section_boundaries(r,
 
 class CreateSectionPolygonsParameters(RenderParameters):
     stack = Str(required=True,
-        metadata={'description':'stack sectionImages are based upon (assumes section bounds for images)'})
+        description='stack sectionImages are based upon (assumes section bounds for images)')
 
     sectionImageDir = InputDir(required=True,
-        metadata={'description':'stack sectionImages directory (assumes section bounds for images)'})
+        description='stack sectionImages directory (assumes section bounds for images)')
 
     polygon_dir = Str(required=True,
-        metadata={'description':'directory to save json seciton boundaries into'})
+        description='directory to save json seciton boundaries into')
 
     isHorizontal = Boolean(required=True,
-        metadata={'description':'flag as to whether the sections are vertically or horizontally oriented'})
+        description='flag as to whether the sections are vertically or horizontally oriented')
 
 
 class CreateSectionPolygons(RenderModule):

@@ -26,23 +26,23 @@ example_json = {
 
 class ApplyAlignmentFromRegisteredStackParametersBase(RenderParameters):
     prealigned_stack = Str(required=True,
-        metadata={'description':'stack has same tiles as aligned stack but is registered with source_stack(s) example'})
+        description='stack has same tiles as aligned stack but is registered with source_stack(s) example')
     postaligned_stack = Str(required=True,
-        metadata={'description':'stack has same tiles as prealignedstack stack but is in the desired aligned space'})
+        description='stack has same tiles as prealignedstack stack but is in the desired aligned space')
     pool_size = Int(required=False,default=20,
-        metadata={'description':'degree of parallelism (default 20)'})
+        description='degree of parallelism (default 20)')
     stackResolutionX = Int(required=False,default=1,
-        metadata={'description':'X stack resolution (nm)  to save in output stack (default use source stack)'})
+        description='X stack resolution (nm)  to save in output stack (default use source stack)')
     stackResolutionY = Int(required=False,default=1,
-        metadata={'description':'Y stack resolution (nm)  to save in output stack (default use source stack)'})
+        description='Y stack resolution (nm)  to save in output stack (default use source stack)')
     stackResolutionZ = Int(required=False,default=1,
-        metadata={'description':'Z stack resolution (nm) to save in output stack (default use source stack)'})
+        description='Z stack resolution (nm) to save in output stack (default use source stack)')
 
 class ApplyAlignmentFromRegisteredStackParameters(ApplyAlignmentFromRegisteredStackParametersBase):
     source_stack = Str(required=True,
-        metadata={'description':'stack that is registered with prealignedstack, but which you want to re-express in the space of postalignedstack'})
+        description='stack that is registered with prealignedstack, but which you want to re-express in the space of postalignedstack')
     output_stack = Str(required=True,
-        metadata={'description':'name to call output stack version of source stack'})
+        description='name to call output stack version of source stack')
 
 logger = logging.getLogger(__name__)
 

@@ -22,15 +22,15 @@ example_json={
 
 class RemoveOuterTilesParameters(RenderParameters):
     pool_size  = Int(required=False,default=20,
-        metadata={'description:':'degree of parallelism (default=20)'})
+        description='degree of parallelism (default=20)')
     edge_threshold  = Int(required=False,default=1843,
-        metadata={'description:':'distance between tilespecs to consider as edges(default=1843)'})
+        description='distance between tilespecs to consider as edges(default=1843)')
     inputStack = Str(required=True,
-        metadata={'description':'name of render stack to input'})
+        description='name of render stack to input')
     outputStack = Str(required=True,
-        metadata={'description':'name of render stack to output with outer tiles dropped'})
+        description='name of render stack to output with outer tiles dropped')
     jsonDirectory = Str(required=True,
-        metadata={'description:':'directory to save json files'})
+        description='description:':'directory to save json files')
 
 
 class RemoveOuterTiles(RenderModule):

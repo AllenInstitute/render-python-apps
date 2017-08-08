@@ -18,11 +18,11 @@ example_json={
 
 class SplitTileParameters(RenderParameters):
     stack = Str(required=True,
-        metadata={'description':'stack from tile to split'})
+        description='stack from tile to split')
     tileId = Str(required=True,
-        metadata={'description':'tileId of tile to split'})
+        description='tileId of tile to split')
     matchCollection = Str(required=True,
-        metadata={'description':'matchCollection to base splitting on'})
+        description='matchCollection to base splitting on')
 
 class SplitTile(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):

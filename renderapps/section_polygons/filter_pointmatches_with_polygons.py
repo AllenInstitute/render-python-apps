@@ -25,16 +25,16 @@ example_json = {
 
 class FilterPointMatchParameters(RenderParameters):
     stack = Str(required=True,
-        metadata={'description':'stack sectionPolygons are based upon'})
+        description='stack sectionPolygons are based upon')
 
     polygon_dir = Str(required=True,
-        metadata={'description':'directory to with QCed  json section boundaries'})
+        description='directory to with QCed  json section boundaries')
 
     matchcollection = Str(required=True,
-        metadata={'description':'match collection to filter'})
+        description='match collection to filter')
 
     targetmatchcollection = Str(required=True,
-        metadata={'description':'match collection to output to'})
+        description='match collection to output to')
 
 def mask_points(points,mask):
     p = np.array(points).T

@@ -24,11 +24,11 @@ example_parameters = {
 
 
 class ReplaceFileNameParameters(RenderParameters):
-    input_stack = Str(required=True,metadata={'description':'stack to apply affine to'})
-    output_stack = Str(required=False,metadata={'description':'stack to save answer into (defaults to overwriting input_stack)'})
-    regex_find = Str(required=True,metadata={'description':'regular expression to search for in imageUrl'})
-    regex_replace = Str(required=True,metadata={'description':'regular expression replacement string'})
-    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+    input_stack = Str(required=True,description='stack to apply affine to')
+    output_stack = Str(required=False,description='stack to save answer into (defaults to overwriting input_stack)')
+    regex_find = Str(required=True,description='regular expression to search for in imageUrl')
+    regex_replace = Str(required=True,description='regular expression replacement string')
+    pool_size = Int(required=False,default=20,description='size of pool for parallel processing (default=20)')
 
 class ReplaceFileNames(RenderModule):
     def __init__(self,*args,**kwargs):

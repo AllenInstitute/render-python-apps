@@ -31,13 +31,13 @@ example_json={
 
 class ApplyTransformParameters(RenderParameters):
     alignedStack = Str(required=True,
-        metadata={'description':'stack whose transforms you want to copy'})
+        description='stack whose transforms you want to copy')
     inputStack = Str(required=True,
-        metadata={'description':'stack you want to apply transforms to'})
+        description='stack you want to apply transforms to')
     outputStack = Str(required=True,
-        metadata={'description':'stack name to save result'})
+        description='stack name to save result')
     pool_size =  Int(required=True,default=20,
-        metadata={'description':'number of parallel threads'})
+        description='number of parallel threads')
 
 #define a function for a single z value
 def process_z(render,alignedStack,inputStack,outputStack, z):

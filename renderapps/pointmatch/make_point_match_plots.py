@@ -30,19 +30,19 @@ parameters={
 
 class MakePointMatchPlotsParameters(RenderParameters):
     stack = Str(required=True,
-        metadata={'description':'stack to use to make point match plots'})
+        description='stack to use to make point match plots')
     matchcollection = Str(required=True,
-        metadata={'description':'match collection to use to make point match plots'})
+        description='match collection to use to make point match plots')
     figdir = Str(required=True,
-        metadata={'description':'directory to save images'})
+        description='directory to save images')
     dz = Int(required=False,default=10,
-        metadata={'description':'integer number of z planes away to make point match plots (default 10)'})
+        description='integer number of z planes away to make point match plots (default 10)')
     minZ = Int(required=False,
-        metadata={'description':'minimum Z to make plots for (default to whole stack)'})
+        description='minimum Z to make plots for (default to whole stack)')
     maxZ = Int(required=False,
-        metadata={'description':'maximum Z to make plots for (default to whole stack)'})
+        description='maximum Z to make plots for (default to whole stack)')
     pool_size = Int(required=False,default=20,
-        metadata={'description':'number of parallel threads to use'})
+        description='number of parallel threads to use')
 
 def make_plot(r,matchcollection,zvalues,figdir,item):
     section_p,section_q = item

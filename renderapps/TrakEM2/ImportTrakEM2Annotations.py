@@ -52,9 +52,9 @@ parameters={
 }
 
 class ImportTrakEM2AnnotationParameters(RenderTrakEM2Parameters):
-    EMstack = Str(required=True,metadata={'description':'stack to look for trakem2 patches in'})
-    trakem2project = InputFile(required=True,metadata={'description':'trakem2 file to read in'})
-    outputAnnotationFile = Str(required=True,metadata={'description':'name of stack to save annotation tilespecs'})
+    EMstack = Str(required=True,description='stack to look for trakem2 patches in')
+    trakem2project = InputFile(required=True,description='trakem2 file to read in')
+    outputAnnotationFile = Str(required=True,description='name of stack to save annotation tilespecs')
 
 
 def convert_path(path,tform):

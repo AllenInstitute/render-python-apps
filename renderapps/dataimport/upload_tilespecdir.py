@@ -5,9 +5,9 @@ from ..module.render_module import RenderModule, RenderParameters
 
 class UploadTileSpecParameters(RenderParameters):
     inputDir = InputDir(required=True,
-        metadata={'description':'input directory of tilespecs'})
+        description='input directory of tilespecs')
     outputStack = Str(required=True,
-        metadata={'description':'name of output stack to upload to render'})
+        description='name of output stack to upload to render')
 
 class UploadTileSpecs(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):

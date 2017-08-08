@@ -19,13 +19,13 @@ example_json={
 }
 class ConsolidateTransformsParameters(RenderParameters):
     stack = Str(required=True,
-        metadata={'description':'stack to consolidate'})
+        description='stack to consolidate')
     postfix = Str(required=False, default="_CONS",
-        metadata={'description':'postfix to add to stack name on saving if no output defined (default _CONS)'})
+        description='postfix to add to stack name on saving if no output defined (default _CONS)')
     output_stack = Str(required=False,
-        metadata={'description':'name of output stack (default to adding postfix to input)'})
+        description='name of output stack (default to adding postfix to input)')
     pool_size = Int(required=False, default=20,
-        metadata={'description':'name of output stack (default to adding postfix to input)'})
+        description='name of output stack (default to adding postfix to input)')
 
 def consolidate_transforms(tforms, logger, makePolyDegree=0):
     tform_total = AffineModel()

@@ -24,19 +24,19 @@ example_parameters={
 
 class CreateMontagePointMatchParameters(RenderParameters):
     stack = Str(required=True,
-        metadata={'description':'stack to take stitching from'})
+        description='stack to take stitching from')
     matchCollection = Str(required=True,
-        metadata={'description':'collection to save to'})
+        description='collection to save to')
     minZ = Int(required=False,
-        metadata={'description':'min Z to consider'})
+        description='min Z to consider')
     maxZ = Int(required=False,
-        metadata={'description':'min Z to consider (default min in stack)'})
+        description='min Z to consider (default min in stack)')
     dataRoot = Str(required = True,
-        metadata={'description':'max Z to consider (default max in stack)'})
+        description='max Z to consider (default max in stack)')
     delta = Int(required=False,default=150,
         metadata ={'description':'number of pixels between artificial matches'})
     pool_size = Int(required=False,default=20,
-        metadata={'description':'number of parallel processes (default 20)'})
+        description='number of parallel processes (default 20)')
 
 def make_tile_pair_json(r,stack,project,owner,host,port,json_dir,z):
     tile_json_pair_path=os.path.join(json_dir,'in_section_pairs_%s_z%04d.json'%(stack,z))

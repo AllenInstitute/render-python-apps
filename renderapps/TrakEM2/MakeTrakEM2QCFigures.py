@@ -76,10 +76,10 @@ def make_plot(area_lists,overallbbox,subdir,dzs,ki):
     plt.close()
 
 class MakeTrakEM2QCFiguresParameters(argschema.schemas.ArgSchema):
-    annotationFile = argschema.fields.InputFile(required=True,metadata={'description':'name of stack to with annotations'})
-    outputDir = argschema.fields.Str(required=True,metadata={'description':'name of the directory to save files'})
+    annotationFile = argschema.fields.InputFile(required=True,description='name of stack to with annotations')
+    outputDir = argschema.fields.Str(required=True,description='name of the directory to save files')
     pool_size = argschema.fields.Int(required=False,default=20,
-        metadata={'description':'degree of parallelism to use'})
+        description='degree of parallelism to use')
 
 class MakeTrakEM2QCFigures(argschema.ArgSchemaParser):
     def __init__(self,schema_type=None,*args,**kwargs):

@@ -26,15 +26,15 @@ example_parameters ={
 
 
 class MergeStacksParameters(RenderParameters):
-    stack1 = Str(required=True,metadata={'description':'first stack to merge'})
-    stack2 = Str(required=True,metadata={'description':'second stack to merge'})
-    output_stack = Str(required=True,metadata={'description':'stack to save answer into'})
-    zmin = Int(required=False,metadata={'description':'zvalue to start'})
-    zmax = Int(required=False,metadata={'description':'zvalue to end'})
+    stack1 = Str(required=True,description='first stack to merge')
+    stack2 = Str(required=True,description='second stack to merge')
+    output_stack = Str(required=True,description='stack to save answer into')
+    zmin = Int(required=False,description='zvalue to start')
+    zmax = Int(required=False,description='zvalue to end')
     z_intersection = Boolean(required=False,default=False,
-        metadata={'description':'only output z values that appears in both stacks\
-        (default False, output z values in either stack)'})
-    pool_size = Int(required=False,default=20,metadata={'description':'size of pool for parallel processing (default=20)'})
+        description='only output z values that appears in both stacks\
+        (default False, output z values in either stack)')
+    pool_size = Int(required=False,default=20,description='size of pool for parallel processing (default=20)')
 
 class MergeStacks(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):

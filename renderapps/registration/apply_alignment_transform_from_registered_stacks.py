@@ -38,10 +38,10 @@ class ApplyAlignmentFromRegisteredStacksParameters(ApplyAlignmentFromRegisteredS
                    but which you want to re-express in the space of postalignedstack'})
 
     old_prefix = Str(required=False,default = None,
-        metadata={'description':'old prefix to strip off of stack names'})
+        description='old prefix to strip off of stack names')
 
     new_prefix = Str(required=False,default = None,
-        metadata={'description':'new prefix to add to stack names for output stacks'})
+        description='new prefix to add to stack names for output stacks')
 
 
 class ApplyAlignmentFromRegisteredStacks(RenderModule):
