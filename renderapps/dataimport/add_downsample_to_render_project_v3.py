@@ -8,6 +8,7 @@ from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 import marshmallow as mm
 import tempfile
+import argschema
 
 example_json={
         "render":{
@@ -21,8 +22,28 @@ example_json={
         "output_stack":"BIGALIGN2_MARCH24c_EM_clahe_mm",
         "convert_to_8bit":False
 }
+class PngCompressionOptions(argschema.schemas.DefaultSchema):
+
+
+class MipMapCreationParameter(argschema.schemas.DefaultSchema):
+    level = argschema.fields.Int(required=True, description="mipmaplevel to generate")
+    convert_to_8bit = argschema.fields.Boolean(required=False, 
+                                               default=False,
+                                               description="whether to force the bit depth of this image to 8-bit")
+    downsample_option = argschema.fields.Str(required = False, 
+                                             default = "block_reduce",
+                                             validator = mm.validate.ChooseOne(["PIL","block_reduce"]))
+    compression = argschema.fields.Str(required=True,
+                                       validator = mm.validate.Only(["None","PNG","JPEG","LZW"]))   
+    png_options = argschema.fields.Nested(PngCompressionOptions
+                                          required=False)
+    
+    
 
 class AddDownSampleParameters(RenderParameters):
+    force_redo = mm.fields.Boolean(required=False,
+                                   default=False,
+                                   description="whether this module shoudl re-create already existing mipmaps or simply skip their creation")
     input_stack = mm.fields.Str(required=True,
         metadata={'description':'stack to input'})
     output_stack = mm.fields.Str(required=True,
@@ -35,6 +56,11 @@ class AddDownSampleParameters(RenderParameters):
         metadata = {'description':'string to replace path_find in original image path'})
     pool_size = mm.fields.Int(required=False, default=20,
         metadata={'description':'size of parallelism'})
+    mipmapspecs = mm.fields.Nested(MipMapCreationParameter,
+                                   many=True,
+                                   required=True,
+                                   description="list of mipmap compression specs to apply")
+                                   
 
 
 def make_tilespecs_and_cmds(render,inputStack,outputStack,path_find,path_replace):
