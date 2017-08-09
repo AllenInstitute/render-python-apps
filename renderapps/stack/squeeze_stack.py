@@ -16,7 +16,7 @@ import tifffile
 from functools import reduce
 import operator
 
-
+#testing rmate123456
 #modified and fixed by Sharmishtaa Seshamani
 
 example_parameters={
@@ -26,7 +26,7 @@ example_parameters={
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts",
 		"owner":"S3_Run1",
 		"project":"S3_Run1_Master"
-    
+
     },
     "input_stack": "Stitched_DAPI_1_dropped",
     "output_stack": "Stitched_DAPI_1_dropped_Squeezed",
@@ -43,9 +43,9 @@ class SqueezeStackParameters(RenderParameters):
         metadata={'description':'input stacks'})
     pool_size = mm.fields.Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
-    
+
 def process_z(stack,render,output_directory,Z):
-	
+
 	tilespecs = renderapi.tilespec.get_tile_specs_from_z(stack,Z[0],render=render)
 	for ts in tilespecs:
 		t = ts.to_dict()
@@ -57,8 +57,8 @@ def process_z(stack,render,output_directory,Z):
 	fp = open(tilespecfilename,'w')
 	json.dump([ts.to_dict() for ts in tilespecs] ,fp,indent=4)
 	fp.close()
-    
-        
+
+
 
 class SqueezeStack(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -78,9 +78,9 @@ class SqueezeStack(RenderModule):
 		mypartial = partial(process_z,self.args['input_stack'],render,self.args['output_directory'])
 		with renderapi.client.WithPool(self.args['pool_size']) as pool:
 			pool.map(mypartial,Z)
-		
+
 		outstack = self.args['output_stack']
-		jsonfiles = glob.glob("%s/*.json"%self.args['output_directory'])    
+		jsonfiles = glob.glob("%s/*.json"%self.args['output_directory'])
         	renderapi.stack.create_stack(outstack,render=self.render,cycleNumber=10,cycleStepNumber=1)
 		renderapi.client.import_jsonfiles_parallel(outstack,jsonfiles,render=self.render)
 

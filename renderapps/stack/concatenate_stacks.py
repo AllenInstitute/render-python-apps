@@ -125,5 +125,5 @@ class ConcatenateStacks(RenderModule):
 
 if __name__ == "__main__":
     #mod = ConcatenateStacks(input_data=example_parameters)
-    mod = ConcatenateStacks(schema_type=MakeDownsampleSectionStackParameters)
+    mod = ConcatenateStacks(schema_type=ConcatenateStacksParameters)
     mod.run()

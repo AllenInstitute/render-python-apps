@@ -12,7 +12,7 @@ import marshmallow as mm
 from functools import reduce
 import operator
 import pandas as pd
-import tifffile
+import tifffileesa
 
 #modified by sharmi
 
