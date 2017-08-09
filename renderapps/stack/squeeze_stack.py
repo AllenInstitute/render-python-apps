@@ -16,8 +16,12 @@ import tifffile
 from functools import reduce
 import operator
 
+<<<<<<< HEAD
 #testing rmate1234567
 #new changes
+=======
+#testing rmate123456
+>>>>>>> 61429df4aebb72ee48dc8faa8a21c9f4183a1b61
 #modified and fixed by Sharmishtaa Seshamani
 
 example_parameters={
