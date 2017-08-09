@@ -12,7 +12,7 @@ import marshmallow as mm
 from functools import reduce
 import operator
 
-#modified by sharmi
+#modified by sharmi123
 
 example_json={
     "render":{
@@ -82,7 +82,7 @@ def consolidate_transforms(tforms, logger, makePolyDegree=0):
         else:
             new_tform_list.append(tform_total)
     return new_tform_list
-        
+
 def process_z(render, logger, stack, outstack,channelname, json_dir,z):
     #tilespecs = r.run(renderapi.tilespec.get_tile_specs_from_z, stack, z)
     tilespecs = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
@@ -94,14 +94,14 @@ def process_z(render, logger, stack, outstack,channelname, json_dir,z):
         #d = ts.to_dict()
         #d['layout']['sectionId'] = d['layout']['sectionId']+"-"+channelname
         #ts.from_dict(d)
-        
+
     logger.debug("tileid:{} transforms:{}".format(tilespecs[0].tileId,tilespecs[0].tforms))
     #return tilespecs
     json_filepath = os.path.join(json_dir, '%s_%04d'%(outstack,z))
     renderapi.utils.renderdump(tilespecs, open(json_filepath, 'w'), indent=4)
     return json_filepath
 	#return tilespecs
-	
+
 class ConsolidateTransforms(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
@@ -114,38 +114,38 @@ class ConsolidateTransforms(RenderModule):
         outstack= self.args.get('output_stack',None)
         if outstack is None:
             outstack=stack+ self.args['postfix']
-	
+
 	json_dir = self.args['output_directory']
         #'%s/%s/processed/consolidated_affine_json_roughalign/'%(self.args['rootdir'],self.args['render']['project'])
         if not os.path.isdir(json_dir):
             os.makedirs(json_dir)
 
-		
+
         #zvalues=r.run(renderapi.stack.get_z_values_for_stack, stack)
         #zvalues = renderapi.stack.get_z_values_for_stack(stack)
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack,stack)
-        
+
         render=self.render
         tsarray = []
-		
+
 		####################
         #mypartial = partial(process_z,self.render,self.args['input_stack'],self.args['directory'],self.args['minX'],self.args['maxX'],self.args['minY'],self.args['maxY'])
         #mypartial = partial(process_z, self.render, self.logger,stack,outstack,channelname,json_dir)
-        
+
         #with renderapi.client.WithPool(self.args['pool_size']) as pool:
 		#	pool.map(mypartial,zvalues)
             #tsarray.append(pool.map(mypartial,zvalues))
-        
-        
-        
+
+
+
         #with renderapi.client.WithPool(self.args['pool_size']) as pool:
         #    tsarray.append(pool.map(mypartial,zvalues))
-            
+
         #reduce twice
         #tsarray = reduce(operator.concat,tsarray)
         #tsarray = reduce(operator.concat,tsarray)
         ###################
-        
+
         mypartial = partial(process_z,self.render, self.logger, stack, outstack,channelname, json_dir)
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             json_files=pool.map(mypartial, zvalues)
@@ -160,5 +160,3 @@ if __name__ == "__main__":
     #mod = ConsolidateTransforms(input_data=example_json)
     mod = ConsolidateTransforms(schema_type=ConsolidateTransformsParameters)
     mod.run()
-
-    
