@@ -18,8 +18,7 @@ import operator
 
 
 #modified and fixed by Sharmishtaa Seshamani
-#one more test123456
-#again and again
+
 
 example_parameters={
     "render":{
