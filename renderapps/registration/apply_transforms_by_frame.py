@@ -23,9 +23,9 @@ example_json={
             "project":"M247514_Rorb_1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "alignedStack":"ALIGNED_TrakEM2_DAPI_cell1",
-        "inputStack":"ACQ_GFP",
-        "outputStack":"ALIGNED_TrakEM2_GFP_cell1",
+        "alignedStack":"LENS_REG_MARCH_21_DAPI_3_deconvnew",
+        "inputStack":"REG_MARCH_21_MBP_deconvnew",
+        "outputStack":"LENS_REG_MARCH_21_MBP_deconvnew",
         "pool_size":20
     }
 
