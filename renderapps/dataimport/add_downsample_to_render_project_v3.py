@@ -22,7 +22,7 @@ example_json={
         "output_stack":"BIGALIGN2_MARCH24c_EM_clahe_mm",
         "convert_to_8bit":False
 }
-class PngCompressionOptions(argschema.schemas.DefaultSchema):
+#class PngCompressionOptions(argschema.schemas.DefaultSchema):
 
 
 class MipMapCreationParameter(argschema.schemas.DefaultSchema):
@@ -35,7 +35,7 @@ class MipMapCreationParameter(argschema.schemas.DefaultSchema):
                                              validator = mm.validate.ChooseOne(["PIL","block_reduce"]))
     compression = argschema.fields.Str(required=True,
                                        validator = mm.validate.Only(["None","PNG","JPEG","LZW"]))   
-    png_options = argschema.fields.Nested(PngCompressionOptions
+    png_options = argschema.fields.Nested(PngCompressionOptions,
                                           required=False)
     
     
