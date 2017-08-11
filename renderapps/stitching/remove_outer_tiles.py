@@ -30,7 +30,7 @@ class RemoveOuterTilesParameters(RenderParameters):
     outputStack = Str(required=True,
         description='name of render stack to output with outer tiles dropped')
     jsonDirectory = Str(required=True,
-        description='description:':'directory to save json files')
+        description='directory to save json files')
 
 
 class RemoveOuterTiles(RenderModule):
