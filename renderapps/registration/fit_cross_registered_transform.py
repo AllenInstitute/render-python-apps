@@ -29,24 +29,24 @@ example_json = {
 
 class FitCrossRegisteredTransformParametersBase(RenderParameters):
     ref_stack_shared_space = Str(required=True,
-                                 metadata={'description': 'stack with ref tiles\
-                                           in the space shared by input_stack_shared_space'})
+                                 description= 'stack with ref tiles\
+                                           in the space shared by input_stack_shared_space')
     ref_stack_dest_space = Str(required=True,
-                               metadata={'description': 'stack with ref tiles in the desired destination space'})
+                               description= 'stack with ref tiles in the desired destination space')
     transform_type = Str(required = False, default = 'affine',
                          validate = mm.validate.OneOf(["affine","rigid"]),
                          description = "type of transformation to fit")
     pool_size = Int(required=False, default=20,
-                    metadata={'description': 'degree of parallelism (default 20)'})
+                    description= 'degree of parallelism (default 20)')
     stackResolutionX = Int(required=False, 
-                           metadata={'description': 'X stack resolution (nm) to save in \
-                                     output stack (default use source stack)'})
+                           description= 'X stack resolution (nm) to save in \
+                                     output stack (default use source stack)')
     stackResolutionY = Int(required=False, 
-                           metadata={'description': 'Y stack resolution (nm) to save in \
-                                     output stack (default use source stack)'})
+                           description= 'Y stack resolution (nm) to save in \
+                                     output stack (default use source stack)')
     stackResolutionZ = Int(required=False, 
-                           metadata={'description': 'Z stack resolution (nm) to save in \
-                                     output stack (default use source stack)'})
+                           description= 'Z stack resolution (nm) to save in \
+                                     output stack (default use source stack)')
 
 
 class FitCrossRegisteredTransformParameters(FitCrossRegisteredTransformParametersBase):
@@ -56,9 +56,9 @@ class FitCrossRegisteredTransformParameters(FitCrossRegisteredTransformParameter
                                    description="stack with input tiles in the space shared by \
                                    ref_stack_shared_space (defaults to input_stack_src_space)")
     output_stack = Str(required=True,
-                       metadata={'description': 'name to call output version of \
+                       description= 'name to call output version of \
                        input_stack_src_space with a transform added to bring it \
-                       into the destination space'})
+                       into the destination space')
 
 
 logger = logging.getLogger(__name__)
