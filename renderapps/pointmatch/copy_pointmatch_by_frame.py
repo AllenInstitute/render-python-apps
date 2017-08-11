@@ -61,10 +61,10 @@ class CopyPointMatchesByFrameParameters(RenderParameters):
     output_matchcollection = Str(required=True,
         description='match collection to copy point matches to')
     input_stack = Str(required=True,
-        metadata={'stack with tiles that input_matchcollection came from'})
+        description='stack with tiles that input_matchcollection came from')
     output_stack = Str(required=True,
-        metadata={'description':'stack with tiles that you want to save point matches into\
-        matching on the frame number (array tomography specific)'})
+        description='stack with tiles that you want to save point matches into\
+        matching on the frame number (array tomography specific)')
     pool_size = Int(required=False,default=20,
         description='number of parallel threads to use')
 

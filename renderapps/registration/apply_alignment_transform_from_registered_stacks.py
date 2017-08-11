@@ -34,8 +34,8 @@ example_json = {
 
 class ApplyAlignmentFromRegisteredStacksParameters(ApplyAlignmentFromRegisteredStackParametersBase):
     registered_stacks = List(Str,required=True,
-        metadata={'description':'list of source_stacks that are registered with prealignedstack,\
-                   but which you want to re-express in the space of postalignedstack'})
+        description='list of source_stacks that are registered with prealignedstack,\
+                   but which you want to re-express in the space of postalignedstack')
 
     old_prefix = Str(required=False,default = None,
         description='old prefix to strip off of stack names')
