@@ -2,7 +2,7 @@ import renderapi
 import numpy as np
 from functools import partial
 import logging
-from renderapi.transform import AffineModel
+from renderapi.transform import AffineModel, RigidModel
 from ..module.render_module import RenderModule, RenderParameters
 from argschema.fields import Str, Int
 
@@ -16,8 +16,9 @@ example_json = {
         },
         "prealigned_stack":"REG_MARCH_21_DAPI_1_deconvnew",
         "postaligned_stack":"LENS_REG_MARCH_21_DAPI_1_deconvnew",
-        "source_stack":"REG_MARCH_21_DAPI_3_deconvnew",
-        "output_stack":"LENS_REG_MARCH_21_DAPI_3_deconvnew",
+        "source_stack":"LENS_REG_MARCH_21_DAPI_3_deconvnew",
+        "prealigned_source_stack":"REG_MARCH_21_DAPI_3_deconvnew",
+        "output_stack":"LENSc_REG_MARCH_21_DAPI_3_deconvnew",
         "pool_size":20,
         "stackResolutionX":1,
         "stackResolutionY":1,
@@ -26,23 +27,25 @@ example_json = {
 
 class ApplyAlignmentFromRegisteredStackParametersBase(RenderParameters):
     prealigned_stack = Str(required=True,
-        description='stack has same tiles as aligned stack but is registered with source_stack(s) example')
+        metadata={'description':'stack has same tiles as aligned stack but is registered with source_stack(s) example'})
     postaligned_stack = Str(required=True,
-        description='stack has same tiles as prealignedstack stack but is in the desired aligned space')
+        metadata={'description':'stack has same tiles as prealignedstack stack but is in the desired aligned space'})
     pool_size = Int(required=False,default=20,
-        description='degree of parallelism (default 20)')
+        metadata={'description':'degree of parallelism (default 20)'})
     stackResolutionX = Int(required=False,default=1,
-        description='X stack resolution (nm)  to save in output stack (default use source stack)')
+        metadata={'description':'X stack resolution (nm)  to save in output stack (default use source stack)'})
     stackResolutionY = Int(required=False,default=1,
-        description='Y stack resolution (nm)  to save in output stack (default use source stack)')
+        metadata={'description':'Y stack resolution (nm)  to save in output stack (default use source stack)'})
     stackResolutionZ = Int(required=False,default=1,
-        description='Z stack resolution (nm) to save in output stack (default use source stack)')
+        metadata={'description':'Z stack resolution (nm) to save in output stack (default use source stack)'})
 
 class ApplyAlignmentFromRegisteredStackParameters(ApplyAlignmentFromRegisteredStackParametersBase):
     source_stack = Str(required=True,
-        description='stack that is registered with prealignedstack, but which you want to re-express in the space of postalignedstack')
+        description='stack that you want to transform into the post-aligned space,contains same tiles as prealigned_source_stack')
+    prealigned_source_stack = Str(required=False,
+        description="stack that is registered with the prealigned stack (defaults to source_stack)")
     output_stack = Str(required=True,
-        description='name to call output stack version of source stack')
+        metadata={'description':'name to call output stack version of source stack'})
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +58,7 @@ def define_local_grid(ts, num_points):
     xy = np.vstack([xx.ravel(), yy.ravel()]).T
     return xy
 
-def process_z(r,prealignedstack,postalignedstack,sourcestack,outstack,z,num_points = 4):
+def process_z(r,prealignedstack,postalignedstack,sourcestack,prealigned_source_stack,outstack,z,num_points = 4):
 
     ts_source = r.run(renderapi.tilespec.get_tile_specs_from_z, sourcestack,z)
 
@@ -83,12 +86,19 @@ def process_z(r,prealignedstack,postalignedstack,sourcestack,outstack,z,num_poin
         start_index = end_index
         #final_list.append(temp_list)
 
+    print "xy_world_reg"
     #map all those local coordinates into world coordinates of the registered source stack
-    xy_world_reg = r.run(renderapi.coordinate.local_to_world_coordinates_clientside, sourcestack, final_list, z, number_of_threads=3)
+    xy_world_reg = r.run(renderapi.coordinate.local_to_world_coordinates_clientside, prealigned_source_stack, final_list, z, number_of_threads=3)
+    if sourcestack != prealigned_source_stack:
+        xy_world_source = r.run(renderapi.coordinate.local_to_world_coordinates_clientside, sourcestack, final_list, z, number_of_threads=3)
+    else:
+        xy_world_source = xy_world_reg
 
+    print "xy_local_prealigned_json"
     #map those world coordinates to the local coordinates of the prealigned stack
     xy_local_prealigned_json = r.run(renderapi.coordinate.world_to_local_coordinates_clientside, prealignedstack,xy_world_reg, z, number_of_threads=3)
 
+    print "xy_world_postaligned_json"
     #map those local coordinates to the world coordinates of the postaligned stack
     xy_world_postaligned_json = r.run(renderapi.coordinate.local_to_world_coordinates_clientside, postalignedstack, xy_local_prealigned_json, z, number_of_threads=3)
 
@@ -99,19 +109,26 @@ def process_z(r,prealignedstack,postalignedstack,sourcestack,outstack,z,num_poin
         end = index_dict[ts.tileId]['end_index']
         #pull out the correct elements of the list
 
-        registered_world_coords = xy_world_reg[start:end]
+        source_world_coords_json = xy_world_reg[start:end]
         aligned_world_coords_json = xy_world_postaligned_json[start:end]
         #packaged them into an numpy array
 
         good_aligned_world_coords = [c for c in aligned_world_coords_json if 'error' not in c.keys()]
         aligned_world_coords = renderapi.coordinate.unpackage_local_to_world_point_match_from_json(good_aligned_world_coords)
-        #fit a polynomial tranformation
-        tform = AffineModel()
         notError = np.array([('error' not in d.keys()) for d in aligned_world_coords_json])
-        tform.estimate(xy_local_source[notError, :], aligned_world_coords)
-        ts.tforms = [tform]
+
+        good_source_world_coords = [c for c in source_world_coords_json if 'error' not in c.keys()]
+        source_world_coords = renderapi.coordinate.unpackage_local_to_world_point_match_from_json(good_source_world_coords)
+        source_world_coords=source_world_coords[notError,:]
+
+        assert(source_world_coords.shape == aligned_world_coords.shape)
+
+        #fit a polynomial tranformation
+        tform = RigidModel()
+        tform.estimate(source_world_coords, aligned_world_coords)
+        ts.tforms = ts.tforms+[tform]
         logger.debug('from,to')
-        for frompt, topt in zip(registered_world_coords, aligned_world_coords_json):
+        for frompt, topt in zip(source_world_coords_json, aligned_world_coords_json):
             logger.debug((frompt, topt))
         #break
 
@@ -124,11 +141,12 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
             schema_type = ApplyAlignmentFromRegisteredStackParameters
         super(ApplyAlignmentFromRegisteredStack,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
 
         prealignedstack = self.args['prealigned_stack']
         postalignedstack = self.args['postaligned_stack']
         sourcestack = self.args['source_stack']
+        prealigned_source_stack = self.args.get('prealigned_source_stack',sourcestack)
+
         stackMetadata = renderapi.stack.get_stack_metadata(sourcestack,render=self.render)
         stackResolutionX = self.args.get('stackResolutionX',stackMetadata.stackResolutionX)
         stackResolutionY = self.args.get('stackResolutionY',stackMetadata.stackResolutionY)
@@ -136,7 +154,7 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
 
 
         outstack = self.args['output_stack']
-        myp = partial(process_z, self.render, prealignedstack, postalignedstack, sourcestack, outstack)
+        myp = partial(process_z, self.render, prealignedstack, postalignedstack, sourcestack, prealigned_source_stack,outstack)
         zvalues = self.render.run(renderapi.stack.get_z_values_for_stack, sourcestack)
 
         self.render.run(renderapi.stack.delete_stack, outstack)
@@ -150,7 +168,7 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
         #    break
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             res = pool.map(myp, zvalues)
-        #self.render.run(renderapi.stack.set_stack_state,outstack,state='COMPLETE')
+        self.render.run(renderapi.stack.set_stack_state,outstack,state='COMPLETE')
         #break
 
 if __name__ == "__main__":

@@ -159,7 +159,11 @@ def createpatch(tilespecs, lines, patchid,layerid,shiftx=0.0,shifty=0.0,affineOn
         lines.append("\t<ict_transform_list>\n")
         for tform in ts.tforms:
             tformdict = tform.to_dict()
-            lines.append("\t\t<iict_transform class='%s' data='%s' />\n"%(tformdict['className'],tformdict['dataString']))
+            if isinstance(tform,AffineModel):
+                lines.append("\t\t<iict_transform class='%s' data='%s' />\n"%(tformdict['className'],tformdict['dataString']))
+            else:
+                lines.append("\t\t<ict_transform class='%s' data='%s' />\n"%(tformdict['className'],tformdict['dataString']))
+
         lines.append("\t</ict_transform_list>\n")
     lines.append("\t</t2_patch>\n")
 
