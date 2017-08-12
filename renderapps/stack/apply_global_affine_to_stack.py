@@ -30,9 +30,7 @@ example_parameters = {
     'pool_size':2
 }
 
-class ApplyAffineParameters(RenderParameters):
-    input_stack = Str(required=True,description='stack to apply affine to')
-    output_stack = Str(required=False,description='stack to save answer into (defaults to overwriting input_stack)')
+class ApplyAffineParametersBase(RenderParameters):
     transformId = Str(required=True,description='transform reference name to use when applying changes')
     M00 = Float(required=False,default=1.0,description='M00 (x\'=M00*x element of affine (default 1.0)')
     M10 = Float(required=False,default=0.0,description='M10 (y\'=M10*x element of affine (default 0.0)')
@@ -43,6 +41,10 @@ class ApplyAffineParameters(RenderParameters):
     zmin = Int(required=False,description='zvalue to start')
     zmax = Int(required=False,description='zvalue to end')
     pool_size = Int(required=False,default=20,description='size of pool for parallel processing (default=20)')
+class ApplyAffineParameters(ApplyAffineParametersBase):
+    input_stack = Str(required=True,description='stack to apply affine to')
+    output_stack = Str(required=False,description='stack to save answer into (defaults to overwriting input_stack)')
+
 
 #define a function to process one z value
 def process_z(render,input_stack,tform,z):
@@ -103,6 +105,7 @@ class ApplyAffine(RenderModule):
         
         if (self.args['input_stack'] != output_stack):
             self.render.run(renderapi.stack.create_stack,output_stack)
+        print "made stack"
         ds =",".join(global_tform.dataString.split(" "))
         renderapi.client.transformSectionClient(input_stack,
                                                 self.args['transformId'],
@@ -112,7 +115,6 @@ class ApplyAffine(RenderModule):
                                                 targetStack=output_stack,
                                                 replaceLast = False,
                                                 render=self.render)
-
         sv = renderapi.stack.get_stack_metadata(input_stack, render=self.render)
         renderapi.stack.set_stack_metadata(output_stack,sv, render=self.render)
         renderapi.stack.set_stack_state(output_stack,'COMPLETE', render=self.render)
