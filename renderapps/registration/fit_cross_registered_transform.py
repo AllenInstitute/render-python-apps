@@ -4,7 +4,7 @@ from functools import partial
 import logging
 from renderapi.transform import AffineModel, RigidModel
 from ..module.render_module import RenderModule, RenderParameters
-from argschema.fields import Str, Int
+from argschema.fields import Str, Int, Boolean
 import marshmallow as mm
 example_json = {
     "render": {
@@ -14,11 +14,12 @@ example_json = {
         "project": "M247514_Rorb_1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "ref_stack_shared_space": "REG_MARCH_21_DAPI_1_deconvnew",
-    "ref_stack_dest_space": "LENS_REG_MARCH_21_DAPI_1_deconvnew",
-    "input_stack_src_space": "LENS_REG_MARCH_21_DAPI_3_deconvnew",
-    "input_stack_shared_space": "REG_MARCH_21_DAPI_3_deconvnew",
-    "output_stack": "LENSc_REG_MARCH_21_DAPI_3_deconvnew",
+    "ref_stack_shared_space": "LENS_REG_MARCH_21_DAPI_1_deconvnew",
+    "ref_stack_dest_space": "ROUGHALIGN_MARCH_21_DAPI_1_CONS",
+    "input_stack_src_space": "LENS_REG_MARCH_21_DAPI_1_deconvnew",
+    "input_stack_shared_space": "LENS_REG_MARCH_21_DAPI_1_deconvnew",
+    "output_stack": "ROUGHALIGN_LENS_DAPI_1_deconvnew",
+    "one_transform_per_section": True,
     "transform_type": "rigid",
     "pool_size": 20,
     "stackResolutionX": 1,
@@ -36,6 +37,8 @@ class FitCrossRegisteredTransformParametersBase(RenderParameters):
     transform_type = Str(required = False, default = 'affine',
                          validate = mm.validate.OneOf(["affine","rigid"]),
                          description = "type of transformation to fit")
+    one_transform_per_section = Boolean(required = False, default = False,
+                                        desription = "whether to fit one transform per section or one per tile")
     pool_size = Int(required=False, default=20,
                     description= 'degree of parallelism (default 20)')
     stackResolutionX = Int(required=False, 
@@ -81,7 +84,8 @@ def process_z(r,
              outstack,
              z,
              num_points=4,
-             Transform = renderapi.transform.AffineModel):
+             Transform = renderapi.transform.AffineModel,
+             one_transform_per_section = False):
 
     ts_source = r.run(renderapi.tilespec.get_tile_specs_from_z, input_stack_src_space, z)
 
@@ -131,6 +135,10 @@ def process_z(r,
     xy_world_postaligned_json = r.run(renderapi.coordinate.local_to_world_coordinates_clientside,
                                       ref_stack_dest_space, xy_local_prealigned_json, z, number_of_threads=3)
 
+    if one_transform_per_section:
+        all_source_world = np.zeros((0,2))
+        all_aligned_world = np.zeros((0,2))
+
     # replace the transform for this tile with that transformation
     for ts in ts_source:
         xy_local_source = define_local_grid(ts, num_points)
@@ -156,15 +164,25 @@ def process_z(r,
         source_world_coords = source_world_coords[notError, :]
 
         assert(source_world_coords.shape == aligned_world_coords.shape)
+        if one_transform_per_section:
+            all_source_world = np.vstack([all_source_world,source_world_coords])
+            all_aligned_world = np.vstack([all_aligned_world,aligned_world_coords])
+        else:
+            # fit a polynomial tranformation
+            tform = Transform()
+            tform.estimate(source_world_coords, aligned_world_coords)
+            ts.tforms = ts.tforms + [tform]
 
-        # fit a polynomial tranformation
-        tform = Transform()
-        tform.estimate(source_world_coords, aligned_world_coords)
-        ts.tforms = ts.tforms + [tform]
         logger.debug('from,to')
         for frompt, topt in zip(source_world_coords_json, aligned_world_coords_json):
             logger.debug((frompt, topt))
         # break
+
+    if one_transform_per_section:
+        tform = Transform()
+        tform.estimate(source_world_coords, aligned_world_coords)
+        for ts in ts_source:
+            ts.tforms = ts.tforms + [tform]
 
     r.run(renderapi.client.import_tilespecs, outstack, ts_source)
     return None
@@ -197,6 +215,7 @@ class FitCrossRegisteredTransform(RenderModule):
         if self.args['transform_type'] == 'rigid':
             Transform=RigidModel
         else:
+            logger.debug('CHOOSING AFFINE MODEL')
             Transform=AffineModel
 
         outstack = self.args['output_stack']
@@ -207,7 +226,8 @@ class FitCrossRegisteredTransform(RenderModule):
                       input_stack_src_space,
                       input_stack_shared_space,
                       outstack,
-                      Transform=Transform)
+                      Transform=Transform,
+                      one_transform_per_section = self.args['one_transform_per_section'])
 
         zvalues = self.render.run(
             renderapi.stack.get_z_values_for_stack, input_stack_src_space)
@@ -219,10 +239,10 @@ class FitCrossRegisteredTransform(RenderModule):
                         stackResolutionZ=stackResolutionZ)
 
         # for z in zvalues:
-        #    myp(z)
-        #    break
+        #     myp(z)
+        #     break
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
-            res = pool.map(myp, zvalues)
+           res = pool.map(myp, zvalues)
         self.render.run(renderapi.stack.set_stack_state,
                         outstack, state='COMPLETE')
         # break
