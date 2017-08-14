@@ -80,47 +80,45 @@ def process_tile_pair_json_file(r,matchcollection,stack,owner,tile_pair_json_fil
         polyq=get_world_box(qts)
         polyp=get_world_box(pts)
 
-
         poly_int = polyp.intersection(polyq)
         poly_int=poly_int.buffer(-10)
+        if not poly_int.is_empty:
+            minx,miny,maxx,maxy = poly_int.bounds
+            xx,yy = np.meshgrid(np.arange(minx,maxx,delta),np.arange(miny,maxy,delta))
+            xx=xx.ravel()
+            yy=yy.ravel()
+            isin = np.zeros(len(xx),np.bool)
+            for i,xytuple in enumerate(zip(xx,yy)):
+                x,y = xytuple
+                p = shapely.geometry.Point(x,y)
+                if poly_int.contains(p):
+                    isin[i]=True
+                else:
+                    isin[i]=False
+            xx=xx[isin]
+            yy=yy[isin]
+            #print 'step2', time.time()-now
+            #now = time.time()
+            xy = np.stack([xx,yy]).T
+            if xy.shape[0]>0:
+                int_local_q=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,qts.tileId,qts.z,render=r)
+                int_local_p=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,pts.tileId,pts.z,render=r)
 
-        minx,miny,maxx,maxy = poly_int.bounds
-        xx,yy = np.meshgrid(np.arange(minx,maxx,delta),np.arange(miny,maxy,delta))
-        xx=xx.ravel()
-        yy=yy.ravel()
-        isin = np.zeros(len(xx),np.bool)
-        for i,xytuple in enumerate(zip(xx,yy)):
-            x,y = xytuple
-            p = shapely.geometry.Point(x,y)
-            if poly_int.contains(p):
-                isin[i]=True
-            else:
-                isin[i]=False
-        xx=xx[isin]
-        yy=yy[isin]
-        #print 'step2', time.time()-now
-        #now = time.time()
-        xy = np.stack([xx,yy]).T
+                newpair = {}
+                newpair['pId']=pid
+                newpair['qId']=qid
+                newpair['pGroupId']=pair['p']['groupId']
+                newpair['qGroupId']=pair['q']['groupId']
+                newpair['matches']={}
+                newpair['matches']['p']=[int_local_p[:,0].tolist(),int_local_p[:,1].tolist()]
+                newpair['matches']['q']=[int_local_q[:,0].tolist(),int_local_q[:,1].tolist()]
+                newpair['matches']['w']=np.ones(len(xx)).tolist()
+                pairs.append(newpair)
 
-        if xy.shape[0]>0:
-            int_local_q=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,qts.tileId,qts.z,render=r)
-            int_local_p=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,pts.tileId,pts.z,render=r)
 
-            newpair = {}
-            newpair['pId']=pid
-            newpair['qId']=qid
-            newpair['pGroupId']=pair['p']['groupId']
-            newpair['qGroupId']=pair['q']['groupId']
-            newpair['matches']={}
-            newpair['matches']['p']=[int_local_p[:,0].tolist(),int_local_p[:,1].tolist()]
-            newpair['matches']['q']=[int_local_q[:,0].tolist(),int_local_q[:,1].tolist()]
-            newpair['matches']['w']=np.ones(len(xx)).tolist()
-            pairs.append(newpair)
-      
-           
     resp=r.run(renderapi.pointmatch.import_matches,matchcollection,json.dumps(pairs))
     print "Putting %d pairs in %s"%(len(pairs),matchcollection)
-    
+
 
 class CreateMontagePointMatch(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -153,7 +151,8 @@ class CreateMontagePointMatch(RenderModule):
         #    make_tile_part(z)
 
 
-		
+        print "Done with tile pairs, now creating matches!"
+        print tile_pair_jsons
 
         myp = partial(process_tile_pair_json_file,
             self.render,
