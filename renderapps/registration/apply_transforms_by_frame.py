@@ -23,9 +23,9 @@ example_json={
             "project":"M247514_Rorb_1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "alignedStack":"LENSc_REG_MARCH_21_DAPI_3_deconvnew",
-        "inputStack":"REG_MARCH_21_MBP_deconvnew",
-        "outputStack":"LENS_REG_MARCH_21_MBP_deconvnew",
+        "alignedStack":"BIGALIGN_LENS_DAPI_1_deconvnew",
+        "inputStack":"BIGALIGN2_MARCH24b_Gephyrin_deconvnew",
+        "outputStack":"BIGALIGN_LENS_Gephyrin_deconvnew",
         "pool_size":20
     }
 
