@@ -117,10 +117,6 @@ includes a template module example to work from
 modules that were written with deprecated version of render python and would need to be rewritten in the new format
 hopefully will go away over time.. leaving useful code here for now.
 
-## refactor
-modules that don't use the consistent argschema pattern and should be refactored
-hopefully will go away as code is moved out of this..
-
 # allen_utils
 This is a folder of miscelaneous shell scripts and files that are specific to running render python related things at the allen.  they might be of interest but won't work in general for people outside of Synapse Biology at the Allen Institute.
 
