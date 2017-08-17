@@ -14,11 +14,11 @@ example_parameters={
         "project":"M247514_Rorb_1",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    "stack":"ROUGHALIGN_MARCH_21_DAPI_1_CONS",
-    "matchCollection":"M247514_Rorb_1_DAPI1_deconv_stitching",
+    "stack":"BIGLENS_REG_MARCH_21_DAPI_1_deconvnew",
+    "matchCollection":"M247514_Rorb_1_BIGLENS_REG_MARCH_21_DAPI_1_deconvnew_stitching",
     "minZ":0,
     "maxZ":101,
-    "delta":150,
+    "delta":5000,
     "dataRoot":"/nas3/data/"
 }
 
@@ -99,8 +99,14 @@ def process_tile_pair_json_file(r,matchcollection,stack,owner,tile_pair_json_fil
         xy = np.stack([xx,yy]).T
 
         if xy.shape[0]>0:
-            int_local_q=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,qts.tileId,qts.z,render=r)
-            int_local_p=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,pts.tileId,pts.z,render=r)
+            xy_world_q_json = renderapi.coordinate.package_point_match_data_into_json(xy,qid,'world')      # map those local coordinates to the registered world coordinates
+            xy_world_p_json = renderapi.coordinate.package_point_match_data_into_json(xy,pid,'world') 
+            xy_local_q_json = renderapi.coordinate.world_to_local_coordinates_clientside(stack, xy_world_q_json, qts.z, number_of_threads=3, render=r)
+            xy_local_p_json = renderapi.coordinate.world_to_local_coordinates_clientside(stack, xy_world_p_json, pts.z, number_of_threads=3, render=r)
+            int_local_p = renderapi.coordinate.unpackage_world_to_local_point_match_from_json(xy_local_p_json,pts.tileId)
+            int_local_q = renderapi.coordinate.unpackage_world_to_local_point_match_from_json(xy_local_q_json,qts.tileId)
+            #int_local_q=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,qts.tileId,qts.z,render=r)
+            #int_local_p=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,pts.tileId,pts.z,render=r)
 
             newpair = {}
             newpair['pId']=pid
@@ -152,10 +158,10 @@ class CreateMontagePointMatch(RenderModule):
             delta=self.args['delta'])
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             res=pool.map(myp,tile_pair_jsons)
-        #for tile_pair in tile_pair_jsons:
-            #print tile_pair
-            #myp(tile_pair)
-            #break
+        # for tile_pair in tile_pair_jsons:
+        #     print tile_pair
+        #     myp(tile_pair)
+        #     break
 
 if __name__ == "__main__":
     mod = CreateMontagePointMatch(input_data=example_parameters)
