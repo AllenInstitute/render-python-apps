@@ -19,7 +19,7 @@ example_parameters = {
         "project":"M247514_Rorb_1",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    "input_stacks":["LENS_REG_MARCH_21_PSD95_deconvnew","LENS_REG_MARCH_21_MBP_deconvnew","LENS_REG_MARCH_21_DAPI_1_deconvnew","LENS_REG_MARCH_21_DAPI_3_deconvnew"],
+    "input_stacks":["LENS_REG_MARCH_21_DAPI_3_deconvnew"],
     "output_prefix":"BIG",
     "transformId":"expand_lm_to_em_and_rotate",
     "M00":0.0,
@@ -54,7 +54,9 @@ class ApplyAffineMultiple(RenderModule):
 
             del params['input_stacks']
             del params['output_prefix']
-            mod=ApplyAffine(input_data = params)
+            del params['input_json']
+            print params['input_stack']
+            mod=ApplyAffine(input_data = params,args=[])
             mod.run()
 
 if __name__ == "__main__":
