@@ -2,7 +2,7 @@ import renderapi
 from functools import partial
 import tempfile
 from ..module.render_module import RenderModule,RenderParameters
-from argchema.fields import Str, Int
+from argschema.fields import Str, Int
 
 # "Apply set of alignmnet transformations derived by EM aligner \
 #         or any alignmnet pipeline where there are seperate transforms for every tile, \
