@@ -28,6 +28,7 @@ example_json = {
 }
 
 
+
 class FitCrossRegisteredTransformParametersBase(RenderParameters):
     ref_stack_shared_space = Str(required=True,
                                  description= 'stack with ref tiles\
@@ -168,7 +169,7 @@ def process_z(r,
             all_source_world = np.vstack([all_source_world,source_world_coords])
             all_aligned_world = np.vstack([all_aligned_world,aligned_world_coords])
         else:
-            # fit a polynomial tranformation
+            # fit a tranformation
             tform = Transform()
             tform.estimate(source_world_coords, aligned_world_coords)
             ts.tforms = ts.tforms + [tform]
@@ -238,7 +239,7 @@ class FitCrossRegisteredTransform(RenderModule):
                         stackResolutionY=stackResolutionY,
                         stackResolutionZ=stackResolutionZ)
 
-        # for z in zvalues:
+        #for z in zvalues:
         #     myp(z)
         #     break
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
