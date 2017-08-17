@@ -1,5 +1,5 @@
 import numpy as np
-from renderapi.transform import AffineModel
+from renderapi.transform import AffineModel,Polynomial2DTransform
 from functools import partial
 import os
 import renderapi
@@ -10,11 +10,11 @@ example_json={
     "render":{
         "host":"http://ibs-forrestc-ux1",
         "port":80,
-        "owner":"Sharmishtaas",
+        "owner":"Forrest",
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "stack":"ROUGHALIGN_MARCH_21_DAPI_1",
+    "stack":"ROUGHALIGN_LENS_DAPI_1_deconvnew",
     "pool_size":20
 }
 class ConsolidateTransformsParameters(RenderParameters):
@@ -42,7 +42,7 @@ def consolidate_transforms(tforms, logger, makePolyDegree=0):
             logger.debug('consolidate_transforms: non affine {}'.format(tform))
             if total_affines>0:
                 if makePolyDegree>0:
-                    polyTform = Polynomial2DTransform()._fromAffine(tform_total)
+                    polyTform = Polynomial2DTransform().fromAffine(tform_total)
                     polyTform=polyTform.asorder(makePolyDegree)
                     new_tform_list.append(polyTform)
                 else:
@@ -52,14 +52,14 @@ def consolidate_transforms(tforms, logger, makePolyDegree=0):
             new_tform_list.append(tform)
     if total_affines>0:
         if makePolyDegree>0:
-            polyTform = Polynomial2DTransform()._fromAffine(tform_total)
+            polyTform = Polynomial2DTransform().fromAffine(tform_total)
             polyTform=polyTform.asorder(makePolyDegree)
             new_tform_list.append(polyTform)
         else:
             new_tform_list.append(tform_total)
     return new_tform_list
 
-def process_z_make_json(r, logger, json_dir, z):
+def process_z_make_json(r, stack, outstack, logger, json_dir, z):
     tilespecs = r.run(renderapi.tilespec.get_tile_specs_from_z, stack, z)
 
     for ts in tilespecs:
@@ -70,7 +70,7 @@ def process_z_make_json(r, logger, json_dir, z):
     logger.debug("tileid:{} transforms:{}".format(tilespecs[0].tileId,tilespecs[0].tforms))
     json_filepath = os.path.join(json_dir, '%s_%04d'%(outstack,z))
     renderapi.utils.renderdump(tilespecs, open(json_filepath, 'w'), indent=4)
-    return json_filepath
+    return tilespecs
 
 class ConsolidateTransforms(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -78,7 +78,6 @@ class ConsolidateTransforms(RenderModule):
             schema_type = ConsolidateTransformsParameters
         super(ConsolidateTransforms,self).__init__(schema_type=schema_type, *args, **kwargs)
     def run(self):
-        self.logger.error('NOT TESTED SPEAK TO FORREST IF WORKING OR NOT WORKING')
         stack = self.args['stack']
         outstack= self.args.get('output_stack',None)
         if outstack is None:
@@ -89,13 +88,13 @@ class ConsolidateTransforms(RenderModule):
             os.makedirs(json_dir)
 
 
-        zvalues=r.run(renderapi.stack.get_z_values_for_stack, stack)
+        zvalues=self.render.run(renderapi.stack.get_z_values_for_stack, stack)
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
-            json_files=pool.map(partial(process_z_make_json, self.render, self.logger, json_dir), zvalues)
+            json_files=pool.map(partial(process_z_make_json, self.render, stack, outstack, self.logger, json_dir), zvalues)
 
-        r.run(renderapi.stack.delete_stack,outstack)
-        r.run(renderapi.stack.create_stack,outstack)
-        r.run(renderapi.client.import_jsonfiles_parallel, outstack, json_files)
+        self.render.run(renderapi.stack.delete_stack,outstack)
+        self.render.run(renderapi.stack.create_stack,outstack)
+        self.render.run(renderapi.client.import_jsonfiles_parallel, outstack, json_files)
 
 
 if __name__ == "__main__":
