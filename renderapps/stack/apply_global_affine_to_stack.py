@@ -18,16 +18,16 @@ example_parameters = {
         "project":"M247514_Rorb_1",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    'input_stack':'EM_Site4_stitched',
-    'output_stack':'EM_Site4_stitched_SHIFT',
-    'transformId':'EM_Site4_stitched_SHIFT',
-    'M00':1.0,
-    'M10':0,
-    'M01':0,
-    'M11':1.0,
-    'B0': 651.0703125,  
-    'B1':-238050.8203125,
-    'pool_size':2
+    "input_stack":"ALIGN_LENS_DAPI_1_deconvnew",
+    "output_stack":"BIGALIGN_LENS_DAPI_1_deconvnew",
+    "transformId":"expand_alignment",
+    "M00":0,
+    "M10":-33.3333,
+    "M01":33.3333,
+    "M11":0,
+    "B0": 0,  
+    "B1": 0,
+    "pool_size":2
 }
 
 class ApplyAffineParametersBase(RenderParameters):
