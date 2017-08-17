@@ -24,12 +24,12 @@ example_json =   {
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "inputStack":"BIGREG_EMSite4",
+    "inputStack":"BIGREG_EMTake2Site3",
     "LMstacks":["BIGREG_MARCH_21_PSD95","BIGREG_MARCH_21_MBP_deconvnew","BIGREG_MARCH_21_DAPI_1"],
     "LMstack_index":0,
-    "outputStack":"subsetBIGREG_MARCH_21_PSD95",
+    "outputStack":"subsetTake2Site3BIGREG_MARCH_21_PSD95",
     "renderHome":"/var/www/render",
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegMultiProjects_Site4_apply/"
+    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegMultiProjects_Take2Site3_apply/"
 }
 
 class ImportLMSubsetFromEMRegistrationMultiProjectsParameters(EMLMRegistrationMultiParameters):
