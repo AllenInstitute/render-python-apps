@@ -88,17 +88,17 @@ def convert_transform(tfs):
 
 def parse_area_lists(area_lists):
     json_output = {'area_lists':[]}
-    for al in area_lists:
+    for thisid,al in enumerate(area_lists):
         areas = al.findall('t2_area')
         links=al.attrib['links']
         tform = convert_transform(al.attrib['transform'])
-        area_list_d = dict(al.attrib)
+        area_list_d = {}
+        area_list_d['oid']=al.attrib['oid']
+        area_list_d['id']=thisid
         area_list_d['areas']=[]
         for area in areas:
 
-            layerid=area.attrib['layer_id']
-
-            area_d = dict(area.attrib)
+            layerid=area.attrib['layer_id']    
 
             layer=root.find('//t2_layer[@oid="%s"]'%layerid)
             patches = [patch for patch in layer.getchildren()]
@@ -106,10 +106,10 @@ def parse_area_lists(area_lists):
             layer_tilespecs = [(poly,ts,t) for poly,ts,t in zip(tem2_polygons,tem2_tilespecs,render_tilespecs) if ts.tileId in patchids]
 
             paths = area.findall('t2_path')
-            area_d['paths']=[]
+            
             for path in paths:
-                path_d = {}
-                path_d['tile_paths']=[]
+                
+   
                 path_numpy= convert_path(path,tform)
                 path_poly = geometry.Polygon(path_numpy)
                 for poly,ts,rts in layer_tilespecs:
@@ -122,19 +122,10 @@ def parse_area_lists(area_lists):
                         for t in tmp:
                             local_path = t.inverse_tform(local_path)
                         tile_path_d['tileId']=rts.tileId
-                        tile_path_d['z']=rts.z
+                        #tile_path_d['z']=rts.z
                         #print 'z',rts.z,layerid,al.attrib['oid']
-                        tile_path_d['path']=local_path
-                path_d['tile_paths'].append(tile_path_d)
-
-                path_d['z']=path_d['tile_paths'][0]['z']
-                path_d['orig_path']=np.hstack((path_numpy,path_d['z']*np.ones((path_numpy.shape[0],1),np.float)))
-
-                area_d['paths'].append(path_d)
-
-            #for ts in linked_tilespecs:
-            #    print ts.to_dict()
-            area_list_d['areas'].append(area_d)
+                        tile_path_d['local_path']=local_path
+                        area_list_d['areas'].append(tile_path_d)
 
         json_output['area_lists'].append(area_list_d)
     return json_output
