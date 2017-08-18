@@ -1,13 +1,13 @@
 import renderapi
 import json
 import os
-from ..module.render_module import RenderTrakEM2Parameters, RenderModule
-from ..TrakEM2.AnnotationJsonSchema import AnnotationJsonSchema
+from ..module.render_module import RenderParameters, RenderModule
+from ..TrakEM2.AnnotationJsonSchema import AnnotationFile
 from ..shapely import tilespec_to_bounding_box_polygon
 from argschema.fields import Str, InputFile
 from shapely import geometry
 import lxml.etree
-from AnnotationJsonSchema import AnnotationFile
+
 
 parameters={
     "render":{
@@ -17,14 +17,13 @@ parameters={
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "EMstack":"ALIGNEM_reg2",
-    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
-    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD.json",
-    "renderHome":"/pipeline/render"
+    "stack":"BIGALIGN_LENS_EMclahe_Site3",
+    "input_annotation_file":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_local.json",
+    "output_annotation_file":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_global.json"
 }
 
 
-class TransformLocalAnnotationParameters(RenderTrakEM2Parameters):
+class TransformLocalAnnotationParameters(RenderParameters):
     stack = Str(required=True,description='stack to look for transform annotations into')
     input_annotation_file = InputFile(required=True,description='path to annotation file')
     output_annotation_file = Str(required=True,description='path to save transformed annotation')
@@ -49,15 +48,19 @@ def transform_annotations(render,stack,local_annotation):
         a global annotation dictionary that conforms to the AnnotationJsonSchema.AnnotationFile schema
         with coordinates expressed in global coordinates
     """
+    coordinate_mapping = []
 
+    tilespecs = renderapi.tilespec.get_tile_specs_from_stack(stack,render=render)
     #loop over annotations
     for area_list in local_annotation['area_lists']:
         for area in area_list['areas']:
             for path in area['paths']:
-                for tile_path in area['tile_paths']:
-                    tile_path['path']=renderapi.coordinate.local_to_world_coordinates_array(
-                        stack,tile_path['path'],tile_path['z'],doClientSide=True,render=render)
-                        
+                for tile_path in path['tile_paths']:
+                    ts = next(ts for ts in tilespecs if ts.tileId == tile_path['tileId'])
+                    tile_path['path']=renderapi.transform.estimate_dstpts(ts.tforms,tile_path['path'])
+                    
+    return local_annotation
+
 
 class TransformLocalAnnotation(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -66,16 +69,18 @@ class TransformLocalAnnotation(RenderModule):
         super(TransformLocalAnnotation,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
 
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
-
         with open(self.args['input_annotation_file'],'r') as fp:
             local_annotation_json = json.load(fp)
             schema = AnnotationFile()
-            local_annotation = schema.load(local_annotation_json)
+            local_annotation,errors = schema.load(local_annotation_json)
         #read in the json file
-        transform_annotations(self.render,
+        global_annotation=transform_annotations(self.render,
                               self.args['stack'],
                               local_annotation)
+
+        with open(self.args['output_annotation_file'],'w') as fp:
+             json_dict=schema.dump(global_annotation)
+             json.dump(json_dict,fp)
 
 
 if __name__ == "__main__":
