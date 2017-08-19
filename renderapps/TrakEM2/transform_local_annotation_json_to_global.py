@@ -54,8 +54,8 @@ def transform_annotations(render,stack,local_annotation):
     #loop over annotations
     for area_list in local_annotation['area_lists']:
         for area in area_list['areas']:
-            ts = next(ts for ts in tilespecs if ts.tileId == tile_path['tileId'])
-            area['global_path']=renderapi.transform.estimate_dstpts(ts.tforms,tile_path['local_path'])
+            ts = next(ts for ts in tilespecs if ts.tileId == area['tileId'])
+            area['global_path']=renderapi.transform.estimate_dstpts(ts.tforms,area['local_path'])
                     
     return local_annotation
 
