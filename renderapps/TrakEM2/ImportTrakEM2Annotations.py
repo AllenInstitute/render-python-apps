@@ -32,8 +32,8 @@ parameters={
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
     "EMstack":"ALIGNEM_reg2",
-    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_cropedToMatch_SD.xml",
-    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_local.json",
+    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
+    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD.json",
     "renderHome":"/pipeline/render"
 }
 
@@ -46,10 +46,12 @@ parameters={
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
     "EMstack":"ALIGNEM_reg2",
-    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
-    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD.json",
+    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_cropedToMatch_SD.xml",
+    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_local.json",
     "renderHome":"/pipeline/render"
 }
+
+
 
 class ImportTrakEM2AnnotationParameters(RenderTrakEM2Parameters):
     EMstack = Str(required=True,description='stack to look for trakem2 patches in')
@@ -86,7 +88,7 @@ def convert_transform(tfs):
                                            B1  = vals[5])
     return tform
 
-def parse_area_lists(area_lists):
+def parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lists):
     json_output = {'area_lists':[]}
     for thisid,al in enumerate(area_lists):
         areas = al.findall('t2_area')
@@ -131,15 +133,12 @@ def parse_area_lists(area_lists):
     return json_output
 
 
-class ImportTrakEM2Annotations(RenderModule):
+class ImportTrakEM2Annotations(TrakEM2RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = ImportTrakEM2AnnotationParameters
         super(ImportTrakEM2Annotations,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
-
         tem2file = self.args['trakem2project']
         trakem2dir = os.path.split(tem2file)[0]
         jsonFileOut = os.path.join(trakem2dir,os.path.splitext(tem2file)[0]+'.json')
@@ -174,7 +173,7 @@ class ImportTrakEM2Annotations(RenderModule):
         print 'project contains %d area lists'%len(area_lists)
 
         #parse the area lists into json
-        json_output = parse_area_lists(area_lists)
+        json_output = parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lists)
         len(json_output['area_lists'])
 
         #dump the json dictionary through the AnnotationFile schema
