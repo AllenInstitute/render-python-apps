@@ -1,0 +1,20 @@
+
+MBP
+http://ibs-forrestc-ux1.corp.alleninstitute.org/render-ws/v1/owner/Forrest/project/M247514_Rorb_1/stack/ALIGNMBP_deconv/z/28/box/23927,-39746,315970,133021,.03/png-image?maxIntensity=10000&minIntensity=1000
+
+DAPI
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8081/render-ws/v1/owner/Forrest/project/M247514_Rorb_1/stack/ALIGNDAPI_1_deconv/z/28/box/23927,-39746,315970,133021,.03/png-image?maxIntensity=10000&minIntensity=1000
+
+PSD95
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8081/render-ws/v1/owner/Forrest/project/M247514_Rorb_1/stack/REGFLATPSD95/z/28/box/33510,75000,290000,120000,.03/png-image?maxIntensity=20000&minIntensity=1000
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8081/render-ws/v1/owner/Forrest/project/M247514_Rorb_1/stack/ALIGNDAPI_1_deconv/z/28/box/23927,-39746,315970,133021,.03/png-image?maxIntensity=10000&minIntensity=1000
+
+Synapsin
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8081/render-ws/v1/owner/Forrest/project/M247514_Rorb_1/stack/REGFLATsynapsin/z/28/box/33510,75000,290000,120000,.03/png-image?maxIntensity=20000&minIntensity=0
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8081/render-ws/v1/owner/Forrest/project/M247514_Rorb_1/stack/ALIGNDAPI_1_deconv/z/28/box/23927,-39746,315970,133021,.03/png-image?maxIntensity=10000&minIntensity=1000
+
+30nm EM
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8081/render-ws/v1/owner/Forrest/project/M247514_Rorb_1/stack/EM30nm_fix/z/28/box/33510,75000,290000,120000,.03/png-image?maxIntensity=255&minIntensity=0
+
+3nm EM (rendered at 50% of full resolution in just the area it exists)
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8081/render-ws/v1/owner/Forrest/project/M247514_Rorb_1/stack/EM_fix/z/28/box/200000,98000,18000,16000,.5/png-image?maxIntensity=255&minIntensity=0

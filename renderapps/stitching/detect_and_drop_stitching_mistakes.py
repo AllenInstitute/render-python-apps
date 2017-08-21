@@ -1,0 +1,170 @@
+import renderapi
+from ..module.render_module import RenderModule, RenderParameters
+import os
+import json
+import numpy as np
+from rtree import index as rindex
+import networkx as nx
+from functools import partial
+from ..module.render_module import RenderModule, RenderParameters
+import marshmallow as mm
+import sys
+
+#Modified by Sharmishtaa Seshamani
+
+example_json={
+        "render":{
+            "host":"ibs-forrestc-ux1",
+            "port":8080,
+            "owner":"S3_Run1",
+            "project":"S3_Run1_Igor",
+            "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+        },
+        "prestitchedStack":"Acquisition_DAPI_1",
+        "poststitchedStack":"Stitched_DAPI_1",
+        "outputStack":"Stitched_DAPI_1_dropped",
+        "jsonDirectory":"/nas3/data/S3_Run1_Igor/processed/dropped",
+        "edge_threshold":1843, #default
+        "pool_size":20, #default
+        "distance_threshold":50, #default
+
+}
+
+class DetectAndDropStitchingMistakesParameters(RenderParameters):
+    prestitchedStack = mm.fields.Str(required=True,
+        metadata={'description':'name of render stack of tiles before stitching'})
+    poststitchedStack = mm.fields.Str(required=True,
+        metadata={'description':'name of render stack of tiles after stitching'})
+    outputStack = mm.fields.Str(required=True,
+        metadata={'description':'name of render stack to output with stitching fixed'})
+    jsonDirectory = mm.fields.Str(required=True,
+        metadata={'description:':'directory to save json files'})
+    edge_threshold  = mm.fields.Int(required=False,default=1843,
+        metadata={'description:':'distance between tilespecs to consider as edges(default=1843)'})
+    pool_size  = mm.fields.Int(required=False,default=20,
+        metadata={'description:':'degree of parallelism (default=20)'})
+    distance_threshold  = mm.fields.Int(required=False,default=50,
+        metadata={'description:':'amplitude difference between pre and post stitching results,\
+         that causes edge to be tossed (units of render)(default=50)'})
+    
+
+
+#def process_section(render,
+#    prestitchedStack='',
+#    poststitchedStack='',
+#    outputStack='',
+#    distance_threshold=50,
+#    edge_threshold=1843,z=0):
+
+def process_section(render,prestitchedStack, poststitchedStack, outputStack, distance_threshold, edge_threshold,jsonDirectory, z):
+
+    ridx = rindex.Index() #setup an Rtree to find overlapping tiles
+    G=nx.Graph() #setup a graph to store overlapping tiles
+    Gpos = {} #dictionary to store positions of tiles
+    
+    
+    
+    #get all the tilespecs for this z from prestitched stack
+    pre_tilespecs = renderapi.tilespec.get_tile_specs_from_z(prestitchedStack, z, render=render)
+    tilespecs = renderapi.tilespec.get_tile_specs_from_z(poststitchedStack, z, render=render)
+    #insert them into the Rtree with their bounding boxes to assist in finding overlaps
+    #label them by order in pre_tilespecs
+    [ridx.insert(i,(ts.minX,ts.minY,ts.maxX,ts.maxY)) for i,ts in enumerate(pre_tilespecs)]
+
+    
+    post_tilespecs = []
+    #loop over each tile in this z to make graph
+    for i,ts in enumerate(pre_tilespecs):
+        #create the list of corresponding post stitched tilespecs
+        t = renderapi.tilespec.get_tile_spec(poststitchedStack,ts.tileId,render=render)
+        d= t.to_dict() #d['minIntensity'] = 2000 #d['maxIntensity'] = 10000
+        t.from_dict(d)
+        post_tilespecs.append(t)
+        #get the list of overlapping nodes
+        nodes=list(ridx.intersection((ts.minX,ts.minY,ts.maxX,ts.maxY)))
+        nodes.remove(i) #remove itself
+        [G.add_edge(i,node) for node in nodes] #add these nodes to the undirected graph
+        #save the tiles position
+        Gpos[i]=((ts.minX+ts.maxX)/2,(ts.minY+ts.maxY)/2)
+	
+	
+    #loop over edges in the graph
+    for p,q in G.edges():
+        #p and q are now indices into the tilespecs, and labels on the graph nodes
+        #assuming the first transform is the right one, and is only translation
+        #this is the vector between these two tilespecs
+        dpre=pre_tilespecs[p].tforms[0].M[0:2,2]-pre_tilespecs[q].tforms[0].M[0:2,2]
+        #this is therefore the distance between them
+        dp = np.sqrt(np.sum(dpre**2))
+        #this is the vector between them after stitching
+        dpost=post_tilespecs[p].tforms[0].M[0:2,2]-post_tilespecs[q].tforms[0].M[0:2,2]
+        
+        #this is the amplitude of the vector between the pre and post vectors (delta delta vector)
+        delt = np.sqrt(np.sum((dpre-dpost)**2))
+        #store it in the edge property dictionary
+        G[p][q]['distance']=delt
+        #if the initial distance was too big, or if the delta delta vector is too large
+        if (delt>distance_threshold) | (dp>edge_threshold):
+            #remove the edge
+            G.remove_edge(p,q)
+	
+
+
+    #after removing all the bad edges...
+    #get the largest connected component of G
+    Gc = max(nx.connected_component_subgraphs(G), key=len)
+    
+   
+    #use it to pick out the good post stitch tilspecs that remain in the graph
+    ts_good_json = [post_tilespecs[node].to_dict() for node in Gc.nodes_iter()]
+    #formulate a place to save them
+    jsonfilepath = os.path.join(jsonDirectory,'%s_z%04.0f.json'%(outputStack,z))
+    #dump the json to that location
+    json.dump(ts_good_json,open(jsonfilepath ,'w'))
+    #return the name of the file
+    return jsonfilepath
+
+class DetectAndDropStitchingMistakes(RenderModule):
+    def __init__(self,schema_type=None,*args,**kwargs):
+        if schema_type is None:
+            schema_type = DetectAndDropStitchingMistakesParameters
+        super(DetectAndDropStitchingMistakes,self).__init__(schema_type=schema_type,*args,**kwargs)
+    def run(self):
+       
+        #self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
+        if not os.path.isdir(self.args['jsonDirectory']):
+                os.makedirs(self.args['jsonDirectory'])
+
+        #STEP 2: get z values of stitched stack
+        zvalues=renderapi.stack.get_z_values_for_stack(self.args['poststitchedStack'],render=self.render)
+        
+        self.logger.debug('processing %d sections'%len(zvalues))
+        #process_section(self.render, self.args['prestitchedStack'],self.args['poststitchedStack'],self.args['outputStack'], self.args['distance_threshold'],self.args['edge_threshold'],self.args['jsonDirectory'], 15706)
+        #exit(0)
+
+
+        #define a partial function that takes in a single z
+        partial_process = partial(process_section,self.render,self.args['prestitchedStack'],
+            self.args['poststitchedStack'],self.args['outputStack'], self.args['distance_threshold'],self.args['edge_threshold'],self.args['jsonDirectory'])
+
+        #parallel process all sections
+        with renderapi.client.WithPool(self.args['pool_size']) as pool:
+            jsonfiles = pool.map(partial_process,zvalues)
+        
+        #create stack and upload to render
+        
+        renderapi.stack.create_stack(self.args['outputStack'], cycleNumber=3,cycleStepNumber=1, render=self.render)
+        renderapi.client.import_jsonfiles_parallel(self.args['outputStack'],
+                                                    jsonfiles,
+                                                    render=self.render)
+                                                    
+
+if __name__ == "__main__":
+	
+	#mod = DetectAndDropStitchingMistakes(input_data=example_json)
+	mod = DetectAndDropStitchingMistakes(schema_type=DetectAndDropStitchingMistakesParameters)
+	mod.run()
+
+  
+
+

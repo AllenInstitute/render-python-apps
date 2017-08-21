@@ -1,0 +1,42 @@
+/pipeline/forrestrender/render-ws-java-client/src/main/scripts/run_ws_client.sh\
+ 5G org.janelia.render.client.TilePairClient\
+ --baseDataUrl http://em-131fs:8999/render-ws/v1\
+ --excludeCornerNeighbors true\
+ --excludeCompletelyObscuredTiles false\
+ --minZ 3484\
+ --maxZ 3484\
+ --owner gayathri\
+ --project EM_Phase1\
+ --stack Princeton_manual_align_testmerge\
+ --toJson /pipeline/render-python-apps/princeton_merge_tile_pair_3484.json\
+ --xyNeighborFactor 0.01\
+ --zNeighborDistance 0
+
+ /pipeline/forrestrender/render-ws-java-client/src/main/scripts/run_ws_client.sh\
+  5G org.janelia.render.client.
+
+/var/www/render/render-ws-java-client/src/main/scripts/run_ws_client.sh\
+ 5G org.janelia.render.client.PointMatchClient\
+ --baseDataUrl http://em-131fs:8999/render-ws/v1\
+ --collection princeton_manual_testmatch\
+ --owner gayathri\
+ --renderScale .25\
+ --matchMinNumInliers 12\
+ http://em-131fs:8999/render-ws/v1/owner/gayathri/project/EM_Phase1/stack/Princeton_manual_align_testmerge/tile/20160802180527362_243774_7R_SID_06_redo_2_1_10_7_10.3484.0/render-parameters?normalizeForMatching=true\
+ http://em-131fs:8999/render-ws/v1/owner/gayathri/project/EM_Phase1/stack/Princeton_manual_align_testmerge/tile/1,3484_aligned_11_33/render-parameters?normalizeForMatching=true
+
+ http://em-131fs:8999/render-ws/v1/owner/gayathri/project/EM_Phase1/stack/Princeton_manual_align_testmerge/tile/20160802180527362_243774_7R_SID_06_redo_2_1_10_7_10.3484.0/render-parameters?normalizeForMatching=true
+ http://em-131fs:8999/render-ws/v1/owner/gayathri/project/EM_Phase1/stack/Princeton_manual_align_testmerge/tile/1,3484_aligned_11_33/render-parameters?normalizeForMatching=true
+
+http://ibs-forrestc-ux1:8001/#!{'layers':{'dapistack':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Sharmishtaas/M270907_Scnn1aTg2Tdt_13/ALIGNEDSTACK_JAN3_DAPI_1_NORM_CONS'_'color':2}_'pointmatch':{'type':'point'_'point':'render://http://ibs-forrestc-ux1/Sharmishtaas/M270907_Scnn1aTg2Tdt_13/ALIGNEDSTACK_JAN3_DAPI_1_NORM_CONS?matchCollection=large_rigid_run'_'opacity':1_'color':4}}_'navigation':{'pose':{'position':{'voxelSize':[1_1_1]_'voxelCoordinates':[7835_6362.5_1633]}}_'zoomFactor':2}}
+
+
+
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8001/#!{'layers':{'ALIGN_JANELIA_JAN18_DAPI_1_NORM3':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Sharmishtaas/M270907_Scnn1aTg2Tdt_13/ALIGN_JANELIA_JAN18_DAPI_1_NORM3'_'color':2}_'pointmatch':{'type':'point'_'point':'render://http://ibs-forrestc-ux1/Sharmishtaas/M270907_Scnn1aTg2Tdt_13/ALIGN_JANELIA_JAN18_DAPI_1_NORM3?matchCollection=large_rigid_run'_'opacity':1_'color':4}}_'navigation':{'pose':{'position':{'voxelSize':[1_1_1]_'voxelCoordinates':[9115.9326171875_24041.474609375_499]}}_'zoomFactor':6.625978879041819}}
+
+
+http://ibs-forrestc-ux1:8001/#!{'layers':{'princeton':{'type':'image'_'source':'render://http://em-131fs:8999/gayathri/EM_Phase1/Pinky40_20170313_aibsdata_flipped_shifted?numlevels=1'_'color':1}_'manual_align_Phase1Data_3464_3500_forrestfix':{'type':'image'_'source':'render://http://em-131fs:8999/gayathri/EM_Phase1/manual_align_Phase1Data_3464_3500_forrestfix?numlevels=1'_'opacity':1_'color':2_'min':0.47_'max':0.76_'visible':false}_'Princeton_manual_align_testmerge':{'type':'point'_'point':'render://http://em-131fs:8999/gayathri/EM_Phase1/Princeton_manual_align_testmerge?matchCollection=princeton_manual_testmatch'_'opacity':1_'color':4}}_'navigation':{'pose':{'position':{'voxelSize':[1_1_1]_'voxelCoordinates':[57888.91015625_11214.361328125_3492.5]}}_'zoomFactor':12.835553661457777}}
+
+http://ibs-forrestc-ux1:8001/#!{'layers':{'princeton':{'type':'image'_'source':'render://http://em-131fs:8999/gayathri/EM_Phase1/Pinky40_20170313_aibsdata_flipped_shifted?numlevels=1'_'color':1}_'manual_align_Phase1Data_3464_3500_forrestfix':{'type':'image'_'source':'render://http://em-131fs:8999/gayathri/EM_Phase1/manual_align_Phase1Data_3464_3500_forrestfix?numlevels=1'_'opacity':1_'color':2_'min':0.47_'max':0.76_'visible':false}_'Princeton_manual_align_testmerge':{'type':'point'_'point':'render://http://em-131fs:8999/gayathri/EM_Phase1/Princeton_manual_align_testmerge?matchCollection=princeton_manual_testmatch&zoffset=0'_'opacity':1_'color':4}}_'navigation':{'pose':{'position':{'voxelSize':[1_1_1]_'voxelCoordinates':[58763.81640625_11896.1630859375_3491.5]}}_'zoomFactor':5.521699376745957}}
+
+http://ibs-forrestc-ux1.corp.alleninstitute.org:8001/#!{'layers':{'ALIGNEM_reg2_clahe':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Forrest/M247514_Rorb_1/ALIGNEM_reg2_clahe'_'opacity':0.44}_'ALIGNMBP_deconv':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Forrest/M247514_Rorb_1/ALIGNMBP_deconv'_'color':5_'max':0.16}_'ALIGNDAPI_1_deconv':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Forrest/M247514_Rorb_1/ALIGNDAPI_1_deconv'}_'ALIGNPSD95_deconv':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Forrest/M247514_Rorb_1/ALIGNPSD95_deconv'_'color':4_'max':0.27}_'ALIGNsynapsin_deconv':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Forrest/M247514_Rorb_1/ALIGNsynapsin_deconv'_'color':2}_'ALIGNTdTomato_deconv':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Forrest/M247514_Rorb_1/ALIGNTdTomato_deconv'_'color':1_'max':0.26}_'ALIGNGABA_deconv':{'type':'image'_'source':'render://http://ibs-forrestc-ux1/Forrest/M247514_Rorb_1/ALIGNGABA_deconv'_'color':3_'min':0.05_'max':0.36}_'pointmatch':{'type':'point'_'point':'render://http://ibs-forrestc-ux1/Forrest/M247514_Rorb_1/ALIGNDAPI_1_deconv?matchCollection=M247514_Rorb_1_DAPI1_deconv_filter_fix2'}}_'navigation':{'pose':{'position':{'voxelSize':[3_3_70]_'voxelCoordinates':[208967.046875_15017.6904296875_26]}}_'zoomFactor':115.18066077635585}_'showAxisLines':false}
