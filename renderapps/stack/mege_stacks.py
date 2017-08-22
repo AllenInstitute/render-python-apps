@@ -3,8 +3,9 @@ if __name__ == "__main__" and __package__ is None:
 import json
 import os
 import renderapi
-from ..module.render_module import RenderModule, RenderParameters
-from argschema.fields import InputFile, InputDir, OutputDir, Str, Float, Int
+from ..module.render_module import RenderModule,RenderParameters
+from json_module import InputFile,InputDir,OutputDir
+import marshmallow as mm
 from functools import partial
 import glob
 import time
@@ -31,10 +32,10 @@ example_parameters={
 }
 
 class MakeDownsampleSectionStackParameters(RenderParameters):
-    input_stack = Str(required=True,
-        description='stack to make a downsample version of')
-    scale = Float(required=False,default = .01,
-        description='scale to make images')
+    input_stack = mm.fields.Str(required=True,
+        metadata={'description':'stack to make a downsample version of'})
+    scale = mm.fields.Float(required=False,default = .01,
+        metadata={'description':'scale to make images'})
     image_directory = OutputDir(required=True,
         metadata={'decription','path to save section images'})
     numsectionsfile = mm.fields.Str(required=True,
@@ -107,7 +108,7 @@ def process_z(render,stack,output_dir,scale,project,tagstr,Z):
     filename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'%03d'%q,"%d"%s,'%s.tif'%str(z))
     
     if not os.path.isfile(filename):
-		renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=True, fillWithNoise=False)
+		renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=False, fillWithNoise=False)
     
     tilespecs = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
     t = tilespecs[0]

@@ -151,6 +151,7 @@ class ApplyAlignmentFromRegisteredStack(RenderModule):
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             res = pool.map(myp, zvalues)
         #self.render.run(renderapi.stack.set_stack_state,outstack,state='COMPLETE')
+        #renderapi.client.set_stack_state(outstack,state='COMPLETE',render=self.render)
         #break
 
 if __name__ == "__main__":

@@ -1,31 +1,23 @@
-
-from .apply_alignment_transform_from_registered_stack import ApplyAlignmentFromRegisteredStackParametersBase,ApplyAlignmentFromRegisteredStack
+import marshmallow as mm
+from .apply_alignment_transform_from_registered_stack import ApplyAlignmentFromRegisteredStackParametersBase,ApplyAlignmentFromRegisteredStack,ApplyAlignmentFromRegisteredStackParameters
 
 from renderapps.module.render_module import RenderModule
 from argschema.fields import List, Str
+
 
 example_json = {
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "owner":"S3_Run1",
+        "project":"S3_Run1_Jarvis",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "prealigned_stack":"REG_MARCH_21_DAPI_1",
-    "postaligned_stack":"ALIGN2_MARCH_24b_DAPI_1",
-    "registered_stacks":["REG_MARCH_21_MBP_deconvnew",
-                         "REG_MARCH_21_GABA_deconvnew",
-                         "REG_MARCH_21_GAD2_deconvnew",
-                         "REG_MARCH_21_GluN1_deconvnew",
-                         "REG_MARCH_21_PSD95_deconvnew",
-                         "REG_MARCH_21_TdTomato_deconvnew",
-                         "REG_MARCH_21_VGlut1_deconvnew",
-                         "REG_MARCH_21_synapsin_deconvnew",
-                         "REG_MARCH_21_DAPI_1_deconvnew",
-                         "REG_MARCH_21_Gephyrin_deconvnew"],
-    "old_prefix":"REG_MARCH_21_",
-    "new_prefix":"ALIGN2_MARCH24b_",
+    "prealigned_stack":"Rough_Aligned_68_to_112_DAPI_1_fullscale_CONS",
+    "postaligned_stack":"Fine_Aligned_68_to_112_DAPI_1_188to694_fullscale_R1_R3",
+    "registered_stacks":["Rough_Aligned_68_to_112_GFP_fullscale_CONS"],
+    "old_prefix":"Rough_Aligned_",
+    "new_prefix":"Fine_Aligned_R1_R3_",
     "stackResolutionX":1,
     "stackResolutionY":1,
     "stackResolutionZ":1,
