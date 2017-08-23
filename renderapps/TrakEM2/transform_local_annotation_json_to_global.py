@@ -75,9 +75,8 @@ class TransformLocalAnnotation(RenderModule):
         global_annotation=transform_annotations(self.render,
                               self.args['stack'],
                               local_annotation)
-
         with open(self.args['output_annotation_file'],'w') as fp:
-             json_dict=schema.dump(global_annotation)
+             json_dict,errors=schema.dump(global_annotation)
              json.dump(json_dict,fp)
 
 
