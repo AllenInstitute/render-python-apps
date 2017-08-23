@@ -32,8 +32,8 @@ parameters={
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
     "EMstack":"ALIGNEM_reg2",
-    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_cropedToMatch_SD.xml",
-    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_local.json",
+    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
+    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD.json",
     "renderHome":"/pipeline/render"
 }
 
@@ -46,10 +46,12 @@ parameters={
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
     "EMstack":"ALIGNEM_reg2",
-    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
-    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD.json",
+    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_cropedToMatch_SD.xml",
+    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_local.json",
     "renderHome":"/pipeline/render"
 }
+
+
 
 class ImportTrakEM2AnnotationParameters(RenderTrakEM2Parameters):
     EMstack = Str(required=True,description='stack to look for trakem2 patches in')
@@ -86,19 +88,19 @@ def convert_transform(tfs):
                                            B1  = vals[5])
     return tform
 
-def parse_area_lists(area_lists):
+def parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lists):
     json_output = {'area_lists':[]}
-    for al in area_lists:
+    for thisid,al in enumerate(area_lists):
         areas = al.findall('t2_area')
         links=al.attrib['links']
         tform = convert_transform(al.attrib['transform'])
-        area_list_d = dict(al.attrib)
+        area_list_d = {}
+        area_list_d['oid']=al.attrib['oid']
+        area_list_d['id']=thisid
         area_list_d['areas']=[]
         for area in areas:
 
-            layerid=area.attrib['layer_id']
-
-            area_d = dict(area.attrib)
+            layerid=area.attrib['layer_id']    
 
             layer=root.find('//t2_layer[@oid="%s"]'%layerid)
             patches = [patch for patch in layer.getchildren()]
@@ -106,10 +108,10 @@ def parse_area_lists(area_lists):
             layer_tilespecs = [(poly,ts,t) for poly,ts,t in zip(tem2_polygons,tem2_tilespecs,render_tilespecs) if ts.tileId in patchids]
 
             paths = area.findall('t2_path')
-            area_d['paths']=[]
+            
             for path in paths:
-                path_d = {}
-                path_d['tile_paths']=[]
+                
+   
                 path_numpy= convert_path(path,tform)
                 path_poly = geometry.Polygon(path_numpy)
                 for poly,ts,rts in layer_tilespecs:
@@ -122,33 +124,21 @@ def parse_area_lists(area_lists):
                         for t in tmp:
                             local_path = t.inverse_tform(local_path)
                         tile_path_d['tileId']=rts.tileId
-                        tile_path_d['z']=rts.z
+                        #tile_path_d['z']=rts.z
                         #print 'z',rts.z,layerid,al.attrib['oid']
-                        tile_path_d['path']=local_path
-                path_d['tile_paths'].append(tile_path_d)
-
-                path_d['z']=path_d['tile_paths'][0]['z']
-                path_d['orig_path']=np.hstack((path_numpy,path_d['z']*np.ones((path_numpy.shape[0],1),np.float)))
-
-                area_d['paths'].append(path_d)
-
-            #for ts in linked_tilespecs:
-            #    print ts.to_dict()
-            area_list_d['areas'].append(area_d)
+                        tile_path_d['local_path']=local_path
+                        area_list_d['areas'].append(tile_path_d)
 
         json_output['area_lists'].append(area_list_d)
     return json_output
 
 
-class ImportTrakEM2Annotations(RenderModule):
+class ImportTrakEM2Annotations(TrakEM2RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
         if schema_type is None:
             schema_type = ImportTrakEM2AnnotationParameters
         super(ImportTrakEM2Annotations,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-
-        self.logger.error('WARNING NEEDS TO BE TESTED, TALK TO FORREST IF BROKEN')
-
         tem2file = self.args['trakem2project']
         trakem2dir = os.path.split(tem2file)[0]
         jsonFileOut = os.path.join(trakem2dir,os.path.splitext(tem2file)[0]+'.json')
@@ -183,7 +173,7 @@ class ImportTrakEM2Annotations(RenderModule):
         print 'project contains %d area lists'%len(area_lists)
 
         #parse the area lists into json
-        json_output = parse_area_lists(area_lists)
+        json_output = parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lists)
         len(json_output['area_lists'])
 
         #dump the json dictionary through the AnnotationFile schema
