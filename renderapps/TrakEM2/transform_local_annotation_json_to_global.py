@@ -54,10 +54,8 @@ def transform_annotations(render,stack,local_annotation):
     #loop over annotations
     for area_list in local_annotation['area_lists']:
         for area in area_list['areas']:
-            for path in area['paths']:
-                for tile_path in path['tile_paths']:
-                    ts = next(ts for ts in tilespecs if ts.tileId == tile_path['tileId'])
-                    tile_path['path']=renderapi.transform.estimate_dstpts(ts.tforms,tile_path['path'])
+            ts = next(ts for ts in tilespecs if ts.tileId == area['tileId'])
+            area['global_path']=renderapi.transform.estimate_dstpts(ts.tforms,area['local_path'])
                     
     return local_annotation
 
@@ -77,9 +75,8 @@ class TransformLocalAnnotation(RenderModule):
         global_annotation=transform_annotations(self.render,
                               self.args['stack'],
                               local_annotation)
-
         with open(self.args['output_annotation_file'],'w') as fp:
-             json_dict=schema.dump(global_annotation)
+             json_dict,errors=schema.dump(global_annotation)
              json.dump(json_dict,fp)
 
 
