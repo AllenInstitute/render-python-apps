@@ -4,7 +4,7 @@ from . import cross_modal_registration
 from . import dataimport
 from . import materialize
 from . import pointmatch
-from . import refactor
+#from . import refactor
 from . import registration
 from . import section_polygons
 from . import stack
@@ -18,5 +18,5 @@ from . import rough_align
 
 __all__ = ['cross_modal_registration', 'dataimport', 'materialize', 'pointmatch',
            'module','shapely',
-           'refactor', 'registration', 'section_polygons', 'stack',
+           'registration', 'section_polygons', 'stack',
            'stitching', 'tile', 'TrakEM2','transfer','wrinkle_detection','datamanagement','rough_align']
