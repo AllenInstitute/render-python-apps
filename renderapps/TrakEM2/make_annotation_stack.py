@@ -1,18 +1,12 @@
-
-# In[133]:
-
-
 from pandas.io.json import json_normalize 
 import renderapi
+import pandas as pd
 import os
 import json
 import cv2
 import numpy as np
-from pathos.multiprocessing import Pool
-from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 import argschema
-import marshmallow as mm
 from AnnotationJsonSchema import AnnotationFile
 
 example_json={
@@ -28,7 +22,8 @@ example_json={
         "global_file":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_global.json",
         "annotation_dir":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_tiles/"
 }
-def make_annotation_stack_parameters(render,annotation_dir,global_file,input_stack,annotation_stack):
+
+def make_annotation_stack(render,annotation_dir,global_file,input_stack,annotation_stack):
 
     if not os.path.isdir(annotation_dir):
         os.makedirs(annotation_dir)
@@ -65,7 +60,7 @@ def make_annotation_stack_parameters(render,annotation_dir,global_file,input_sta
     sv = renderapi.stack.get_stack_metadata(input_stack,render=render)
     renderapi.stack.create_stack(annotation_stack,render=render)
     renderapi.client.import_tilespecs_parallel(annotation_stack,tilespecs,render=render)
-    renderapi.set_stack_metadata(annotation_stack,sv,render=render)
+    renderapi.stack.set_stack_metadata(annotation_stack,sv,render=render)
     renderapi.stack.set_stack_state(annotation_stack,'COMPLETE',render=render)
 
 class MakeAnnotationStackParameters(RenderParameters):
@@ -84,7 +79,11 @@ class MakeAnnotationStack(RenderModule):
             schema_type = MakeAnnotationStackParameters
         super(MakeAnnotationStack,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
-
+        make_annotation_stack(self.render,
+                              self.args['annotation_dir'],
+                              self.args['global_file'],
+                              self.args['input_stack'],
+                              self.args['annotation_stack'])
 
 
 if __name__ == "__main__":

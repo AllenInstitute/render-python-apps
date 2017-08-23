@@ -23,19 +23,7 @@ parameters={
     "renderHome":"/pipeline/render"
 }
 
-parameters={
-    "render":{
-        "host":"ibs-forrestc-ux1",
-        "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
-        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
-    },
-    "EMstack":"ALIGNEM_reg2",
-    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
-    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD.json",
-    "renderHome":"/pipeline/render"
-}
+
 
 parameters={
     "render":{
@@ -51,7 +39,19 @@ parameters={
     "renderHome":"/pipeline/render"
 }
 
-
+parameters={
+    "render":{
+        "host":"ibs-forrestc-ux1",
+        "port":8080,
+        "owner":"Forrest",
+        "project":"M247514_Rorb_1",
+        "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
+    },
+    "EMstack":"ALIGNEM_reg2",
+    "trakem2project":"/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
+    "outputAnnotationFile":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD_local.json",
+    "renderHome":"/pipeline/render"
+}
 
 class ImportTrakEM2AnnotationParameters(RenderTrakEM2Parameters):
     EMstack = Str(required=True,description='stack to look for trakem2 patches in')
@@ -174,7 +174,6 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
 
         #parse the area lists into json
         json_output = parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lists)
-        len(json_output['area_lists'])
 
         #dump the json dictionary through the AnnotationFile schema
         #in order to serialize it to disk
