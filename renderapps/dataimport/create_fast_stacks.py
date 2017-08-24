@@ -5,8 +5,17 @@ from renderapi.transform import AffineModel
 from create_mipmaps import create_mipmaps
 my_env = os.environ.copy()
 from ..module.render_module import RenderModule, RenderParameters
-from argschema.fields import InputFile, InputDir, Str, Int
+from argschema.fields import InputFile, InputDir, Str, Int, Boolean
 import pandas as pd
+
+example_input={
+    #"statetableFile" : "/nas/data/M246930_Scnn1a_4_f1//scripts/statetable_ribbon_0_session_0_section_3",
+    #"projectDirectory" : "/nas/data/M246930_Scnn1a_4_f1/",
+    #"outputStackPrefix" : "Acquisition",
+    #"pool_size" : 20,
+    "delete_stack" : False
+}
+
 
 class CreateFastStacksParameters(RenderParameters):
     statetableFile = InputFile(required=True,
@@ -17,6 +26,8 @@ class CreateFastStacksParameters(RenderParameters):
         description='prefix to include in front of channel name for render stack')
     pool_size = Int(require=False,default=20,
         description='number of parallel threads to use')
+    delete_stack = Boolean(require=False,default=True,
+        description='flag to decide whether stack should be deleted before new upload')
 
 def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputStack,minval=0,maxval=50000):
     df = df[df['zstack']==0]
@@ -116,6 +127,9 @@ class CreateFastStack(RenderModule):
         statetablefile = self.args['statetableFile']
         rootdir = self.args['projectDirectory']
 
+        print "This is delete stack : "
+        print self.args['delete_stack']
+        #exit(0)
         df = pd.read_csv(statetablefile)
         ribbons = df.groupby('ribbon')
         k=0
@@ -139,8 +153,9 @@ class CreateFastStack(RenderModule):
                 #        p.wait()
                 self.logger.info("uploading to render ...")
                 if k==0:
-                    renderapi.stack.delete_stack(outputStack,owner=outputOwner,
-                    project=outputProject,render=self.render)
+                    if self.args['delete_stack']:
+                        renderapi.stack.delete_stack(outputStack,owner=outputOwner,project=outputProject,render=self.render)
+
                     renderapi.stack.create_stack(outputStack,owner=outputOwner,
                     project=outputProject,verbose=False,render=self.render)
                 self.logger.info(tilespecpaths)
@@ -148,5 +163,7 @@ class CreateFastStack(RenderModule):
             k+=1
 
 if __name__ == "__main__":
-    mod = CreateFastStack(schema_type = CreateFastStacksParameters)
+    #mod = CreateFastStack(schema_type = CreateFastStacksParameters)
+    #print example_input
+    mod = CreateFastStack(input_data=example_input,schema_type=CreateFastStacksParameters)
     mod.run()
