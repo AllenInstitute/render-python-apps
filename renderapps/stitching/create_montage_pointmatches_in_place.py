@@ -14,21 +14,12 @@ example_parameters={
         "project":"S3_Run1_Jarvis",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-<<<<<<< HEAD
     "stack":"BIGLENS_REG_MARCH_21_DAPI_1_deconvnew",
     "matchCollection":"M247514_Rorb_1_BIGLENS_REG_MARCH_21_DAPI_1_deconvnew_stitching",
     "minZ":0,
     "maxZ":101,
     "delta":5000,
     "dataRoot":"/nas3/data/"
-=======
-    "stack":"Stitched_DAPI_1_dropped",
-    "matchCollection":"S3_Run1_Jarvis_68_to_112_DAPI_1_highres_2D_75",
-    "minZ":6800,
-    "maxZ":11299,
-    "delta":75,
-    "dataRoot":"/nas2/data/"
->>>>>>> develop
 }
 
 class CreateMontagePointMatchParameters(RenderParameters):
@@ -121,47 +112,47 @@ def process_tile_pair_json_file(r,matchcollection,stack,owner,tile_pair_json_fil
                 pairs.append(newpair)
 
 
-<<<<<<< HEAD
-        minx,miny,maxx,maxy = poly_int.bounds
-        xx,yy = np.meshgrid(np.arange(minx,maxx,delta),np.arange(miny,maxy,delta))
-        xx=xx.ravel()
-        yy=yy.ravel()
-        isin = np.zeros(len(xx),np.bool)
-        for i,xytuple in enumerate(zip(xx,yy)):
-            x,y = xytuple
-            p = shapely.geometry.Point(x,y)
-            if poly_int.contains(p):
-                isin[i]=True
-            else:
-                isin[i]=False
-        xx=xx[isin]
-        yy=yy[isin]
-        #print 'step2', time.time()-now
-        #now = time.time()
-        xy = np.stack([xx,yy]).T
+#<<<<<<< HEAD
+#        minx,miny,maxx,maxy = poly_int.bounds
+#        xx,yy = np.meshgrid(np.arange(minx,maxx,delta),np.arange(miny,maxy,delta))
+#        xx=xx.ravel()
+#        yy=yy.ravel()
+#        isin = np.zeros(len(xx),np.bool)
+#        for i,xytuple in enumerate(zip(xx,yy)):
+#            x,y = xytuple
+#            p = shapely.geometry.Point(x,y)
+#            if poly_int.contains(p):
+#                isin[i]=True
+#            else:
+#                isin[i]=False
+#        xx=xx[isin]
+#        yy=yy[isin]
+#        #print 'step2', time.time()-now
+#        #now = time.time()
+#        xy = np.stack([xx,yy]).T
 
-        if xy.shape[0]>0:
-            xy_world_q_json = renderapi.coordinate.package_point_match_data_into_json(xy,qid,'world')      # map those local coordinates to the registered world coordinates
-            xy_world_p_json = renderapi.coordinate.package_point_match_data_into_json(xy,pid,'world') 
-            xy_local_q_json = renderapi.coordinate.world_to_local_coordinates_clientside(stack, xy_world_q_json, qts.z, number_of_threads=3, render=r)
-            xy_local_p_json = renderapi.coordinate.world_to_local_coordinates_clientside(stack, xy_world_p_json, pts.z, number_of_threads=3, render=r)
-            int_local_p = renderapi.coordinate.unpackage_world_to_local_point_match_from_json(xy_local_p_json,pts.tileId)
-            int_local_q = renderapi.coordinate.unpackage_world_to_local_point_match_from_json(xy_local_q_json,qts.tileId)
-            #int_local_q=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,qts.tileId,qts.z,render=r)
-            #int_local_p=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,pts.tileId,pts.z,render=r)
+#        if xy.shape[0]>0:
+#            xy_world_q_json = renderapi.coordinate.package_point_match_data_into_json(xy,qid,'world')      # map those local coordinates to the registered world coordinates
+#            xy_world_p_json = renderapi.coordinate.package_point_match_data_into_json(xy,pid,'world')
+#            xy_local_q_json = renderapi.coordinate.world_to_local_coordinates_clientside(stack, xy_world_q_json, qts.z, number_of_threads=3, render=r)
+#            xy_local_p_json = renderapi.coordinate.world_to_local_coordinates_clientside(stack, xy_world_p_json, pts.z, number_of_threads=3, render=r)
+#            int_local_p = renderapi.coordinate.unpackage_world_to_local_point_match_from_json(xy_local_p_json,pts.tileId)
+#            int_local_q = renderapi.coordinate.unpackage_world_to_local_point_match_from_json(xy_local_q_json,qts.tileId)
+#            #int_local_q=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,qts.tileId,qts.z,render=r)
+#            #int_local_p=renderapi.coordinate.world_to_local_coordinates_array(stack,xy,pts.tileId,pts.z,render=r)
 
-            newpair = {}
-            newpair['pId']=pid
-            newpair['qId']=qid
-            newpair['pGroupId']=pair['p']['groupId']
-            newpair['qGroupId']=pair['q']['groupId']
-            newpair['matches']={}
-            newpair['matches']['p']=[int_local_p[:,0].tolist(),int_local_p[:,1].tolist()]
-            newpair['matches']['q']=[int_local_q[:,0].tolist(),int_local_q[:,1].tolist()]
-            newpair['matches']['w']=np.ones(len(xx)).tolist()
-            pairs.append(newpair)
-=======
->>>>>>> develop
+#            newpair = {}
+#            newpair['pId']=pid
+#            newpair['qId']=qid
+#            newpair['pGroupId']=pair['p']['groupId']
+#            newpair['qGroupId']=pair['q']['groupId']
+#            newpair['matches']={}
+#            newpair['matches']['p']=[int_local_p[:,0].tolist(),int_local_p[:,1].tolist()]
+#            newpair['matches']['q']=[int_local_q[:,0].tolist(),int_local_q[:,1].tolist()]
+#            newpair['matches']['w']=np.ones(len(xx)).tolist()
+#            pairs.append(newpair)
+#=======
+#>>>>>>> develop
     resp=r.run(renderapi.pointmatch.import_matches,matchcollection,json.dumps(pairs))
     print "Putting %d pairs in %s"%(len(pairs),matchcollection)
 
@@ -214,6 +205,6 @@ class CreateMontagePointMatch(RenderModule):
         #     break
 
 if __name__ == "__main__":
-    mod = CreateMontagePointMatch(input_data=example_parameters)
-    #mod = CreateMontagePointMatch(schema_type=CreateMontagePointMatchParameters)
+    #mod = CreateMontagePointMatch(input_data=example_parameters)
+    mod = CreateMontagePointMatch(schema_type=CreateMontagePointMatchParameters)
     mod.run()
