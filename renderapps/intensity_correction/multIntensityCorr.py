@@ -1,5 +1,5 @@
 if __name__ == "__main__" and __package__ is None:
-    __package__ = "renderapps.intensity_correction.make_median"
+    __package__ = "renderapps.intensity_correction.multIntensityCorr"
 import json
 import os
 import renderapi
