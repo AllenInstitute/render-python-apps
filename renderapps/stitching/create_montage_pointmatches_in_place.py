@@ -111,8 +111,6 @@ def process_tile_pair_json_file(r,matchcollection,stack,owner,tile_pair_json_fil
                 newpair['matches']['w']=np.ones(len(xx)).tolist()
                 pairs.append(newpair)
 
-
-#<<<<<<< HEAD
 #        minx,miny,maxx,maxy = poly_int.bounds
 #        xx,yy = np.meshgrid(np.arange(minx,maxx,delta),np.arange(miny,maxy,delta))
 #        xx=xx.ravel()
@@ -151,8 +149,7 @@ def process_tile_pair_json_file(r,matchcollection,stack,owner,tile_pair_json_fil
 #            newpair['matches']['q']=[int_local_q[:,0].tolist(),int_local_q[:,1].tolist()]
 #            newpair['matches']['w']=np.ones(len(xx)).tolist()
 #            pairs.append(newpair)
-#=======
-#>>>>>>> develop
+
     resp=r.run(renderapi.pointmatch.import_matches,matchcollection,json.dumps(pairs))
     print "Putting %d pairs in %s"%(len(pairs),matchcollection)
 

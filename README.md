@@ -2,6 +2,10 @@
 
 These are a set of python based processing modules that do a broad assortment of steps in various image processing workflows whose results are ultimately stored in render.  They make extensive use of the render-python library (www.github.com/fcollman/render-python) for reading metadata from render and sending it back.
 
+# support
+
+This code is an important part of the Allen Institute for Brain Science code base and we are actively using and maintaining it. Issues are encouraged, but because this tool is so central to our mission pull requests might not be accepted if they conflict with our existing plans.
+
 # running a module
 Each module is designed to be run using a common pattern for defining inputs that is setup using the argschema pattern.
 www.github.com/AllenInstitute/argschema
@@ -129,3 +133,4 @@ These should eventually contain tests for running against an integrated deployme
 # notebooks
 a set of ipython notebooks that show some more interactive use of render-python and render-python apps.  Mostly specific to the allen in terms of data sources, but perhaps still useful.
 
+Copyright 2017 Allen Institute
