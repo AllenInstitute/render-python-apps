@@ -31,6 +31,8 @@ class ConsolidateTransformsParameters(RenderParameters):
         description='postfix to add to stack name on saving if no output defined (default _CONS)')
     output_stack = Str(required=False,
         description='name of output stack (default to adding postfix to input)')
+    output_directory = Str(required=True,
+        description='location to store tilespecs before uploading')
     pool_size = Int(required=False, default=20,
         description='name of output stack (default to adding postfix to input)')
 
@@ -69,7 +71,7 @@ def consolidate_transforms(tforms, logger, makePolyDegree=0):
 def process_z_make_json(r, stack, outstack, logger, json_dir, z):
     tilespecs = r.run(renderapi.tilespec.get_tile_specs_from_z, stack, z)
 
-def process_z(render, logger, stack, outstack,channelname, json_dir,z):
+def process_z(render, logger, stack, outstack, json_dir,z):
     #tilespecs = r.run(renderapi.tilespec.get_tile_specs_from_z, stack, z)
     tilespecs = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
     for ts in tilespecs:
@@ -85,7 +87,8 @@ def process_z(render, logger, stack, outstack,channelname, json_dir,z):
     #return tilespecs
     json_filepath = os.path.join(json_dir, '%s_%04d'%(outstack,z))
     renderapi.utils.renderdump(tilespecs, open(json_filepath, 'w'), indent=4)
-    return tilespecs
+    return json_filepath
+    #return tilespecs
 
 class ConsolidateTransforms(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -106,10 +109,10 @@ class ConsolidateTransforms(RenderModule):
 
         zvalues=self.render.run(renderapi.stack.get_z_values_for_stack, stack)
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
-            json_files=pool.map(partial(process_z_make_json, self.render, stack, outstack, self.logger, json_dir), zvalues)
+            json_files=pool.map(partial(process_z, self.render, self.logger, stack, outstack, json_dir), zvalues)
 
         self.render.run(renderapi.stack.delete_stack,outstack)
-        self.render.run(renderapi.stack.create_stack,outstack)
+        self.render.run(renderapi.stack.create_stack,outstack,cycleNumber=11,cycleStepNumber=1)
         self.render.run(renderapi.client.import_jsonfiles_parallel, outstack, json_files)
 
 
