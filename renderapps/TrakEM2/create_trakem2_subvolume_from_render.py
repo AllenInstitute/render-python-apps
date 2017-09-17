@@ -15,20 +15,20 @@ example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
-        "owner":"S3_Run1",
-        "project":"S3_Run1_Jarvis",
+        "owner":"KDM_SYN",
+        "project":"KDM_SYN_100430B_L5",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    'minX':-871,
-    'maxX':1417,
-    'minY':-1239,
-    'maxY':2017,
+    'minX':0,
+    'maxX':1388,
+    'minY':0,
+    'maxY':1040,
     'minZ':0,
-    'maxZ':694,
-    'inputStack':'Stitched_DAPI_1_Lowres_68_to_223_RoughAlign_filter1_round1111_concat_ds',
-    'outputStack':'Stitched_DAPI_1_Lowres_68_to_223_RoughAlign_filter1_round1111_concat_fixed',
+    'maxZ':48,
+    'inputStack':'Stitched_YFP_1',
+    'outputStack':'TEST',
     "doChunk":False,
-    "outputXMLdir":"/nas4/data/S3_Run1_Jarvis/processed/TRAKEM2/",
+    "outputXMLdir":"/nas4/KDM-SYN-100430B-L5_Deconv/Curated_SJS_2017/Deconvolved_and_Ultraligned/alignment_intermediates/trakem2/test",
     "renderHome":"/pipeline/forrestrender/"
 }
 

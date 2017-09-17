@@ -4,12 +4,13 @@ import json
 import os
 import renderapi
 from ..module.render_module import RenderModule,RenderParameters
-from json_module import InputFile,InputDir,OutputDir
-import marshmallow as mm
+#from json_module import InputFile,InputDir,OutputDir
+#import marshmallow as mm
 from functools import partial
 import glob
 import time
 import numpy as np
+from argschema.fields import InputFile, InputDir, Str, Float, Int
 
 
 #Author: Sharmishtaa Seshamani
@@ -32,36 +33,36 @@ example_parameters={
 }
 
 class ApplyLowRes2HighResParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,
+    input_stack = Str(required=True,
         metadata={'description':'stitched stack to apply alignment to'})
-    lowres_stack = mm.fields.Str(required=True,
+    lowres_stack = Str(required=True,
         metadata={'description':'low res alignmed stack'})
-    output_stack = mm.fields.Str(required=True,
+    output_stack = Str(required=True,
         metadata={'description':'output highres aligned stack'})
-    prealigned_stack = mm.fields.Str(required=True,
+    prealigned_stack = Str(required=True,
         metadata={'description':'pre aligned stack (typically the one with dropped tiles corrected for stitching errors)'})
-    scale = mm.fields.Float(required=False,default = .01,
+    scale = Float(required=False,default = .01,
         metadata={'description':'scale to make images'})
-    tilespec_directory = OutputDir(required=True,
+    tilespec_directory = Str(required=True,
         metadata={'decription','path to save section images'})
-    output_stack = mm.fields.Str(required=True,
+    output_stack = Str(required=True,
         metadata={'description':'output stack to name'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
-    minZ = mm.fields.Int(required=False,default=0,
+    minZ = Int(required=False,default=0,
         metadata={'description':'Minimum Z value'})
-    maxZ = mm.fields.Int(required=False,default=100000000,
+    maxZ = Int(required=False,default=100000000,
         metadata={'description':'Maximum Z value'})
 
 def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir,scale,project,Z):
-    
+
     z = Z[0]; newz = Z[1]
-    
-    try: 
+
+    try:
 		print "A"
 		lowres_ts = renderapi.tilespec.get_tile_specs_from_z(lowres_stack,newz,render=render)
-		#highres_ts = renderapi.tilespec.get_tile_spec(stack,lowres_ts[0].tileId,render=render)		
-		highres_ts = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)[0]		
+		#highres_ts = renderapi.tilespec.get_tile_spec(stack,lowres_ts[0].tileId,render=render)
+		highres_ts = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)[0]
 		tforms = lowres_ts[0].tforms
 		print "B"
 		d = tforms[0].to_dict()
@@ -70,8 +71,8 @@ def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir
                 v1 = float(dsList[1])*scale
                 v2 = float(dsList[2])*scale
                 v3 = float(dsList[3])*scale
-                v4 = float(dsList[4])          
-                v5 = float(dsList[5]) 
+                v4 = float(dsList[4])
+                v5 = float(dsList[5])
                 d['dataString'] = "%f %f %f %f %s %s"%(v0,v1,v2,v3, v4,v5)
                 tforms[0].from_dict(d)
 		print "C"
@@ -87,8 +88,8 @@ def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir
                 v1 = 0.0
                 v2 = 0.0
                 v3 = 1.0
-                v4 = tx          
-                v5 = ty 
+                v4 = tx
+                v5 = ty
                 d['dataString'] = "%f %f %f %f %s %s"%(v0,v1,v2,v3, v4,v5)
                 tforms1[0].from_dict(d)
 
@@ -105,10 +106,11 @@ def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir
 		print "F"
 		allts = []
 		highres_ts1 = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
+
 		for t in highres_ts1:
 			print "f1"
 			t.tforms.append(ftform)
-			print "f2" 
+			print "f2"
 			d1 = t.to_dict()
 			print "f3"
 			print d1['mipmapLevels'][0]['imageUrl']
@@ -117,6 +119,7 @@ def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir
 			allts.append(t)
 			print d1
     		print "G"
+
 		tilespecfilename = os.path.join(output_dir,'tilespec_%04d.json'%newz)
 		print tilespecfilename
 		fp = open(tilespecfilename,'w')
@@ -124,9 +127,9 @@ def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir
 		fp.close()
     except:
 		print "This z has not been aligned!"
-    
-    
-   
+
+
+
 
 class ApplyLowRes2HighRes(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -136,30 +139,32 @@ class ApplyLowRes2HighRes(RenderModule):
     def run(self):
         allzvalues = self.render.run(renderapi.stack.get_z_values_for_stack,
             self.args['input_stack'])
-           
+
         allzvalues = np.array(allzvalues)
         zvalues = allzvalues[(allzvalues >= self.args['minZ']) & (allzvalues <=self.args['maxZ'])]
-        
-            
+
+
         newzvalues = range(0,len(zvalues))
         Z = []
         for i in range(0,len(zvalues)):
 			Z.append( [zvalues[i], newzvalues[i]])
-        
+
         render=self.render
-        
+        if not os.path.exists(self.args['tilespec_directory']):
+            os.makedirs(self.args['tilespec_directory'])
+
         mypartial = partial(process_z,self.render,self.args['input_stack'],
             self.args['lowres_stack'],self.args['output_stack'],self.args['prealigned_stack'],self.args['tilespec_directory'],self.args['scale'],self.args['render']['project'])
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             pool.map(mypartial,Z)
-            
-        jsonfiles = glob.glob("%s/*.json"%self.args['tilespec_directory'])    
+
+        jsonfiles = glob.glob("%s/*.json"%self.args['tilespec_directory'])
         renderapi.stack.create_stack(self.args['output_stack'],cycleNumber=11,cycleStepNumber=1, render=self.render)
         renderapi.client.import_jsonfiles_parallel(self.args['output_stack'],jsonfiles,render=self.render)
 
 
 
 if __name__ == "__main__":
-    mod = ApplyLowRes2HighRes(input_data=example_parameters)
-    #mod = ApplyLowRes2HighRes(schema_type =ApplyLowRes2HighResParameters)
+    #mod = ApplyLowRes2HighRes(input_data=example_parameters)
+    mod = ApplyLowRes2HighRes(schema_type =ApplyLowRes2HighResParameters)
     mod.run()
