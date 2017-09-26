@@ -4,7 +4,7 @@ import json
 import os
 from ..module.render_module import RenderTrakEM2Parameters, TrakEM2RenderModule
 from ..shapely import tilespec_to_bounding_box_polygon
-from argschema.fields import Str, InputFile
+from argschema.fields import Str, InputFile, OutputFile
 from shapely import geometry
 import lxml.etree
 from AnnotationJsonSchema import AnnotationFile
@@ -53,11 +53,13 @@ parameters={
     "renderHome":"/pipeline/render"
 }
 
+class AnnotationConversionError(Exception):
+    pass
+
 class ImportTrakEM2AnnotationParameters(RenderTrakEM2Parameters):
     EMstack = Str(required=True,description='stack to look for trakem2 patches in')
     trakem2project = InputFile(required=True,description='trakem2 file to read in')
-    outputAnnotationFile = Str(required=True,description='name of stack to save annotation tilespecs')
-
+    output_json = OutputFile(required=True,description="place to save annotation output")
 
 def convert_path(path,tform):
     #function to convert TEM2 path using the transformation tform
@@ -88,6 +90,32 @@ def convert_transform(tfs):
                                            B1  = vals[5])
     return tform
 
+def form_area(path_numpy,ts,rts):
+    tile_path_d={}
+
+    local_path = path_numpy
+    tmp=list(ts.tforms)
+    tmp.reverse()
+    for t in tmp:
+        local_path = t.inverse_tform(local_path)
+    tile_path_d['tileId']=rts.tileId
+    #tile_path_d['z']=rts.z
+    #print 'z',rts.z,layerid,al.attrib['oid']
+    tile_path_d['local_path']=local_path
+    return tile_path_d
+def form_areas(shape,ts,rts,area_list_d):
+    if isinstance(shape,geometry.MultiPolygon):
+        for s in shape:
+            path_numpy = np.asarray(s.exterior)
+            tile_path_d = form_area(path_numpy,ts,rts)
+            area_list_d['areas'].append(tile_path_d)
+    elif isinstance(shape,geometry.Polygon):
+        path_numpy = np.asarray(shape.exterior)
+        tile_path_d = form_area(path_numpy,ts,rts)
+        area_list_d['areas'].append(tile_path_d)
+    else:
+        raise AnnotationConversionError("unknown shape type {}".format(type(shape)))
+
 def parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lists):
     json_output = {'area_lists':[]}
     for thisid,al in enumerate(area_lists):
@@ -106,39 +134,43 @@ def parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lis
             patches = [patch for patch in layer.getchildren()]
             patchids = [patch.attrib['oid'] for patch in patches]
             layer_tilespecs = [(poly,ts,t) for poly,ts,t in zip(tem2_polygons,tem2_tilespecs,render_tilespecs) if ts.tileId in patchids]
-
+            #reverse the tilespecs so they are encountered from top to bottom when iterated over
+            layer_tilespecs.reverse()
             paths = area.findall('t2_path')
-            
+            #loop over all the paths
             for path in paths:
-                
-   
+                #initialize the path's polygon with the entire path
                 path_numpy= convert_path(path,tform)
                 path_poly = geometry.Polygon(path_numpy)
                 for poly,ts,rts in layer_tilespecs:
+                   
+                    if poly.contains(path_poly):
+                        #then the remaining path_poly is completely contained
+                        #on this tile, 
+                        form_areas(path_poly,ts,rts,area_list_d)
+                        #and we should be done writing down the annotation so break
+                        break
                     if poly.intersects(path_poly):
-                        tile_path_d={}
+                        #print 'partial',area_list_d['oid']
+                        #then only a piece of the path is completely contained on this tile
+                        #and we should cut out the part that is and write that down
+                        on_tile_poly = path_poly.intersection(poly)
 
-                        local_path = path_numpy
-                        tmp=list(ts.tforms)
-                        tmp.reverse()
-                        for t in tmp:
-                            local_path = t.inverse_tform(local_path)
-                        tile_path_d['tileId']=rts.tileId
-                        #tile_path_d['z']=rts.z
-                        #print 'z',rts.z,layerid,al.attrib['oid']
-                        tile_path_d['local_path']=local_path
-                        area_list_d['areas'].append(tile_path_d)
+                        form_areas(on_tile_poly,ts,rts,area_list_d)
+                        # and cut off the part that isn't overlapping
+                        # and alter path_poly, leaving it to be handled by lower tiles
+                        path_poly = path_poly.difference(poly)
 
         json_output['area_lists'].append(area_list_d)
     return json_output
 
 
 class ImportTrakEM2Annotations(TrakEM2RenderModule):
-    def __init__(self,schema_type=None,*args,**kwargs):
-        if schema_type is None:
-            schema_type = ImportTrakEM2AnnotationParameters
-        super(ImportTrakEM2Annotations,self).__init__(schema_type=schema_type,*args,**kwargs)
+    default_schema = ImportTrakEM2AnnotationParameters
+    default_output_schema = AnnotationFile
+    
     def run(self):
+        print self.args
         tem2file = self.args['trakem2project']
         trakem2dir = os.path.split(tem2file)[0]
         jsonFileOut = os.path.join(trakem2dir,os.path.splitext(tem2file)[0]+'.json')
@@ -158,8 +190,8 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
             pot_render_tilespecs = self.render.run(renderapi.tilespec.get_tile_specs_from_z,
                                                 self.args['EMstack'],
                                                 ts.z)
-            filepath = os.path.split(ts.ip.get(0)['imageUrl'])[1]
-            pot_filepaths = [os.path.split(t.ip.get(0)['imageUrl'])[1] for t in pot_render_tilespecs]
+            filepath = (os.path.split(ts.ip.get(0)['imageUrl'])[1]).split('_flip')[0]
+            pot_filepaths = [(os.path.split(t.ip.get(0)['imageUrl'])[1]).split('_flip')[0] for t in pot_render_tilespecs]
             render_tilespecs.append(next(t for t,fp in zip(pot_render_tilespecs,pot_filepaths) if fp==filepath))
         #convert the tem2_tilespecs to shapely polygons
         tem2_polygons = [tilespec_to_bounding_box_polygon(ts) for ts in tem2_tilespecs]
@@ -179,11 +211,7 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
         #in order to serialize it to disk
 
         schema = AnnotationFile()
-        test = schema.dump(json_output)
-        fp = open(self.args['outputAnnotationFile'],'w')
-        self.logger.error(test.errors)
-        json.dump(test.data,fp)
-        fp.close()
+        self.output(json_output)
 
 if __name__ == "__main__":
     mod = ImportTrakEM2Annotations(input_data= parameters)
