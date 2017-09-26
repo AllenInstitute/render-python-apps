@@ -90,31 +90,12 @@ def convert_transform(tfs):
                                            B1  = vals[5])
     return tform
 
-def form_area(path_numpy,ts,rts):
-    tile_path_d={}
-
-    local_path = path_numpy
+def convert_global_local_points(points,ts):
     tmp=list(ts.tforms)
     tmp.reverse()
     for t in tmp:
-        local_path = t.inverse_tform(local_path)
-    tile_path_d['tileId']=rts.tileId
-    #tile_path_d['z']=rts.z
-    #print 'z',rts.z,layerid,al.attrib['oid']
-    tile_path_d['local_path']=local_path
-    return tile_path_d
-def form_areas(shape,ts,rts,area_list_d):
-    if isinstance(shape,geometry.MultiPolygon):
-        for s in shape:
-            path_numpy = np.asarray(s.exterior)
-            tile_path_d = form_area(path_numpy,ts,rts)
-            area_list_d['areas'].append(tile_path_d)
-    elif isinstance(shape,geometry.Polygon):
-        path_numpy = np.asarray(shape.exterior)
-        tile_path_d = form_area(path_numpy,ts,rts)
-        area_list_d['areas'].append(tile_path_d)
-    else:
-        raise AnnotationConversionError("unknown shape type {}".format(type(shape)))
+        points = t.inverse_tform(points)
+    return points
 
 def parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lists):
     json_output = {'area_lists':[]}
@@ -141,25 +122,30 @@ def parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lis
             for path in paths:
                 #initialize the path's polygon with the entire path
                 path_numpy= convert_path(path,tform)
-                path_poly = geometry.Polygon(path_numpy)
-                for poly,ts,rts in layer_tilespecs:
-                   
-                    if poly.contains(path_poly):
-                        #then the remaining path_poly is completely contained
-                        #on this tile, 
-                        form_areas(path_poly,ts,rts,area_list_d)
-                        #and we should be done writing down the annotation so break
-                        break
-                    if poly.intersects(path_poly):
-                        #print 'partial',area_list_d['oid']
-                        #then only a piece of the path is completely contained on this tile
-                        #and we should cut out the part that is and write that down
-                        on_tile_poly = path_poly.intersection(poly)
+                local_path_numpy = np.zeros(path_numpy.shape,path_numpy.dtype)
+                point_missing = np.ones(path_numpy.shape[0],np.bool)
+                path_points = [geometry.Point(a[0],a[1]) for a in path_numpy]
+                local_tileIds = np.array(["" for i in range(path_numpy.shape[0])])
 
-                        form_areas(on_tile_poly,ts,rts,area_list_d)
-                        # and cut off the part that isn't overlapping
-                        # and alter path_poly, leaving it to be handled by lower tiles
-                        path_poly = path_poly.difference(poly)
+                for poly,ts,rts in layer_tilespecs:
+                    if np.sum(point_missing) == 0:
+                        break
+
+                    point_contained = np.array([poly.contains(p) for p in path_points])
+                    convert_point_mask_ind = np.where(point_missing & point_contained)
+                    points = path_numpy(convert_point_mask_ind,:)
+                    if points.shape[0]>0:
+                        local_points = convert_global_local_points(points,ts)
+                        local_path_numpy[convert_point_mask_ind,:]=local_points
+                        point_missing[convert_point_mask_ind]=0
+                        local_tileIds[convert_point_mask_ind]=rts.tileId
+                
+                assert(np.sum(point_missing)==0)
+
+                d = {}
+                d['tileIds']=local_tileIds
+                d['local_path']=local_path_numpy
+                area_list_d['areas'].append(d)
 
         json_output['area_lists'].append(area_list_d)
     return json_output

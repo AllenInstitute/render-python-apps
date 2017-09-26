@@ -13,9 +13,12 @@ class NumpyArray(argschema.fields.List):
             self, value.tolist(), attr, obj)
 
 class Area(argschema.schemas.mm.Schema):
-    tileId = argschema.fields.Str()
-    local_path = NumpyArray(argschema.fields.List(argschema.fields.Float))
-    global_path = NumpyArray(argschema.fields.List(argschema.fields.Float))
+    tileIds = NumpyArray(argschema.fields.Str,
+        description='N long list of tileIds for each local point')
+    local_path = NumpyArray(argschema.fields.List(argschema.fields.Float),
+        description='Nx2 numpy array of local points')
+    global_path = NumpyArray(argschema.fields.List(argschema.fields.Float),
+        description='Nx2 numpy array of global coordinates')
 
 class AreaList(argschema.schemas.mm.Schema):
     oid = argschema.fields.Str()
