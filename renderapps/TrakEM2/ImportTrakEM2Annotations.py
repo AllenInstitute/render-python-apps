@@ -89,7 +89,7 @@ def convert_path_to_area(path_numpy, layer_tilespecs):
             break
 
         point_contained = np.array([poly.contains(p) for p in path_points])
-        convert_point_mask_ind = np.where(point_missing & point_contained)
+        convert_point_mask_ind = np.where(point_missing & point_contained)[0]
         points = path_numpy[convert_point_mask_ind, :]
         if points.shape[0] > 0:
             local_points = convert_global_local_points(points, ts)
