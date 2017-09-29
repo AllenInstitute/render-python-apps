@@ -126,22 +126,25 @@ def parse_area_lists(render_tilespecs,tem2_tilespecs,tem2_polygons,root,area_lis
                 point_missing = np.ones(path_numpy.shape[0],np.bool)
                 path_points = [geometry.Point(a[0],a[1]) for a in path_numpy]
                 local_tileIds = np.array(["" for i in range(path_numpy.shape[0])])
-
+                
                 for poly,ts,rts in layer_tilespecs:
                     if np.sum(point_missing) == 0:
                         break
 
                     point_contained = np.array([poly.contains(p) for p in path_points])
-                    convert_point_mask_ind = np.where(point_missing & point_contained)
-                    points = path_numpy(convert_point_mask_ind,:)
+                    convert_point_mask_ind = np.where(point_missing & point_contained)[0]
+                    points = path_numpy[convert_point_mask_ind,:]
+
                     if points.shape[0]>0:
+
                         local_points = convert_global_local_points(points,ts)
                         local_path_numpy[convert_point_mask_ind,:]=local_points
                         point_missing[convert_point_mask_ind]=0
                         local_tileIds[convert_point_mask_ind]=rts.tileId
-                
-                assert(np.sum(point_missing)==0)
+                    
 
+                assert(np.sum(point_missing)==0)
+                
                 d = {}
                 d['tileIds']=local_tileIds
                 d['local_path']=local_path_numpy
@@ -200,5 +203,5 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
         self.output(json_output)
 
 if __name__ == "__main__":
-    mod = ImportTrakEM2Annotations(input_data= parameters)
+    mod = ImportTrakEM2Annotations(input_data= parameters)  
     mod.run()
