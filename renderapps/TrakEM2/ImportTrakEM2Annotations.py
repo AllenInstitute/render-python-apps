@@ -9,6 +9,7 @@ from argschema.fields import Str, InputFile, OutputFile
 from shapely import geometry
 import lxml.etree
 
+
 example_input = {
     "render": {
         "host": "ibs-forrestc-ux1",
@@ -19,7 +20,8 @@ example_input = {
     },
     "EMstack": "ALIGNEM_reg2",
     "trakem2project": "/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
-    "outputAnnotationFile": "/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD_local.json",
+    "output_annotation_file": "/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD_local.json",
+    "output_bounding_box_file": "/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD_bb_local.json",
     "renderHome": "/pipeline/render"
 }
 
@@ -82,7 +84,7 @@ def convert_path_to_area(path_numpy, layer_tilespecs):
     local_path_numpy = np.zeros(path_numpy.shape, path_numpy.dtype)
     point_missing = np.ones(path_numpy.shape[0], np.bool)
     path_points = [geometry.Point(a[0], a[1]) for a in path_numpy]
-    local_tileIds = np.array(["" for i in range(path_numpy.shape[0])])
+    local_tileIds = np.array(["" for i in range(path_numpy.shape[0])],dtype=np.object)
 
     for poly, ts, rts in layer_tilespecs:
         if np.sum(point_missing) == 0:
@@ -172,6 +174,7 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
                 '_flip')[0] for t in pot_render_tilespecs]
             render_tilespecs.append(next(t for t, fp in zip(
                 pot_render_tilespecs, pot_filepaths) if fp == filepath))
+
         # convert the tem2_tilespecs to shapely polygons
         tem2_polygons = [tilespec_to_bounding_box_polygon(
             ts) for ts in tem2_tilespecs]
@@ -192,7 +195,7 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
         width = layer_sets[0].attrib['layer_width']
         height = layer_sets[0].attrib['layer_height']
         corners = np.array(
-            [[0, 0], [0, height], [width, height], [width, 0], [0, 0]])
+            [[0, 0], [0, height], [width, height], [width, 0], [0, 0]],dtype=np.float)
         layers = root.findall('//t2_layer')
         bounding_box_local = {'area_lists': []}
         for layer in layers:
@@ -201,13 +204,14 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
             layer_tilespecs = [(poly, ts, t) for poly, ts, t
                                in zip(tem2_polygons, tem2_tilespecs, render_tilespecs)
                                if ts.tileId in patchids]
-            d = convert_path_to_area(layer_tilespecs, corners)
+            d = convert_path_to_area(corners,layer_tilespecs)
             area_list_d = {}
-            area_list_d['oid'] = layer.attrib('oid')
-            area_list_d['id'] = str(layer_tilespecs[0].z)
+            area_list_d['oid'] = layer.attrib['oid']
+            area_list_d['id'] = int(layer_tilespecs[0][2].z)
             area_list_d['areas'] = [d]
             bounding_box_local['area_lists'].append(area_list_d)
         
+
         self.output(bounding_box_local,self.args['output_bounding_box_file'])
         # dump the json dictionary through the AnnotationFile schema
         # in order to serialize it to disk

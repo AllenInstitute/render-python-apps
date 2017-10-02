@@ -7,9 +7,9 @@ from ..shapely import tilespec_to_bounding_box_polygon
 from argschema.fields import Str, InputFile
 from shapely import geometry
 import lxml.etree
+import numpy as np
 
-
-parameters={
+example_input={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
@@ -18,8 +18,8 @@ parameters={
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
     "stack":"BIGALIGN_LENS_EMclahe_Site3",
-    "input_annotation_file":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_local.json",
-    "output_annotation_file":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_global.json"
+    "input_annotation_file":"/nas4/data/EM_annotation/M247514_Rorb_1/m247514_Site3Annotation_MN_bb_local.json",
+    "output_annotation_file":"/nas4/data/EM_annotation/M247514_Rorb_1/m247514_Site3Annotation_MN_bb_global.json"
 }
 
 
@@ -67,12 +67,10 @@ def transform_annotations(render,stack,local_annotation):
 
 
 class TransformLocalAnnotation(RenderModule):
-    def __init__(self,schema_type=None,*args,**kwargs):
-        if schema_type is None:
-            schema_type = TransformLocalAnnotationParameters
-        super(TransformLocalAnnotation,self).__init__(schema_type=schema_type,*args,**kwargs)
+    default_schema = TransformLocalAnnotationParameters
+    default_output_schema = AnnotationFile
+    
     def run(self):
-
         with open(self.args['input_annotation_file'],'r') as fp:
             local_annotation_json = json.load(fp)
             schema = AnnotationFile()
@@ -81,11 +79,9 @@ class TransformLocalAnnotation(RenderModule):
         global_annotation=transform_annotations(self.render,
                               self.args['stack'],
                               local_annotation)
-        with open(self.args['output_annotation_file'],'w') as fp:
-             json_dict,errors=schema.dump(global_annotation)
-             json.dump(json_dict,fp)
+        self.output(global_annotation, self.args['output_annotation_file'])
 
 
 if __name__ == "__main__":
-    mod = TransformLocalAnnotation(input_data= parameters)
+    mod = TransformLocalAnnotation(input_data= example_input)
     mod.run()
