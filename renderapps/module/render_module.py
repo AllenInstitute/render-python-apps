@@ -113,11 +113,12 @@ class TrakEM2RenderModule(RenderModule):
 
     def get_trakem2_tilespecs(self,xmlFile):
         projectPath = os.path.split(xmlFile)[0]
-        json_path = tempfile.TemporaryFile(mode='w')
-        self.convert_trakem2_project(xmlFile,projectPath,json_path)
-        with open(json_path,'r') as fp:
+        json_fp = tempfile.NamedTemporaryFile(mode='w',delete=False)
+        self.convert_trakem2_project(xmlFile,projectPath,json_fp.name)
+        with open(json_fp.name,'r') as fp:
             ts_json = json.load(fp)
         tilespecs = [renderapi.tilespec.TileSpec(json=d) for d in ts_json]
+        os.remove(json_fp.name)
         return tilespecs
     
     def convert_trakem2_project(self, xmlFile, projectPath, json_path):

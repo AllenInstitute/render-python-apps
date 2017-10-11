@@ -2,6 +2,7 @@ import argschema
 import renderapi
 from renderapps.TrakEM2.trakem2utils import get_matching_tilespec_by_path
 from renderapps.module.render_module import TrakEM2RenderModule,RenderTrakEM2Parameters
+import logging
 
 class CreateRenderStackFromTrakEM2Parameters(RenderTrakEM2Parameters):
     input_stack = argschema.fields.Str(required=True,
@@ -17,17 +18,20 @@ class CreateRenderStackFromTrakEM2(TrakEM2RenderModule):
     def run(self):
         #convert the project to tilespecs
         tem2_tilespecs=self.get_trakem2_tilespecs(self.args['tem2project'])
-
+        
         #get input_stack tilespecs
         render_tilespecs = renderapi.tilespec.get_tile_specs_from_stack(
                 self.args['input_stack'],
-                self.render)
+                render=self.render)
 
         #replace the old tileIds with the ones in input_stack
         for ts in tem2_tilespecs:
             ts_render = get_matching_tilespec_by_path(ts,render_tilespecs)
             ts.tileId = ts_render.tileId
-
+            mml = renderapi.tilespec.MipMapLevel(0,ts_render.ip.get(0)['imageUrl'],ts_render.ip.get(0)['maskUrl'])
+            ts.ip.update(mml)
+            
+        renderapi.stack.logger.setLevel(logging.DEBUG)
         #create a new stack
         renderapi.stack.create_stack(self.args['output_stack'],
                                      render=self.render)
@@ -48,9 +52,9 @@ if __name__ == '__main__':
         },
         "input_stack":"ALIGNEM_reg2",
         "output_stack":"",
-        "tem2project": "/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
+        "tem2project": "/nas4/data/EM_annotation/M247514_Rorb_1/m247514_Site3Annotation_MN.xml",
         "renderHome": "/pipeline/render"
     }
-    mod = CreateRenderStackFromTrakEM2(input_data = example_input, args=[])
+    mod = CreateRenderStackFromTrakEM2(input_data = example_input)
     mod.run()
 
