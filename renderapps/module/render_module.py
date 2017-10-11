@@ -2,7 +2,8 @@ import os
 import subprocess
 import argschema
 import renderapi
-
+import tempfile
+import json
 
 class RenderClientParameters(argschema.schemas.DefaultSchema):
     host = argschema.fields.Str(required=True, description='render host')
@@ -110,6 +111,15 @@ class TrakEM2RenderModule(RenderModule):
         self.trakem2cmd = ['java', '-cp', self.renderjarFile,
                            'org.janelia.alignment.trakem2.Converter']
 
+    def get_trakem2_tilespecs(self,xmlFile):
+        projectPath = os.path.split(xmlFile)[0]
+        json_path = tempfile.TemporaryFile(mode='w')
+        self.convert_trakem2_project(xmlFile,projectPath,json_path)
+        with open(json_path,'r') as fp:
+            ts_json = json.load(fp)
+        tilespecs = [renderapi.tilespec.TileSpec(json=d) for d in ts_json]
+        return tilespecs
+    
     def convert_trakem2_project(self, xmlFile, projectPath, json_path):
         cmd = self.trakem2cmd + ['%s' % xmlFile, '%s' %
                                  projectPath, '%s' % json_path]
