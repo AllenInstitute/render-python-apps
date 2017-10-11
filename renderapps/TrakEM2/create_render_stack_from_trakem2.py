@@ -1,7 +1,7 @@
 import argschema
 import renderapi
-from .trakem2utils import get_matching_tilespec_by_path
-from ..module.render_module import TrakEM2RenderModule,RenderTrakEM2Parameters
+from renderapps.TrakEM2.trakem2utils import get_matching_tilespec_by_path
+from renderapps.module.render_module import TrakEM2RenderModule,RenderTrakEM2Parameters
 
 class CreateRenderStackFromTrakEM2Parameters(RenderTrakEM2Parameters):
     input_stack = argschema.fields.Str(required=True,
