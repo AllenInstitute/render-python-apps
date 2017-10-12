@@ -3,6 +3,7 @@ from functools import partial
 import tempfile
 from ..module.render_module import RenderModule,RenderParameters
 from argschema.fields import Str, Int
+import numpy as np
 
 # "Apply set of alignmnet transformations derived by EM aligner \
 #         or any alignmnet pipeline where there are seperate transforms for every tile, \
@@ -44,7 +45,7 @@ def process_z(render,alignedStack,inputStack,outputStack, z):
     #use the function to make jsons for aligned and input stacks
     aligned_tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,alignedStack,z)
     input_tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,inputStack,z)
-
+    
     #keep a list of tilespecs to output
     output_tilespecs = []
     #loop over all input tilespecs and their frame numbers
@@ -76,6 +77,8 @@ class ApplyTransforms(RenderModule):
 
         #STEP 2: get z values that exist in aligned stack
         zvalues=self.render.run(renderapi.stack.get_z_values_for_stack,self.args['alignedStack'])
+        zvalues_input = self.render.run(renderapi.stack.get_z_values_for_stack,self.args['inputStack'])
+        zvalues = np.intersect1d(np.array(zvalues),np.array(zvalues_input))
 
         #STEP 3: go through z in a parralel way
         # at each z, call render to produce json files to pass into the stitching jar
