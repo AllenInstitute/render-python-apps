@@ -3,7 +3,7 @@
 import os
 import renderapi
 from ..module.render_module import RenderModule, RenderParameters
-from argschema.fields import InputFile, InputDir, Str, Float, Int
+from argschema.fields import InputFile, InputDir, Str, Float, Int, Bool
 from functools import partial
 import numpy as np
 from skimage.morphology import disk
@@ -16,7 +16,7 @@ example_input = {
         "host": "ibs-forrestc-ux1",
         "port": 8080,
         "owner": "6_ribbon_expts",
-        "project": "M335503_Ai39_smallvol",
+        "project": "M335503_Ai139_smallvol",
         "client_scripts": "/var/www/render/render-ws-java-client/src/main/scripts"
     },
     "input_stack": "Flatfieldcorrected_1_GFP",
@@ -26,12 +26,13 @@ example_input = {
     "pool_size": 20,
     "psf_file": "/nas2/data/M335503_Ai139_smallvol/processed/psfs/psf_GFP.tif",
     "num_iter": 20,
-    "bgrd_size": 50
+    "bgrd_size": 50,
+    "scale_factor": 1
 }
 
 class ApplyDeconvParams(RenderParameters):
     input_stack = Str(required=True, 
-                      description="Input stack")
+                      description='Input stack')
     output_stack = Str(required=True, 
                        description='Output stack')
     output_directory = Str(required=True, 
@@ -46,6 +47,10 @@ class ApplyDeconvParams(RenderParameters):
                   description='number of iterations (default=20)')
     bgrd_size = Int(required=False, default=20, 
                     description='size of rolling ball (default=20)')
+    scale_factor = Int(required=False, default=1, 
+                    description='scaling factor (default=1)')
+    close_stack = Bool(required=False, default=False,
+                       description="whether to close stack or not")
 
 def getImage(ts):
     d = ts.to_dict()
@@ -63,7 +68,7 @@ def getPSF(filename):
 #     if not bgrd_size == 0:
 #         img = cv2.morphologyEx(img,cv2.MORPH_TOPHAT,disk(bgrd_size))
 
-def process_tile(psf, num_iter, bgrd_size, dirout, stackname, input_ts):
+def process_tile(psf, num_iter, bgrd_size, scale_factor, dirout, stackname, input_ts):
     img = getImage(input_ts)
     
     #subtract background
@@ -73,12 +78,15 @@ def process_tile(psf, num_iter, bgrd_size, dirout, stackname, input_ts):
     #apply deconvolution
     img_dec = deconvlucy(img, psf, num_iter)
     
+    img_dec = img_dec/scale_factor
+    img_dec[img_dec > 65535] = 65535
+    
     if not os.path.exists(dirout):
         os.makedirs(dirout)
     d = input_ts.to_dict()
     [head,tail] = os.path.split(d['mipmapLevels'][0]['imageUrl'])
     outImage = "%s/%s_%04d_%s"%(dirout, stackname, input_ts.z,tail)
-    tifffile.imsave(outImage, img_dec)
+    tifffile.imsave(outImage, np.uint16(img_dec))
 
     output_ts = input_ts
     d = output_ts.to_dict()
@@ -105,9 +113,9 @@ class ApplyDeconv(RenderModule):
         #render=self.render
         psf = getPSF(self.args['psf_file'])
 
-        mypartial = partial(process_tile, psf, self.args['num_iter'],\
-                            self.args['bgrd_size'], self.args['output_directory'],\
-                            self.args['output_stack'])
+        mypartial = partial(process_tile, psf, self.args['num_iter'],
+                            self.args['bgrd_size'], self.args['scale_factor'],
+                            self.args['output_directory'], self.args['output_stack'])
         with renderapi.client.WithPool(self.args['pool_size']) as pool:
             tilespecs = pool.map(mypartial,inp_tilespecs)
 
@@ -116,9 +124,10 @@ class ApplyDeconv(RenderModule):
                 self.args['output_stack'],cycleNumber=2,cycleStepNumber=1,
                 render=self.render)
         renderapi.client.import_tilespecs(
-                self.args['output_stack'],tilespecs,render=self.render)
-        renderapi.stack.set_stack_state(
-                self.args['output_stack'],"COMPLETE",render=self.render)
+                self.args['output_stack'],tilespecs,render=self.render,
+                close_stack=self.args['close_stack'])
+#        renderapi.stack.set_stack_state(
+#                self.args['output_stack'],"COMPLETE",render=self.render)
 
 if __name__ == "__main__":
     mod = ApplyDeconv(input_data=example_input,schema_type=ApplyDeconvParams)
