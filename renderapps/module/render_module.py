@@ -81,24 +81,29 @@ class EMLMRegistrationMultiParameters(TEM2ProjectTransfer):
     maxZ = argschema.fields.Int(
         required=False, description='maximum z (default to EM stack bounds)')
 
+class RenderModuleException(Exception):
+    """Base Exception class for render module"""
+    pass
 
 
 class RenderModule(argschema.ArgSchemaParser):
+    default_schema = RenderParameters
+
     def __init__(self, schema_type=None, *args, **kwargs):
-        if schema_type is None:
-            schema_type = RenderParameters
-        assert issubclass(schema_type,RenderParameters)
+        if (schema_type is not None and not issubclass(
+                schema_type, RenderParameters)):
+            raise RenderModuleException(
+                'schema {} is not of type RenderParameters')
+
+        # TODO do we want output schema passed?
         super(RenderModule, self).__init__(
             schema_type=schema_type, *args, **kwargs)
         self.render = renderapi.render.connect(**self.args['render'])
 
-
 class TrakEM2RenderModule(RenderModule):
-    def __init__(self, schema_type=None, *args, **kwargs):
-        if schema_type is None:
-            schema_type = RenderTrakEM2Parameters
-        super(TrakEM2RenderModule, self).__init__(
-            schema_type=schema_type, *args, **kwargs)
+    default_schema = RenderTrakEM2Parameters
+    def __init__(self, *args, **kwargs):
+        super(TrakEM2RenderModule, self).__init__(*args, **kwargs)
         jarDir = os.path.join(self.args['renderHome'], 'render-app', 'target')
         self.renderjarFile = next(os.path.join(jarDir, f) for f in os.listdir(
             jarDir) if f.endswith('jar-with-dependencies.jar'))
