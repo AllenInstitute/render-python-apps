@@ -2,7 +2,7 @@ docker pull atbigdawg:5000/fcollman/render-python:master
 docker tag atbigdawg:5000/fcollman/render-python:master fcollman/render-python
 docker build -t fcollman/render-python-apps:reorg .
 docker tag fcollman/render-python-apps:reorg fcollman/render-python-apps:reorg_testsharmi
-#docker push atbigdawg:5000/fcollman/render-python-apps:reorg
+docker push atbigdawg:5000/fcollman/render-python-apps
 docker kill renderapps_testsharmi
 docker rm renderapps_testsharmi
 docker run -d --name renderapps_testsharmi \
