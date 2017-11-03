@@ -47,7 +47,10 @@ def process_z(render,alignedStack,inputStack,outputStack, z):
     def get_tilespecs_and_framenumbers(render,stack,z):
         tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
         def get_framenumber(filepath):
-            return int(os.path.split(filepath)[1].split('_F')[1][0:4])
+	    allbreaks = os.path.split(filepath)[1].split('_')
+	    intframe = int(allbreaks[len(allbreaks)-2][1:]) 
+            return intframe
+            #return int(os.path.split(filepath)[1].split('_F')[1][0:4])
         framenumbers = [get_framenumber(ts.ip.get(0)['imageUrl']) for ts in tilespecs]
         return tilespecs,framenumbers
 
