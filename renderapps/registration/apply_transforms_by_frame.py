@@ -50,7 +50,7 @@ def process_z(render,alignedStack,inputStack,outputStack, z):
 	           allbreaks = os.path.split(filepath)[1].split('_')
 	           intframe = int(allbreaks[len(allbreaks)-2][1:])
                return intframe
-            
+
         framenumbers = [get_framenumber(ts.ip.get(0)['imageUrl']) for ts in tilespecs]
         return tilespecs,framenumbers
 

@@ -11,5 +11,6 @@ networkx
 pandas
 matplotlib
 xmltodict
-argschema
+argschema>1.15.5
+pyxb
 

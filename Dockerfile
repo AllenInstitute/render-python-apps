@@ -7,6 +7,7 @@ RUN pip install -r requirements.txt
 RUN pip install setuptools --upgrade --disable-pip-version-check
 RUN pip install argschema --upgrade --disable-pip-version-check
 RUN pip install jupyter
+RUN apt-get install libspatialindex-dev -y
 COPY . /usr/local/render-python-apps
 
 #RUN git clone https://github.com/fcollman/render-python-apps
