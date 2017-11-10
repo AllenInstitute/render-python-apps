@@ -17,9 +17,9 @@ example_input={
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "stack":"BIGALIGN_LENS_EMclahe_Site3",
-    "input_annotation_file":"/nas4/data/EM_annotation/M247514_Rorb_1/m247514_Site3Annotation_MN_bb_local.json",
-    "output_annotation_file":"/nas4/data/EM_annotation/M247514_Rorb_1/m247514_Site3Annotation_MN_bb_global.json"
+    "stack":"Site3Align2_EM_clahe_mm",
+    "input_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Site3Annotation_MN_local.json",
+    "output_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Site3Annotation_MN_global.json"
 }
 
 
@@ -62,6 +62,7 @@ def transform_annotations(render,stack,local_annotation):
                 ind = np.where(area['tileIds']==tileId)[0]
                 global_path[ind,:]= renderapi.transform.estimate_dstpts(ts.tforms,lp[ind,:]) 
             area['global_path']=global_path
+            area['z']=ts.z
                     
     return local_annotation
 
