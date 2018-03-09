@@ -1,5 +1,5 @@
-#if __name__ == "__main__" and __package__ is None:
-#    __package__ = "renderapps.intensity_correction.apply_deconvolution"
+if __name__ == "__main__" and __package__ is None:
+    __package__ = "renderapps.intensity_correction.apply_deconv_zoned"
 import os
 import renderapi
 from ..module.render_module import RenderModule, RenderParameters
@@ -177,8 +177,8 @@ def process_tile(num_iter, bgrd_size, scale_factor, dirout, stackname, input_ts)
     img_dec = img_dec/scale_factor
     img_dec[img_dec > 65535] = 65535
     
-    if not os.path.exists(dirout):
-        os.makedirs(dirout)
+#    if not os.path.exists(dirout):
+#        os.makedirs(dirout)
     d = input_ts.to_dict()
     [head,tail] = os.path.split(d['mipmapLevels'][0]['imageUrl'])
     outImage = "%s/%s_%04d_%s"%(dirout, stackname, input_ts.z,tail)
@@ -205,6 +205,8 @@ class ApplyDeconvZoned(RenderModule):
         inp_tilespecs = renderapi.tilespec.get_tile_specs_from_z(
             self.args['input_stack'], Z, render=self.render)
 
+        if not os.path.exists(self.args['output_directory']):
+            os.makedirs(self.args['output_directory'])
         #deconvolve each tilespecs and return tilespecs
         #render=self.render
         #psf = getPSF(self.args['psf_file'])
