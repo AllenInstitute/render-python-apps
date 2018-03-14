@@ -1,5 +1,5 @@
-#if __name__ == "__main__" and __package__ is None:
-#    __package__ = "renderapps.intensity_correction.apply_deconvolution"
+if __name__ == "__main__" and __package__ is None:
+    __package__ = "renderapps.intensity_correction.apply_deconvolution"
 import os
 import renderapi
 from ..module.render_module import RenderModule, RenderParameters
