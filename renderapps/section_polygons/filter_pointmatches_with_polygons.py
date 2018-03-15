@@ -6,7 +6,7 @@ import os
 import pathos.multiprocessing as mp
 from shapely import geometry
 from ..module.render_module import RenderModule, RenderParameters
-from argschema.fields import Str, Int, InputDir
+from argschema.fields import Str, InputDir
 
 example_json = {
     "render":{
@@ -19,8 +19,7 @@ example_json = {
     "stack":"ALIGNDAPI_1_deconv_filter_fix",
     "polygon_dir":"/nas3/data/M247514_Rorb_1/processed/shape_polygons",
     "matchcollection":"M247514_Rorb_1_DAPI1_deconv_filter_fix2",
-    "targetmatchcollection":"M247514_Rorb_1_DAPI1_deconv_filter_cropped",
-    "pool_size": 20
+    "targetmatchcollection":"M247514_Rorb_1_DAPI1_deconv_filter_cropped"
 }
 
 
@@ -36,9 +35,6 @@ class FilterPointMatchParameters(RenderParameters):
 
     targetmatchcollection = Str(required=True,
         description='match collection to output to')
-
-    pool_size = Int(required=False,default=20,
-        metadata={'description':'number of parallel threads to use'})
 
 def mask_points(points,mask):
     p = np.array(points).T
@@ -83,12 +79,14 @@ def filter_matches(r,stack,fromcollection,tocollection,polydict,pgroup):
         tilespecs=r.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
         for ts in tilespecs:
             tiledict[ts.tileId]=ts
+    print len(matches)
     for match in matches:
         qgroup = match['pGroupId']
         polyq = polydict[qgroup]
         new_match = filter_match(r,match,stack,polyp,polyq,tiledict[match['pId']],tiledict[match['qId']])
         if new_match is not None:
             new_matches.append(match)
+    print len(new_matches)
     return r.run(renderapi.pointmatch.import_matches,tocollection,json.dumps(new_matches))
 
 def create_polydict(r,stack,mask_dir):
@@ -97,7 +95,7 @@ def create_polydict(r,stack,mask_dir):
     polydict = {}
     for sectionId in sectionIds:
         z = r.run(renderapi.stack.get_z_value_for_section,stack,sectionId)
-        polyfile = os.path.join(mask_dir,'polygon_%05d.json'%z)
+        polyfile = os.path.join(mask_dir,'polygon_%05d.0.json'%z)
         polyjson = json.load(open(polyfile,'r'))
         poly = geometry.shape(polyjson['roi'])
         polydict[sectionId]=poly
@@ -119,31 +117,33 @@ class FilterPointMatch(RenderModule):
         super(FilterPointMatch,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
 	r = self.render
-        #self.logger.error("WARNING NOT TESTED, TALK TO FORREST IF BROKEN OR WORKS")
+        self.logger.error("WARNING NOT TESTED, TALK TO FORREST IF BROKEN OR WORKS")
 
         stack = self.args['stack']
         polygonfolder = self.args['polygon_dir']
         matchcollection = self.args['matchcollection']
         targetmatchcollection =self.args['targetmatchcollection']
 
-
         #define a dictionary of z values for each sectionId
         zdict = create_zdict(r,stack)
-
+	print "Zdict: "
+	print zdict
         #define a dictionary of polygons for each sectionId
         polydict = create_polydict(r,stack,polygonfolder)
-
+	print "Polydict: "
+	print polydict
         #get the set of starting sectionIds for the point match database
         pgroups = self.render.run(renderapi.pointmatch.get_match_groupIds_from_only,matchcollection)
+	print "GOT PGROUPS: "
+	print type(pgroups) 
 
         #define a partial function on filter_matches that takes in a single sectionId
         mypartial=partial(filter_matches,self.render,stack,matchcollection,targetmatchcollection,polydict)
-	print "Now starting parallelization..."
+	print "Begin   filtering "
         #res = pool.map(mypartial,pgroups)
-	with renderapi.client.WithPool(self.args['pool_size']) as pool:
-            pool.map(mypartial,pgroups)
-        #for pgroup in pgroups:
-        #    mypartial(pgroup)
+        for pgroup in pgroups:
+	    print "filtering for " + str(pgroup)
+            mypartial(pgroup)
 
 if __name__ == "__main__":
     mod = FilterPointMatch(input_data= example_json)
