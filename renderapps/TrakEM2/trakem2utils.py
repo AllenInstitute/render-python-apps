@@ -4,7 +4,18 @@ import json
 import random
 from renderapi.transform import AffineModel
 from header import header
+import os
 
+
+def get_matching_tilespec_by_path(ts,pot_tilespecs):
+    filepath = (os.path.split(ts.ip.get(0)['imageUrl'])[
+                        1]).split('_flip')[0]
+    pot_filepaths = [(os.path.split(t.ip.get(0)['imageUrl'])[1]).split(
+        '_flip')[0] for t in pot_tilespecs]
+    return next(t for t, fp in zip(
+        pot_tilespecs, pot_filepaths) if fp == filepath)
+
+        
 def randomDig(digits):
     lower = 10**(digits-1)
     upper = 10**digits - 1

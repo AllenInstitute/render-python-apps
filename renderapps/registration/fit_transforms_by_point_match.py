@@ -58,29 +58,36 @@ def fit_transforms_by_pointmatch(render,
     print src_stack,dst_stack,matchcollection,num_local_transforms
     tilespecs_p = renderapi.tilespec.get_tile_specs_from_stack(src_stack, render=render)
     tilespecs_q = renderapi.tilespec.get_tile_specs_from_stack(dst_stack, render=render)
+
+    tilespecs_out = []
     for k,tsp in enumerate(tilespecs_p):
         pid=tsp.tileId
         pgroup = tsp.layout.sectionId
-        match = renderapi.pointmatch.get_matches_involving_tile(matchcollection,pgroup,pid,render=render)[0]
-        if match['qId']==pid:
-            pid = match['qId']
-            qid = match['pId']
-            p_pts = np.array(match['matches']['q']).T
-            q_pts = np.array(match['matches']['p']).T
-        else:
-            pid = match['pId']
-            qid = match['qId']
-            p_pts = np.array(match['matches']['p']).T
-            q_pts = np.array(match['matches']['q']).T
-
-        tsq = next(ts for ts in tilespecs_q if ts.tileId == qid)
-        tforms = tsq.tforms[num_local_transforms:]
-        dst_pts = renderapi.transform.estimate_dstpts(tforms,q_pts)
-        p_pts_global = renderapi.transform.estimate_dstpts(tsp.tforms[num_local_transforms:],p_pts)
-        final_tform = Transform()
-        final_tform.estimate(p_pts,dst_pts)
-        tsp.tforms=tsp.tforms[0:num_local_transforms]+[final_tform]
-        
+        try:
+            match = renderapi.pointmatch.get_matches_involving_tile(matchcollection,pgroup,pid,render=render)[0]
+            if match['qId']==pid:
+                pid = match['qId']
+                qid = match['pId']
+                p_pts = np.array(match['matches']['q']).T
+                q_pts = np.array(match['matches']['p']).T
+            else:
+                pid = match['pId']
+                qid = match['qId']
+                p_pts = np.array(match['matches']['p']).T
+                q_pts = np.array(match['matches']['q']).T
+            
+            tsq = next(ts for ts in tilespecs_q if ts.tileId == qid)
+            tforms = tsq.tforms[num_local_transforms:]
+            dst_pts = renderapi.transform.estimate_dstpts(tforms,q_pts)
+            p_pts_global = renderapi.transform.estimate_dstpts(tsp.tforms[num_local_transforms:],p_pts)
+            final_tform = Transform()
+            final_tform.estimate(p_pts,dst_pts)
+            tsp.tforms=tsp.tforms[0:num_local_transforms]+[final_tform]
+            tilespecs_out.append(tsp)
+        except IndexError as e:
+            pass
+        except StopIteration as e:
+            pass
         # print pid,qid
         # print "p_pts"
         # print p_pts
@@ -91,7 +98,7 @@ def fit_transforms_by_pointmatch(render,
         # if k==1:
         #     break
 
-    return tilespecs_p
+    return tilespecs_out
 
 
 class FitTransformsByPointMatch(RenderModule):

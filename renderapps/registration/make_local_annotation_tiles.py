@@ -7,9 +7,9 @@ from ..shapely import tilespec_to_bounding_box_polygon
 from argschema.fields import Str, InputFile
 from shapely import geometry
 import lxml.etree
-import numpy as np
 
-example_input={
+
+parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
         "port":8080,
@@ -17,9 +17,9 @@ example_input={
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "stack":"Site3Align2_EM_clahe_mm",
-    "input_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Site3Annotation_MN_local.json",
-    "output_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Site3Annotation_MN_global.json"
+    "stack":"BIGALIGN_LENS_EMclahe_Site3",
+    "input_annotation_file":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_local.json",
+    "output_annotation_file":"/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_cropedToMatch_SD_global.json"
 }
 
 
@@ -54,24 +54,21 @@ def transform_annotations(render,stack,local_annotation):
     #loop over annotations
     for area_list in local_annotation['area_lists']:
         for area in area_list['areas']:
-            tileIds = np.unique(area['tileIds'])
-            lp = area['local_path']
-            global_path = np.zeros(lp.shape,lp.dtype)
-            for tileId in tileIds:
-                ts = next(ts for ts in tilespecs if ts.tileId == tileId)
-                ind = np.where(area['tileIds']==tileId)[0]
-                global_path[ind,:]= renderapi.transform.estimate_dstpts(ts.tforms,lp[ind,:]) 
-            area['global_path']=global_path
-            area['z']=ts.z
+            for path in area['paths']:
+                for tile_path in path['tile_paths']:
+                    ts = next(ts for ts in tilespecs if ts.tileId == tile_path['tileId'])
+                    tile_path['path']=renderapi.transform.estimate_dstpts(ts.tforms,tile_path['path'])
                     
     return local_annotation
 
 
 class TransformLocalAnnotation(RenderModule):
-    default_schema = TransformLocalAnnotationParameters
-    default_output_schema = AnnotationFile
-    
+    def __init__(self,schema_type=None,*args,**kwargs):
+        if schema_type is None:
+            schema_type = TransformLocalAnnotationParameters
+        super(TransformLocalAnnotation,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
+
         with open(self.args['input_annotation_file'],'r') as fp:
             local_annotation_json = json.load(fp)
             schema = AnnotationFile()
@@ -80,9 +77,12 @@ class TransformLocalAnnotation(RenderModule):
         global_annotation=transform_annotations(self.render,
                               self.args['stack'],
                               local_annotation)
-        self.output(global_annotation, self.args['output_annotation_file'])
+
+        with open(self.args['output_annotation_file'],'w') as fp:
+             json_dict=schema.dump(global_annotation)
+             json.dump(json_dict,fp)
 
 
 if __name__ == "__main__":
-    mod = TransformLocalAnnotation(input_data= example_input)
+    mod = TransformLocalAnnotation(input_data= parameters)
     mod.run()
