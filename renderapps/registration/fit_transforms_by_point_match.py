@@ -20,6 +20,7 @@ example_json = {
     "output_stack": "testLENS_REG_MARCH_21_DAPI_3_deconvnew",
     "matchcollection": "POSTLENS_M247514_Rorb_1_DAPI3_TO_DAPI1",
     "num_local_transforms": 1,
+    "setz": True,
     "transform_type": "rigid"
 }
 
@@ -41,6 +42,8 @@ class FitTransformsByPointMatchParameters(RenderParameters):
     num_local_transforms = Int(required=True,
                                description="number of local transforms to preserver, \
                                assumes point matches written down after such local transforms")
+    setz = Boolean(required=False, default = True,
+                               description="whether to change z's to the destination stack")
     transform_type = Str(required = False, default = 'affine',
                          validate = mm.validate.OneOf(["affine","rigid"]),
                          description = "type of transformation to fit")
@@ -54,6 +57,7 @@ def fit_transforms_by_pointmatch(render,
                                  dst_stack,
                                  matchcollection,
                                  num_local_transforms,
+				 setz,
                                  Transform):
     print src_stack,dst_stack,matchcollection,num_local_transforms
     tilespecs_p = renderapi.tilespec.get_tile_specs_from_stack(src_stack, render=render)
@@ -81,6 +85,9 @@ def fit_transforms_by_pointmatch(render,
         final_tform.estimate(p_pts,dst_pts)
         tsp.tforms=tsp.tforms[0:num_local_transforms]+[final_tform]
         
+	if setz == True:
+		tsp.z = tsq.z
+
         # print pid,qid
         # print "p_pts"
         # print p_pts
@@ -113,7 +120,8 @@ class FitTransformsByPointMatch(RenderModule):
                                      self.args['dst_stack'],
                                      self.args['matchcollection'],
                                      self.args['num_local_transforms'],
-                                     Transform)
+                                     self.args['setz'],
+				     Transform)
 
         outstack = self.args['output_stack']
 
