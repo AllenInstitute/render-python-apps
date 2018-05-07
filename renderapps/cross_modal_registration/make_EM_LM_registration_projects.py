@@ -86,7 +86,7 @@ class makeEMLMRegistrationProjects(RenderModule):
                             mod.args['minY'],
                             mod.args['maxY'],
                             render=mod.render)
-            createlayer_fromtilespecs(LMtilespecs, outfile,1,shiftx=-mod.args['minX'],shifty=-mod.args['minY'],affineOnly=True)
+            createlayer_fromtilespecs(LMtilespecs, outfile,1,shiftx=-mod.args['minX'],shifty=-mod.args['minY'],affineOnly=False)
             createfooters(outfile)
             print(self.args)
 

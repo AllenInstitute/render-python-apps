@@ -13,14 +13,14 @@ import json
 example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
+        "port":80,
         "owner":"Forrest",
         "project":"M247514_Rorb_1",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    "input_stack":"ALIGN_LENS_DAPI_1_deconvnew",
-    "output_stack":"BIGALIGN_LENS_DAPI_1_deconvnew",
-    "transformId":"expand_alignment",
+    "input_stack":"Take2Site3_BIG_MON_EM",
+    "output_stack":"TEST_Take2Site3_BIG_MON_EM",
+    "transformId":"translate_test",
     "M00":0,
     "M10":-33.3333,
     "M01":33.3333,

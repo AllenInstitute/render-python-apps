@@ -7,3 +7,9 @@ dist
 *.DS_Store
 .vscode
 *.py.save
+
+cellimages
+example_json/
+*.png
+*.ipynb
+psf

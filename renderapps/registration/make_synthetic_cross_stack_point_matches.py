@@ -16,8 +16,9 @@ example_json = {
         "project": "M247514_Rorb_1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "tile_pair_file": "/nas3/data/M247514_Rorb_1/processed/tilepairfiles/DAPI1_DAPI3_tilepairs.json",
-    "matchcollection": "M247514_Rorb_1_DAPI3_TO_DAPI1"
+    "tile_pair_file": "/nas3/data/M247514_Rorb_1/processed/tilepairfiles/LENS_DAPI1_DAPI2_tilepairs.json",
+    "matchcollection": "M247514_Rorb_1_DAPI2_TO_DAPI1_v2",
+    "local_transforms": 1
 }
 
 
@@ -30,7 +31,7 @@ class MakeSyntheticCrossStackPointMatchesParameters(RenderParameters):
                     description = 'number of points in one axis of grid points')
     matchcollection = Str(required=True, 
                           description= 'match collection to save point matches into')
-
+    local_transforms = Int(required=False,default=0,description='how many transforms are local and the point matches should be written down in coordinates after this local transform is applied')
 
 def define_local_grid(ts, num_points):
     xvals = np.linspace(0, ts.width - 1, num=num_points, endpoint=True, dtype=np.float64)
@@ -46,17 +47,20 @@ def make_synthetic_cross_stack_point_matches(render,
                                              q_stack,
                                              pairs,
                                              matchcollection,
-                                             grid_size=8):
+                                             grid_size=8,
+                                             local_transforms=0):
 
     for pair in pairs:
         tsp = renderapi.tilespec.get_tile_spec(p_stack, pair['p']['id'], render=render)
         tsq = renderapi.tilespec.get_tile_spec(q_stack, pair['q']['id'], render=render)
         src_points = define_local_grid(tsp,grid_size)
-
         src_points_global = renderapi.transform.estimate_dstpts(tsp.tforms,src_points)
-        
+
+        if local_transforms>0:
+            src_points = renderapi.transform.estimate_dstpts(tsp.tforms[0:local_transforms],
+                                                                        src_points)
         dst_points = src_points_global
-        for tform in reversed(tsq.tforms):
+        for tform in reversed(tsq.tforms[local_transforms:]):
             dst_points = tform.inverse_tform(dst_points)
         good_xmin=dst_points[:,0]>0
         good_ymin=dst_points[:,1]>0
@@ -81,11 +85,7 @@ def make_synthetic_cross_stack_point_matches(render,
         render.run(renderapi.pointmatch.import_matches,matchcollection,[match])
 
 class MakeSyntheticCrossStackPointMatches(RenderModule):
-    def __init__(self, schema_type=None, *args, **kwargs):
-        if schema_type is None:
-            schema_type = MakeSyntheticCrossStackPointMatchesParameters
-        super(MakeSyntheticCrossStackPointMatches, self).__init__(
-            schema_type=schema_type, *args, **kwargs)
+    default_schema = MakeSyntheticCrossStackPointMatchesParameters
 
     def run(self):
 
@@ -100,7 +100,8 @@ class MakeSyntheticCrossStackPointMatches(RenderModule):
                                              q_stack,
                                              pairs,
                                              self.args['matchcollection'],
-                                             self.args['grid_size'])
+                                             self.args['grid_size'],
+                                             self.args['local_transforms'])
 
 
 if __name__ == "__main__":

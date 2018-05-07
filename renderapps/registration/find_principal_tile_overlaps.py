@@ -15,9 +15,9 @@ example_parameters={
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "ref_stack":"REG_MARCH_21_DAPI_1",
-    "stack":"REG_MARCH_21_DAPI_3",
-    "tilepair_output":"/nas3/data/M247514_Rorb_1/processed/tilepairfiles/DAPI1_DAPI3_tilepairs.json"
+    "ref_stack":"LENS_DAPI_1_deconvnew",
+    "stack":"LENS_DAPI_2_deconvnew",
+    "tilepair_output":"/nas3/data/M247514_Rorb_1/processed/tilepairfiles/LENS_DAPI1_DAPI2_tilepairs.json"
 }
 
 class FindPrincipalTileOverlapParameters(RenderParameters):

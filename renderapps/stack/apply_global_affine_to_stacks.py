@@ -19,13 +19,13 @@ example_parameters = {
         "project":"M247514_Rorb_1",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    "input_stacks":["LENS_REG_MARCH_21_DAPI_3_deconvnew"],
+    "input_stacks":["LENS_REG_MARCH_21_DAPI_3_deconvnew","jhgjhg"],
     "output_prefix":"BIG",
     "transformId":"expand_lm_to_em_and_rotate",
-    "M00":0.0,
-    "M10":-33.333,
-    "M01":33.333,
-    "M11":0.0,
+    "M00":33.333,
+    "M10":0.0,
+    "M01":0.0,
+    "M11":33.333,
     "B0": 0,  
     "B1": 0,
     "pool_size":2

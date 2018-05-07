@@ -29,8 +29,9 @@ class CreateRenderStackFromTrakEM2(TrakEM2RenderModule):
             ts_render = get_matching_tilespec_by_path(ts,render_tilespecs)
             ts.tileId = ts_render.tileId
             mml = renderapi.tilespec.MipMapLevel(0,ts_render.ip.get(0)['imageUrl'],ts_render.ip.get(0)['maskUrl'])
+            ts.channels=[]
             ts.ip.update(mml)
-            
+
         renderapi.stack.logger.setLevel(logging.DEBUG)
         #create a new stack
         renderapi.stack.create_stack(self.args['output_stack'],
@@ -50,9 +51,9 @@ if __name__ == '__main__':
             "project": "M247514_Rorb_1",
             "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "input_stack":"ALIGNEM_reg2",
-        "output_stack":"",
-        "tem2project": "/nas4/data/EM_annotation/M247514_Rorb_1/m247514_Site3Annotation_MN.xml",
+        "input_stack":"Site3Align_EM",
+        "output_stack":"Site3Align2_EM",
+        "tem2project": "/nas/data/M247514_Rorb_1/EMraw/ribbon0000/Site3Aligned.xml",
         "renderHome": "/pipeline/render"
     }
     mod = CreateRenderStackFromTrakEM2(input_data = example_input)

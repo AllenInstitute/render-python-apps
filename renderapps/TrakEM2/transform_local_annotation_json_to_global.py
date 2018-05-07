@@ -17,9 +17,9 @@ example_input={
         "project":"M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "stack":"Site3Align2_EM_clahe_mm",
-    "input_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Site3Annotation_MN_local.json",
-    "output_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Site3Annotation_MN_global.json"
+    "stack":"Take2Site4Align_EMclahe",
+    "input_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Take2Site4Annotation_MN_bb_local.json",
+   "output_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Take2Site4Annotation_MN_bb_Take2Site4Align_EMclahe_global.json"
 }
 
 

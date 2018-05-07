@@ -21,9 +21,9 @@ example_json={
             "project":"M247514_Rorb_1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "alignedStack":"ALIGNED_TrakEM2_DAPI_cell1",
-        "inputStack":"ACQ_GFP",
-        "outputStack":"ALIGNED_TrakEM2_GFP_cell1",
+        "alignedStack":"Site3Align2_EM",
+        "inputStack":"Site3Align_EM_clahe_mm",
+        "outputStack":"Site3Align2_EM_clahe_mm",
         "pool_size":20
     }
 

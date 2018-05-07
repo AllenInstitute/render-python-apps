@@ -52,7 +52,7 @@ class ImportAtlasSchema(RenderParameters):
                        description="name of stack to save into render")
     LM_stack = Str(required=True, default='ACQDAPI_1',
                    description="Name of LM stack in render that was imported into atlas and whose coordinate system the EM tiles will be registered to")
-    make_tiles = Bool(required=False, default=True,
+    make_tiles = Bool(required=False, default=False,
                       description="whether to launch jobs to make jpg img tiles of raw atlas tif's (inverting and flipping)")
 
 example_parameters = {
@@ -60,14 +60,14 @@ example_parameters = {
         "host": "ibs-forrestc-ux1",
         "port": 8080,
         "owner": "Forrest",
-        "project": "M247514_Rorb_1",
+        "project": "M246930_Scnn1a_4_f1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    'project_path': '/nas/data/M247514_Rorb_1/EMraw/ribbon0000/M247514_Rorb_1_Ribbon0000_take2.a5proj',
+    'project_path': '/nas/data/M246930_Scnn1a_4_f1/SEMdata/ribbon1/m246930_Scnn1a_4_Ribbon0001_f1_take2.a5proj',
     'LM_dataset_name': 'test',
-    'site_name': 'Site 5',
-    'output_stack': 'EMSite5_take2RAW',
-    'LM_stack': 'BIGREG_MARCH_21_DAPI_1'
+    'site_name': 'Site 4',
+    'output_stack': 'EMSite4_take2RAW',
+    'LM_stack': 'ACQDAPI_0'
 }
 
 if __name__ == '__main__':
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     project = doc['F-BioSEM-Project']['BioSemProject']
 
     projname = project_path.split(os.path.sep)[-4]
-    assert (mod.render.DEFAULT_PROJECT == projname)
+    assert (projname[1:7] in mod.render.DEFAULT_PROJECT)
 
     # get the list of sitesets
     if type(project['AtlasCarrier']['SectionSet']) == collections.OrderedDict:
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     # coordinate system of the
     for siteset in sitesets:
         if siteset['Name'] == mod.args['site_name']:
-            print 'in', siteset['Name']
+            print '1 in', siteset['Name']
             json_files = process_siteset(mod.render,
                                          siteset,
                                          sectionset,
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     if mod.args['make_tiles']:
         for siteset in sitesets:
             if siteset['Name'] == mod.args['site_name']:
-                print 'in', siteset['Name']
+                print '2 in', siteset['Name']
                 # uncomment to make masks and flipped images
                 make_tile_masks(siteset, sectionset, project, project_path)
 
