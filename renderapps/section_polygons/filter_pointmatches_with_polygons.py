@@ -79,28 +79,30 @@ def filter_matches(r,stack,fromcollection,tocollection,polydict,pgroup):
         tilespecs=r.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
         for ts in tilespecs:
             tiledict[ts.tileId]=ts
+    print len(matches)
     for match in matches:
         qgroup = match['pGroupId']
         polyq = polydict[qgroup]
         new_match = filter_match(r,match,stack,polyp,polyq,tiledict[match['pId']],tiledict[match['qId']])
         if new_match is not None:
             new_matches.append(match)
+    print len(new_matches)
     return r.run(renderapi.pointmatch.import_matches,tocollection,json.dumps(new_matches))
 
 def create_polydict(r,stack,mask_dir):
-    sectionData=r.run(renderapi.stack.get_sectionData_for_stack,stack)
+    sectionData=r.run(renderapi.stack.get_stack_sectionData,stack)
     sectionIds=[sd['sectionId'] for sd in sectionData]
     polydict = {}
     for sectionId in sectionIds:
         z = r.run(renderapi.stack.get_z_value_for_section,stack,sectionId)
-        polyfile = os.path.join(mask_dir,'polygon_%05d.json'%z)
+        polyfile = os.path.join(mask_dir,'polygon_%05d.0.json'%z)
         polyjson = json.load(open(polyfile,'r'))
         poly = geometry.shape(polyjson['roi'])
         polydict[sectionId]=poly
     return polydict
 
 def create_zdict(r,stack):
-    sectionData=r.run(renderapi.stack.get_sectionData_for_stack,stack)
+    sectionData=r.run(renderapi.stack.get_stack_sectionData,stack)
     sectionIds=[sd['sectionId'] for sd in sectionData]
     zdict={}
     for sectionId in sectionIds:
@@ -114,6 +116,7 @@ class FilterPointMatch(RenderModule):
             schema_type = FilterPointMatchParameters
         super(FilterPointMatch,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
+	r = self.render
         self.logger.error("WARNING NOT TESTED, TALK TO FORREST IF BROKEN OR WORKS")
 
         stack = self.args['stack']
@@ -123,18 +126,23 @@ class FilterPointMatch(RenderModule):
 
         #define a dictionary of z values for each sectionId
         zdict = create_zdict(r,stack)
-
+	print "Zdict: "
+	print zdict
         #define a dictionary of polygons for each sectionId
         polydict = create_polydict(r,stack,polygonfolder)
-
+	print "Polydict: "
+	print polydict
         #get the set of starting sectionIds for the point match database
         pgroups = self.render.run(renderapi.pointmatch.get_match_groupIds_from_only,matchcollection)
+	print "GOT PGROUPS: "
+	print type(pgroups) 
 
         #define a partial function on filter_matches that takes in a single sectionId
         mypartial=partial(filter_matches,self.render,stack,matchcollection,targetmatchcollection,polydict)
-
+	print "Begin   filtering "
         #res = pool.map(mypartial,pgroups)
         for pgroup in pgroups:
+	    print "filtering for " + str(pgroup)
             mypartial(pgroup)
 
 if __name__ == "__main__":
