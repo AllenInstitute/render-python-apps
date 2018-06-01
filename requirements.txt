@@ -13,4 +13,4 @@ matplotlib
 xmltodict
 argschema>1.15.5
 pyxb
-
+scikit-image

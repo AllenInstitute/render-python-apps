@@ -47,14 +47,27 @@ class ImportEMRegistrationMultiProjects(TrakEM2RenderModule):
         EMz = renderapi.stack.get_z_values_for_stack(self.args['inputStack'],render=self.render)
 
         tilespecsfiles = []
-        shiftTransform = AffineModel(B0=self.args['minX'],B1=self.args['minY'])
+
+        buffersize = self.args['buffersize']
+        self.args['minX'] = self.args['minX'] - buffersize
+    	self.args['minY'] = self.args['minY'] - buffersize
+    	self.args['maxX'] = self.args['maxX'] + buffersize
+    	self.args['maxY'] = self.args['maxY'] + buffersize
+        #width = self.args['maxX']-self.args['minX']
+        #height = self.args['maxY']-self.args['minY']
+
+        print("This is buffersize: %d "%buffersize)
+
+        shiftTransform = AffineModel(B0=self.args['minX'] ,B1=self.args['minY'] )
+
+
 
         for z in EMz:
             infile = os.path.join(xmlDir,'%05d.xml'%z)
             outfile = os.path.join(xmlDir,'%05d.json'%z)
             newoutfile = os.path.join(xmlDir,'%05d-new.json'%z)
             self.convert_trakem2_project(infile,xmlDir,outfile)
-         
+
             newtilejson = json.load(open(outfile,'r'))
             newEMtilespecs = [TileSpec(json=tsj) for tsj in newtilejson]
             EMtilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(

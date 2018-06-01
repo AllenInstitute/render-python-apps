@@ -1,3 +1,7 @@
+
+if __name__ == "__main__" and __package__ is None:
+    __package__ = "renderapps.cross_modal_registration.make_EM_LM_registration_projects_multi"
+
 import renderapi
 from ..TrakEM2.trakem2utils import createchunks,createheader,createproject,createlayerset,createfooters,createlayer_fromtilespecs,Chunk
 import json
@@ -30,12 +34,20 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
         super(makeEMLMRegistrationMultiProjects,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
         print self.args
-        
-    
+
+
         #fill in missing bounds with the input stack bounds
         bounds = self.render.run(renderapi.stack.get_stack_bounds,self.args['inputStack'])
         for key in bounds.keys():
             self.args[key]=self.args.get(key,bounds[key])
+
+
+	#buffersize = 3000
+    buffersize = self.args['buffersize']
+	self.args['minX'] = self.args['minX'] - buffersize
+	self.args['minY'] = self.args['minY'] - buffersize
+	self.args['maxX'] = self.args['maxX'] + buffersize
+	self.args['maxY'] = self.args['maxY'] + buffersize
 
         if not os.path.isdir(self.args['outputXMLdir']):
             os.makedirs(self.args['outputXMLdir'])
@@ -48,6 +60,8 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
             outfile = os.path.join(self.args['outputXMLdir'],'%05d.xml'%z)
             createheader(outfile)
             createproject(outfile)
+
+
             createlayerset(outfile,width=(self.args['maxX']-self.args['minX']),height=(self.args['maxY']-self.args['minY']))
             EMtilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(
                             EMstack,
@@ -90,4 +104,3 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
 if __name__ == "__main__":
     mod = makeEMLMRegistrationMultiProjects(input_data= example_json)
     mod.run()
-

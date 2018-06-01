@@ -1,10 +1,11 @@
 if __name__ == "__main__" and __package__ is None:
-    __package__ = "renderapps.materialize.make_downsample_image_stack"
+    __package__ = "renderapps.stack.squeeze_stack"
 import json
 import os
 import renderapi
 from ..module.render_module import RenderModule,RenderParameters
-from json_module import InputFile,InputDir,OutputDir
+#from json_module import InputFile,InputDir,OutputDir
+from argschema.fields import Str, Int
 import marshmallow as mm
 from functools import partial
 import glob
@@ -36,13 +37,13 @@ example_parameters={
 }
 
 class SqueezeStackParameters(RenderParameters):
-    input_stack = mm.fields.Str(required=True,
+    input_stack = Str(required=True,
         metadata={'description':'input stacks'})
-    output_stack = mm.fields.Str(required=True,
+    output_stack = Str(required=True,
         metadata={'description':'output stack to name'})
-    output_directory = mm.fields.Str(required=True,
+    output_directory = Str(required=True,
         metadata={'description':'input stacks'})
-    pool_size = mm.fields.Int(required=False,default=20,
+    pool_size = Int(required=False,default=20,
         metadata={'description':'number of parallel threads to use'})
 
 def process_z(stack,render,output_directory,Z):

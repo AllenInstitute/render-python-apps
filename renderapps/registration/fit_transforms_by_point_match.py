@@ -15,12 +15,13 @@ example_json = {
         "project": "M246930_Scnn1a_4_f1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "dst_stack": "EMSite2_take2_EMA",
-    "src_stack": "Session1_DRP_STI_DCV_FF",
-    "output_stack": "TEST_Site2_take2_EMA_STI_DCV_FF_allSession_1",
-    "matchcollection": "M246930_Scnn1a_4_f1_DAPI1_EMsite2_ptMatch",
-    "num_local_transforms": 0,
-    "transform_type": "affine"
+    "dst_stack": "LENS_REG_MARCH_21_DAPI_1_deconvnew",
+    "src_stack": "LENS_DAPI_3_deconvnew",
+    "output_stack": "testLENS_REG_MARCH_21_DAPI_3_deconvnew",
+    "matchcollection": "POSTLENS_M247514_Rorb_1_DAPI3_TO_DAPI1",
+    "num_local_transforms": 1,
+    "setz": True,
+    "transform_type": "rigid"
 }
 
 
@@ -41,6 +42,8 @@ class FitTransformsByPointMatchParameters(RenderParameters):
     num_local_transforms = Int(required=True,
                                description="number of local transforms to preserver, \
                                assumes point matches written down after such local transforms")
+    setz = Boolean(required=False, default = True,
+                               description="whether to change z's to the destination stack")
     transform_type = Str(required = False, default = 'affine',
                          validate = mm.validate.OneOf(["affine","rigid"]),
                          description = "type of transformation to fit")
@@ -54,6 +57,7 @@ def fit_transforms_by_pointmatch(render,
                                  dst_stack,
                                  matchcollection,
                                  num_local_transforms,
+				 setz,
                                  Transform):
     print src_stack,dst_stack,matchcollection,num_local_transforms
     tilespecs_p = renderapi.tilespec.get_tile_specs_from_stack(src_stack, render=render)
@@ -63,41 +67,29 @@ def fit_transforms_by_pointmatch(render,
     for k,tsp in enumerate(tilespecs_p):
         pid=tsp.tileId
         pgroup = tsp.layout.sectionId
-        try:
-            matches = renderapi.pointmatch.get_matches_involving_tile(matchcollection,pgroup,pid,render=render)
-            dst_pts_list = []
-            p_pts_list = []
-            for match in matches:
-                if match['qId']==pid:
-                    pid = match['qId']
-                    qid = match['pId']
-                    p_pts = np.array(match['matches']['q']).T
-                    q_pts = np.array(match['matches']['p']).T
-                else:
-                    pid = match['pId']
-                    qid = match['qId']
-                    p_pts = np.array(match['matches']['p']).T
-                    q_pts = np.array(match['matches']['q']).T
-                try:
-                    tsq = next(ts for ts in tilespecs_q if ts.tileId == qid)
-                    tforms = tsq.tforms[num_local_transforms:]
-                    dst_pts = renderapi.transform.estimate_dstpts(tforms,q_pts)
-                    dst_pts_list.append(dst_pts)
-                    p_pts_list.append(p_pts)
-                except:
-                    pass
-                #p_pts_global = renderapi.transform.estimate_dstpts(tsp.tforms[num_local_transforms:],p_pts)
-            if len(dst_pts_list)>0:
-                dst_pts = np.vstack(dst_pts_list)
-                p_pts = np.vstack(p_pts_list)
-                final_tform = Transform()
-                final_tform.estimate(p_pts,dst_pts)
-                tsp.tforms=tsp.tforms[0:num_local_transforms]+[final_tform]
-                tilespecs_out.append(tsp)
-        except IndexError as e:
-            pass
-        except StopIteration as e:
-            pass
+        match = renderapi.pointmatch.get_matches_involving_tile(matchcollection,pgroup,pid,render=render)[0]
+        if match['qId']==pid:
+            pid = match['qId']
+            qid = match['pId']
+            p_pts = np.array(match['matches']['q']).T
+            q_pts = np.array(match['matches']['p']).T
+        else:
+            pid = match['pId']
+            qid = match['qId']
+            p_pts = np.array(match['matches']['p']).T
+            q_pts = np.array(match['matches']['q']).T
+
+        tsq = next(ts for ts in tilespecs_q if ts.tileId == qid)
+        tforms = tsq.tforms[num_local_transforms:]
+        dst_pts = renderapi.transform.estimate_dstpts(tforms,q_pts)
+        p_pts_global = renderapi.transform.estimate_dstpts(tsp.tforms[num_local_transforms:],p_pts)
+        final_tform = Transform()
+        final_tform.estimate(p_pts,dst_pts)
+        tsp.tforms=tsp.tforms[0:num_local_transforms]+[final_tform]
+        
+	if setz == True:
+		tsp.z = tsq.z
+
         # print pid,qid
         # print "p_pts"
         # print p_pts
@@ -130,7 +122,8 @@ class FitTransformsByPointMatch(RenderModule):
                                      self.args['dst_stack'],
                                      self.args['matchcollection'],
                                      self.args['num_local_transforms'],
-                                     Transform)
+                                     self.args['setz'],
+				     Transform)
 
         outstack = self.args['output_stack']
 
