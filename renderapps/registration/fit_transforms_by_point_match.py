@@ -15,10 +15,10 @@ example_json = {
         "project": "M246930_Scnn1a_4_f1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "dst_stack": "EMSite2_take2_EMA",
-    "src_stack": "Session1_DRP_STI_DCV_FF",
-    "output_stack": "TEST_Site2_take2_EMA_STI_DCV_FF_allSession_1",
-    "matchcollection": "M246930_Scnn1a_4_f1_DAPI1_EMsite2_ptMatch",
+    "dst_stack": "FA_STI_DCV_FF_Session1",
+    "src_stack": "REG_STI_DCV_FF_Session3",
+    "output_stack": "FA_REG_STI_DCV_FF_Session3",
+    "matchcollection": "M246930_Scnn1a_4_f1_DAPI3_TO_DAPI1",
     "num_local_transforms": 0,
     "transform_type": "affine"
 }
@@ -84,6 +84,7 @@ def fit_transforms_by_pointmatch(render,
                     dst_pts = renderapi.transform.estimate_dstpts(tforms,q_pts)
                     dst_pts_list.append(dst_pts)
                     p_pts_list.append(p_pts)
+                    tsp.z = tsq.z
                 except:
                     pass
                 #p_pts_global = renderapi.transform.estimate_dstpts(tsp.tforms[num_local_transforms:],p_pts)

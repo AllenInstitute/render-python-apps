@@ -18,16 +18,16 @@ import marshmallow as mm
 example_json = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
+        "port":8988,
         "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "project":"M246930_Scnn1a_4_f1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "inputStack":"EM_Site4_stitched_SHIFT",
-    "LMstacks":["BIGREG_MARCH_21_MBP_deconvnew"],
-    "outputStack":"BIGREG_EM_Site4_stitched",
+    "inputStack":"REG_STI_FF_S03_DAPI_3",
+    "LMstacks":["Stitched_1_DAPI_1"],
+    "outputStack":"REG01_STI_FF_S03_DAPI_3",
     "renderHome":"/var/www/render",
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects_Site4/"
+    "outputXMLdir":"/nas/data/M246930_Scnn1a_4_f1/processed/tilepairfiles/TrackEM_projects/"
 }
 class ImportEMRegistrationMultiProjects(TrakEM2RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):

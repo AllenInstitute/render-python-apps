@@ -11,14 +11,14 @@ import json
 example_json = {
     "render": {
         "host": "ibs-forrestc-ux1",
-        "port": 8080,
+        "port": 8988,
         "owner": "Forrest",
-        "project": "M247514_Rorb_1",
+        "project": "M246930_Scnn1a_4_f1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "tile_pair_file": "/nas3/data/M247514_Rorb_1/processed/tilepairfiles/LENS_DAPI1_DAPI2_tilepairs.json",
-    "matchcollection": "M247514_Rorb_1_DAPI2_TO_DAPI1_v2",
-    "local_transforms": 1
+    "tile_pair_file": "/nas/data/M246930_Scnn1a_4_f1/processed/tilepairfiles/REG_DAPI1_DAPI2_tilepairs.json",
+    "matchcollection": "M246930_Scnn1a_4_f1_DAPI2_TO_DAPI1",
+    "local_transforms": 0
 }
 
 

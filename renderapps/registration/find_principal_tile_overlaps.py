@@ -2,7 +2,7 @@ import numpy as np
 import renderapi
 import json
 import numpy as np
-from ..module.render_module import RenderModule, RenderParameters
+from ..module.render_module import RenderModule, RenderParameters, RenderModuleException
 from ..shapely import tilespec_to_bounding_box_polygon
 import argschema
 import os
@@ -10,14 +10,14 @@ import os
 example_parameters={
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
+        "port":8988,
         "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "project":"M246930_Scnn1a_4_f1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "ref_stack":"LENS_DAPI_1_deconvnew",
-    "stack":"LENS_DAPI_2_deconvnew",
-    "tilepair_output":"/nas3/data/M247514_Rorb_1/processed/tilepairfiles/LENS_DAPI1_DAPI2_tilepairs.json"
+    "ref_stack":"Registered_2_DAPI_2",
+    "stack":"Stitched_1_DAPI_1",
+    "tilepair_output":"/nas/data/M246930_Scnn1a_4_f1/processed/tilepairfiles/REG_DAPI1_DAPI2_tilepairs.json"
 }
 
 class FindPrincipalTileOverlapParameters(RenderParameters):
@@ -45,8 +45,8 @@ def find_tile_pair(render,stack,ts,ref_stack):
  
     ts_geom = tilespec_to_bounding_box_polygon(ts)
 
-    width = ts.width
-    height = ts.height
+    width = ts.maxX-ts.minX
+    height = ts.maxY-ts.minY
     minx = ts.minX
     miny = ts.minY
     p = {}
@@ -60,6 +60,8 @@ def find_tile_pair(render,stack,ts,ref_stack):
         overlap = ts_geom.intersection(ts2_geom)
         frac_overlap = overlap.area/ts_geom.area
         overlap_tuples.append((ts2,frac_overlap))
+    if len(overlap_tuples)==0:
+        raise RenderModuleException("tile {} in stack {} has no overlaps in stack paired={} {}".format(ts.tileId,stack,ref_stack,paired))
     sorted_overlaps_tuples = sorted(overlap_tuples,key= lambda x: x[1])
     #print ts.tileId,sorted_overlaps_tuples[0][1],sorted_overlaps_tuples[-1][1]
     ts2 = sorted_overlaps_tuples[-1][0]
