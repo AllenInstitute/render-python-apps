@@ -99,7 +99,7 @@ def fit_transforms_by_pointmatch(render,
         # if k==1:
         #     break
 
-    return tilespecs_out
+    return tilespecs_p
 
 
 class FitTransformsByPointMatch(RenderModule):
