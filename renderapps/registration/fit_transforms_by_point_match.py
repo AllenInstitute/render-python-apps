@@ -10,18 +10,17 @@ import marshmallow as mm
 example_json = {
     "render": {
         "host": "ibs-forrestc-ux1",
-        "port": 8080,
+        "port": 80,
         "owner": "Forrest",
-        "project": "M247514_Rorb_1",
+        "project": "M246930_Scnn1a_4_f1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "dst_stack": "LENS_REG_MARCH_21_DAPI_1_deconvnew",
-    "src_stack": "LENS_DAPI_3_deconvnew",
-    "output_stack": "testLENS_REG_MARCH_21_DAPI_3_deconvnew",
-    "matchcollection": "POSTLENS_M247514_Rorb_1_DAPI3_TO_DAPI1",
-    "num_local_transforms": 1,
-    "setz": True,
-    "transform_type": "rigid"
+    "dst_stack": "FA_STI_DCV_FF_Session1",
+    "src_stack": "REG_STI_DCV_FF_Session3",
+    "output_stack": "FA_REG_STI_DCV_FF_Session3",
+    "matchcollection": "M246930_Scnn1a_4_f1_DAPI3_TO_DAPI1",
+    "num_local_transforms": 0,
+    "transform_type": "affine"
 }
 
 
@@ -62,6 +61,8 @@ def fit_transforms_by_pointmatch(render,
     print src_stack,dst_stack,matchcollection,num_local_transforms
     tilespecs_p = renderapi.tilespec.get_tile_specs_from_stack(src_stack, render=render)
     tilespecs_q = renderapi.tilespec.get_tile_specs_from_stack(dst_stack, render=render)
+
+    tilespecs_out = []
     for k,tsp in enumerate(tilespecs_p):
         pid=tsp.tileId
         pgroup = tsp.layout.sectionId

@@ -456,7 +456,9 @@ def process_siteset(render,siteset, sectionset, doc, project_path,lm_dataset='te
             #    print tile['UID'],tile['@row'],tile['@col'],tile['StageX'],tile['StageY']
             # df.to_csv(sitefile,index=False,header=False)
             tilespec_path = os.path.join(project_dir,'tilespecs')
-
+            if not os.path.isdir(tilespec_path):
+                os.makedirs(tilespec_path)
+                
             json_file=os.path.join(
                 tilespec_path, 'EM_rib%04dsect%04d_%s.json' % (ribnum, sectnum, sitename))
             with open(json_file,'w') as fp:

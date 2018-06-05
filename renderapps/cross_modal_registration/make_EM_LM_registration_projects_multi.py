@@ -16,16 +16,23 @@ import marshmallow as mm
 example_json = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "port":80,
+        "owner":"Antibody_testing_2018",
+        "project":"M362218_CSATlx3_NPY",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "inputStack":"BIGREG_EM_Site4_stitched",
-    "LMstacks":["BIGREG_MARCH_21_PSD95","BIGREG_MARCH_21_MBP_deconvnew","BIGREG_MARCH_21_DAPI_1"],
-    "outputStack":"BIGREG_EM_Site4",
+    "inputStack":"Stitched_1_NPY",
+    "LMstacks":["Stitched_1_DAPI_1"],
+    "outputStack":"Test_junk",
     "renderHome":"/var/www/render",
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegMultiProjects_Site4b/"
+    "outputXMLdir":"/nas3/data/M362218_CSATlx3_NPY/processed/CouncilFigureTrackEM_projects/",
+    "minX":2270,
+    "minY":1658,
+    "minZ":405,
+    "maxZ":409,
+    "maxX":3692,
+    "maxY":3301
+
 }
 class makeEMLMRegistrationMultiProjects(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -75,32 +82,30 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
                 for ts in EMtilespecs:
                     ts.minint = 0
                     ts.maxint = 6000
-            createlayer_fromtilespecs(EMtilespecs, outfile,0,shiftx=-self.args['minX'],shifty=-self.args['minY'])
-
-
+            createlayer_fromtilespecs(EMtilespecs, outfile,0,shiftx=-self.args['minX'],shifty=-self.args['minY'],affineOnly=True)
             for i,LMstack in enumerate(LMstacks):
                 LMtilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(
                                 LMstack,
                                 z,
-                                mod.args['minX'],
-                                mod.args['maxX'],
-                                mod.args['minY'],
-                                mod.args['maxY'],
-                                render=mod.render)
+                                self.args['minX'],
+                                self.args['maxX'],
+                                self.args['minY'],
+                                self.args['maxY'],
+                                render=self.render)
                 if 'PSD' in LMstack:
                     for ts in LMtilespecs:
-                        ts.minint = 2400
-                        ts.maxint = 7000
+                        ts.minint = 1500
+                        ts.maxint = 8000
                 if 'MBP' in LMstack:
                     for ts in LMtilespecs:
                         ts.minint = 0
-                        ts.maxint = 6000
+                        ts.maxint = 10000
                 if 'DAPI' in LMstack:
                     for ts in LMtilespecs:
                         ts.minint = 0
-                        ts.maxint = 6000
+                        ts.maxint = 4000
 
-                createlayer_fromtilespecs(LMtilespecs, outfile,i+1,shiftx=-mod.args['minX'],shifty=-mod.args['minY'],affineOnly=True)
+                createlayer_fromtilespecs(LMtilespecs, outfile,i+1,shiftx=-self.args['minX'],shifty=-self.args['minY'],affineOnly=True)
             createfooters(outfile)
 
 if __name__ == "__main__":
