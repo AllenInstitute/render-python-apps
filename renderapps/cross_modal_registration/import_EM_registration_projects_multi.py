@@ -50,9 +50,9 @@ class ImportEMRegistrationMultiProjects(TrakEM2RenderModule):
 
         buffersize = self.args['buffersize']
         self.args['minX'] = self.args['minX'] - buffersize
-    	self.args['minY'] = self.args['minY'] - buffersize
-    	self.args['maxX'] = self.args['maxX'] + buffersize
-    	self.args['maxY'] = self.args['maxY'] + buffersize
+        self.args['minY'] = self.args['minY'] - buffersize
+        self.args['maxX'] = self.args['maxX'] + buffersize
+        self.args['maxY'] = self.args['maxY'] + buffersize
         #width = self.args['maxX']-self.args['minX']
         #height = self.args['maxY']-self.args['minY']
 

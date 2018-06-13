@@ -41,36 +41,50 @@ class CrossStackTilePairFile(argschema.schemas.mm.Schema):
     qstack = argschema.fields.Str(required=True)
     neighborPairs = argschema.fields.Nested(TilePair,many=True)
 
-def find_tile_pair(render,stack,ts,ref_stack):
- 
-    ts_geom = tilespec_to_bounding_box_polygon(ts)
-
-    width = ts.maxX-ts.minX
-    height = ts.maxY-ts.minY
-    minx = ts.minX
-    miny = ts.minY
-    p = {}
-    p['id']=ts.tileId
-    p['groupId']=ts.layout.sectionId
-
-    paired = render.run(renderapi.tilespec.get_tile_specs_from_box,ref_stack,ts.z,minx,miny,width,height)
+def find_principal_overlapping_tile(ts,search_ts,ts_geom=None):
+    if ts_geom is None:
+        ts_geom = tilespec_to_bounding_box_polygon(ts)
     overlap_tuples = []
-    for ts2 in paired:
+    for ts2 in search_ts:
         ts2_geom = tilespec_to_bounding_box_polygon(ts2)
         overlap = ts_geom.intersection(ts2_geom)
         frac_overlap = overlap.area/ts_geom.area
         overlap_tuples.append((ts2,frac_overlap))
     if len(overlap_tuples)==0:
-        raise RenderModuleException("tile {} in stack {} has no overlaps in stack paired={} {}".format(ts.tileId,stack,ref_stack,paired))
+        raise RenderModuleException("tile {} has no overlaps in {}".format(ts.tileId,paired))
     sorted_overlaps_tuples = sorted(overlap_tuples,key= lambda x: x[1])
     #print ts.tileId,sorted_overlaps_tuples[0][1],sorted_overlaps_tuples[-1][1]
     ts2 = sorted_overlaps_tuples[-1][0]
+    return ts2
+    
+def get_principal_overlapping_pair(ts,paired,ts_geom=None):
+    if ts_geom == None:
+        ts_geom = tilespec_to_bounding_box_polygon(ts)
+    p = {}
+    p['id']=ts.tileId
+    p['groupId']=ts.layout.sectionId
+    
+    ts2 = find_principal_overlapping_tile(ts,paired,ts_geom)
+    
     q = {}
     q['id']=ts2.tileId
     q['groupId']=ts2.layout.sectionId
     pair = {'p':p,'q':q}
     #print sorted_overlaps_tuples,ts2.tileId,ts.tileId
     return pair
+
+def find_tile_pair(render,stack,ts,ref_stack):
+ 
+    
+    ts_geom = tilespec_to_bounding_box_polygon(ts)
+    width = ts.maxX-ts.minX
+    height = ts.maxY-ts.minY
+    minx = ts.minX
+    miny = ts.minY
+
+    paired = render.run(renderapi.tilespec.get_tile_specs_from_box,ref_stack,ts.z,minx,miny,width,height)
+    
+    return get_principal_overlapping_pair(ts,paired,ts_geom=ts_geom)
 
 def create_principal_overlap_tile_pair(render,stack,ref_stack,pool_size=20,queryParameters={}):
     tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_stack ,stack)

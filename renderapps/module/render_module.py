@@ -83,6 +83,8 @@ class EMLMRegistrationMultiParameters(TEM2ProjectTransfer):
         required=False, description='maximum z (default to EM stack bounds)')
     buffersize= argschema.fields.Int(
         required=False, default=0, description='Buffer size to add')
+    LMstack_index = argschema.fields.Int(required=False, default=0,
+                                         description="index of LMstack list to create point matches between")
 
 class RenderModuleException(Exception):
     """Base Exception class for render module"""
