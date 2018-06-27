@@ -163,18 +163,11 @@ class FilterPointMatch(RenderModule):
         zdict = create_zdict(self.render,stack)
 
         #define a dictionary of polygons for each sectionId
-        #polydict = create_polydict(r,stack,polygonfolder)
-        polydict = create_polydict_coords(self.render,stack,0,4600,297056,153648)
-        #polydict = create_polydict_coords(self.render,stack,minX,minY,maxX,maxY)
+        polydict = create_polydict_coords(self.render,stack,minX,minY,maxX,maxY)
 
         #get the set of starting sectionIds for the point match database
         pgroups = self.render.run(renderapi.pointmatch.get_match_groupIds_from_only,matchcollection)
 
-        #print pgroups
-
-        #filter_matches(self.render,stack,matchcollection,targetmatchcollection,polydict,pgroups[2])
-
-        #exit(0)
         #define a partial function on filter_matches that takes in a single sectionId
         mypartial=partial(filter_matches,self.render,stack,matchcollection,targetmatchcollection,polydict)
 
