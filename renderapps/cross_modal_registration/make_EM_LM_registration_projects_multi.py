@@ -50,7 +50,7 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
 
 
 	#buffersize = 3000
-    buffersize = self.args['buffersize']
+        buffersize = self.args['buffersize']
 	self.args['minX'] = self.args['minX'] - buffersize
 	self.args['minY'] = self.args['minY'] - buffersize
 	self.args['maxX'] = self.args['maxX'] + buffersize
