@@ -4,7 +4,7 @@ numpy
 pillow
 pathos
 tifffile
-opencv-python
+opencv-python-contrib
 shapely
 rtree
 networkx
