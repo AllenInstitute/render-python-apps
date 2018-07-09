@@ -1,4 +1,4 @@
-FROM fcollman/render-python:latest
+FROM fcollman/render-modules:master
 MAINTAINER Forrest Collman (forrest.collman@gmail.com)
 RUN mkdir -p /usr/local/render-python-apps
 WORKDIR /usr/local/render-python-apps
