@@ -1,3 +1,6 @@
+if __name__ == "__main__" and __package__ is None:
+    __package__ = "renderapps.cross_modal_registration.import_LM_subset_from_EM_registration_multi"
+
 import renderapi
 from ..TrakEM2.trakem2utils import \
     createchunks, createheader, createproject, \

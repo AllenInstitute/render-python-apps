@@ -1,7 +1,6 @@
 render-python
 requests
 numpy
-pillow
 pathos
 tifffile
 opencv-python-contrib
@@ -14,3 +13,7 @@ xmltodict
 argschema>1.15.5
 boto3
 botocore
+pyxb
+pillow>=4.3.0
+scikit-image
+lxml

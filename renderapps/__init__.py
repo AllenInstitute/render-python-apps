@@ -14,9 +14,10 @@ from . import TrakEM2
 from . import transfer
 from . import wrinkle_detection
 from . import rough_align
-
+from . import synapse_detection
+from . import intensity_correction
 
 __all__ = ['cross_modal_registration', 'dataimport', 'materialize', 'pointmatch',
            'module','shapely',
            'registration', 'section_polygons', 'stack',
-           'stitching', 'tile', 'TrakEM2','transfer','wrinkle_detection','datamanagement','rough_align']
+           'stitching', 'tile', 'TrakEM2','transfer','wrinkle_detection','datamanagement','rough_align','synapse_detection','intensity_correction']

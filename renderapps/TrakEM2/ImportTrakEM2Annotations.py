@@ -18,12 +18,13 @@ example_input = {
         "project": "M247514_Rorb_1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "EMstack": "ALIGNEM_reg2",
-    "trakem2project": "/nas4/data/EM_annotation/annotationFilesForJHU/annotationTrakEMprojects_M247514_Rorb_1/m247514_Site3Annotation_RD.xml",
-    "output_annotation_file": "/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD_local.json",
-    "output_bounding_box_file": "/nas4/data/EM_annotation/annotationFilesForJHU/m247514_Site3Annotation_RD_bb_local.json",
+    "EMstack": "BIGALIGN_LENS_EMclahe_all",
+    "trakem2project": "/nas4/data/EM_annotation/M247514_Rorb_1/m247514_Site3Annotation_MN.xml",
+    "output_annotation_file": "/nas3/data/M247514_Rorb_1/annotation/m247514_Site3Annotation_MN_local.json",
+    "output_bounding_box_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Site3Annotation_MN_bb_local.json",
     "renderHome": "/pipeline/render"
 }
+
 
 
 class AnnotationConversionError(Exception):
@@ -98,8 +99,10 @@ def convert_path_to_area(path_numpy, layer_tilespecs):
             local_path_numpy[convert_point_mask_ind, :] = local_points
             point_missing[convert_point_mask_ind] = 0
             local_tileIds[convert_point_mask_ind] = rts.tileId
-
-    assert(np.sum(point_missing) == 0)
+    
+    if np.sum(point_missing)>0:
+        raise AnnotationConversionError("unable to find all points {} on the tiles given {}".format(path_numpy,[ts.tileId for poly,ts,rts in layer_tilespecs]))
+    
 
     d = {}
     d['tileIds'] = local_tileIds
@@ -134,7 +137,10 @@ def parse_area_lists(render_tilespecs, tem2_tilespecs, tem2_polygons, root, area
             for path in paths:
                 # initialize the path's polygon with the entire path
                 path_numpy = convert_path(path, tform)
-                d = convert_path_to_area(path_numpy, layer_tilespecs)
+                try:
+                    d = convert_path_to_area(path_numpy, layer_tilespecs)
+                except AnnotationConversionError as e:
+                    raise AnnotationConversionError("error in converting synapse oid:{} id:{} on layer:{}, {}".format(al.attrib['oid'],thisid,layerid,e.args))
                 area_list_d['areas'].append(d)
 
         json_output['area_lists'].append(area_list_d)
@@ -168,8 +174,13 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
             pot_render_tilespecs = self.render.run(renderapi.tilespec.get_tile_specs_from_z,
                                                    self.args['EMstack'],
                                                    ts.z)
-            filepath = (os.path.split(ts.ip.get(0)['imageUrl'])[
-                        1]).split('_flip')[0]
+            try:
+                mml=ts.ip.get(0)
+            except KeyError:
+                mml = ts.channels[0].ip.get(0)
+                
+                
+            filepath = (os.path.split(mml['imageUrl'])[1]).split('_flip')[0]
             pot_filepaths = [(os.path.split(t.ip.get(0)['imageUrl'])[1]).split(
                 '_flip')[0] for t in pot_render_tilespecs]
             render_tilespecs.append(next(t for t, fp in zip(
@@ -204,7 +215,10 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
             layer_tilespecs = [(poly, ts, t) for poly, ts, t
                                in zip(tem2_polygons, tem2_tilespecs, render_tilespecs)
                                if ts.tileId in patchids]
-            d = convert_path_to_area(corners,layer_tilespecs)
+            try:
+                d = convert_path_to_area(corners,layer_tilespecs)
+            except AnnotationConversionError as e:
+                raise AnnotationConversionError("unable to find bounding box of layer {} z={}, due to corners not being on layers with patches {} ".format(layer.attrib['oid'],layer.attrib['z'],patchids))
             area_list_d = {}
             area_list_d['oid'] = layer.attrib['oid']
             area_list_d['id'] = int(layer_tilespecs[0][2].z)

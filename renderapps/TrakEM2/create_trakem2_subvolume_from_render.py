@@ -14,23 +14,25 @@ import numpy as np
 example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
-        "owner":"KDM_SYN",
-        "project":"KDM_SYN_100430B_L5",
+        "port":80,
+        "owner":"Forrest",
+        "project":"M246930_Scnn1a_4_f1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    'minX':0,
-    'maxX':1388,
-    'minY':0,
-    'maxY':1040,
+    'minX':1938,
+    'maxX':3238,
+    'minY':5400,
+    'maxY':6700,
     'minZ':0,
-    'maxZ':48,
-    'inputStack':'Stitched_YFP_1',
-    'outputStack':'TEST',
+    'maxZ':112,
+    'inputStack':'Fine_Aligned_Deconvolved_1_DAPI_1',
+    'outputStack':'Fine_Aligned_Deconvolved_1_DAPI_1',
     "doChunk":False,
-    "outputXMLdir":"/nas4/KDM-SYN-100430B-L5_Deconv/Curated_SJS_2017/Deconvolved_and_Ultraligned/alignment_intermediates/trakem2/test",
-    "renderHome":"/pipeline/forrestrender/"
+    "outputXMLdir":"/nas/data/M246930_Scnn1a_4_f1/processed/3D_volumes/test/Ilastik_test",
+    "renderHome":"/pipeline/render/"
 }
+
+
 
 class CreateTrakEM2Project(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -83,7 +85,7 @@ class CreateTrakEM2Project(RenderModule):
                         self.args['maxY'],
                         render=self.render)
                 print "Now adding layer: %d \n %d tiles"%(layerid,len(tilespecs))
-                createlayer_fromtilespecs(tilespecs, outfile,layerid,shiftx=-self.args['minX'],shifty=-self.args['minY'])
+                createlayer_fromtilespecs(tilespecs, outfile,layerid,shiftx=-self.args['minX'],shifty=-self.args['minY'],affineOnly=True)
 
             #footers
             print outfile
