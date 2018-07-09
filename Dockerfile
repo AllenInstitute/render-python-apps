@@ -11,6 +11,11 @@ RUN apt-get update && apt-get install libspatialindex-dev -y
 RUN conda install nomkl
 COPY . /usr/local/render-python-apps
 
+WORKDIR /shared/render-modules
+RUN pip install .
+WORKDIR /usr/local/render-python-apps
+
+
 #RUN git clone https://github.com/fcollman/render-python-apps
 #WORKDIR render-python-apps
 #RUN git pull && git checkout newrender
