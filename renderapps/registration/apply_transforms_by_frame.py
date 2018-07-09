@@ -18,14 +18,14 @@ from argschema.fields import Str, Int
 example_json={
         "render":{
             "host":"ibs-forrestc-ux1",
-            "port":8080,
-            "owner":"S3_Run1",
-            "project":"S3_Run1_Jarvis",
+            "port":8988,
+            "owner":"Forrest",
+            "project":"M247514_Rorb_1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "alignedStack":"Fine_Aligned_68_to_112_DAPI_1_fullscale_final_weight_1_30",
-        "inputStack":"Rough_Aligned_68_to_112_GFP_fullscale_CONS",
-        "outputStack":"Fine_Aligned_68_to_112_GFP_fullscale_final_weight_1_30",
+        "alignedStack":"BIGALIGN_LENS_PSD95_deconvnew",
+        "inputStack":"BIGALIGN_LENS_DAPI_1_deconvnew",
+        "outputStack":"BIGALIGN_LENS_DAPI_1_deconvnew",
         "pool_size":20
     }
 
@@ -39,6 +39,12 @@ class ApplyTransformParameters(RenderParameters):
     pool_size =  Int(required=True,default=20,
         description='number of parallel threads')
 
+def get_framenumber(filepath):
+    allbreaks = os.path.split(filepath)[1].split('_')
+    intframe = int(allbreaks[len(allbreaks)-2][1:]) 
+    #return int(os.path.split(filepath)[1].split('_F')[1][0:4])
+    return intframe
+
 #define a function for a single z value
 def process_z(render,alignedStack,inputStack,outputStack, z):
 
@@ -46,8 +52,7 @@ def process_z(render,alignedStack,inputStack,outputStack, z):
     #returning the filepath to that json, and a list of the framenumbers
     def get_tilespecs_and_framenumbers(render,stack,z):
         tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
-        def get_framenumber(filepath):
-            return int(os.path.split(filepath)[1].split('_F')[1][0:4])
+
         framenumbers = [get_framenumber(ts.ip.get(0)['imageUrl']) for ts in tilespecs]
         return tilespecs,framenumbers
 

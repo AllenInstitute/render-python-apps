@@ -13,20 +13,20 @@ import json
 example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
+        "port":80,
         "owner":"Forrest",
-        "project":"M247514_Rorb_1",
-        "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
+        "project":"M246930_Scnn1a_4_f1",
+        "client_scripts":"/pipeline/allenrender/render-ws-java-client/src/main/scripts"
     },
-    "input_stack":"ALIGN_LENS_DAPI_1_deconvnew",
-    "output_stack":"BIGALIGN_LENS_DAPI_1_deconvnew",
-    "transformId":"expand_alignment",
+    "input_stack":"ROT_FA_STI_DCV_FF_Session1",
+    "output_stack":"BIG_ROT_FA_STI_DCV_FF_Session1",
+    "transformId":"rotate_and_enlarge",
     "M00":0,
-    "M10":-33.3333,
-    "M01":33.3333,
+    "M10":33.333,
+    "M01":-33.333,
     "M11":0,
-    "B0": 0,  
-    "B1": 0,
+    "B0": 304867,  
+    "B1": 8776,
     "pool_size":2
 }
 

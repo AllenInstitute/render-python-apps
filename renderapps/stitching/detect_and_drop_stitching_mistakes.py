@@ -81,7 +81,8 @@ def process_section(render,prestitchedStack, poststitchedStack, outputStack, dis
         Gpos[i]=((ts.minX+ts.maxX)/2,(ts.minY+ts.maxY)/2)
 
     #loop over edges in the graph
-    for p,q in G.edges():
+    edges = G.edges()
+    for p,q in edges.keys(): # need keys with new changes in networkx
         #p and q are now indices into the tilespecs, and labels on the graph nodes
 
         #assuming the first transform is the right one, and is only translation
@@ -107,7 +108,7 @@ def process_section(render,prestitchedStack, poststitchedStack, outputStack, dis
     #get the largest connected component of G
     Gc = max(nx.connected_component_subgraphs(G), key=len)
     #use it to pick out the good post stitch tilspecs that remain in the graph
-    ts_good_json = [post_tilespecs[node].to_dict() for node in Gc.nodes_iter()]
+    ts_good_json = [post_tilespecs[node].to_dict() for node in Gc.nodes()] #changed from nodes_iter to nodes for new networkx
     #formulate a place to save them
     jsonfilepath = os.path.join(jsonDirectory,'%s_z%04.0f.json'%(outputStack,z))
     #dump the json to that location

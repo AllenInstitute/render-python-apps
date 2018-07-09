@@ -18,16 +18,16 @@ import marshmallow as mm
 example_json = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
+        "port":8988,
         "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "project":"M246930_Scnn1a_4_f1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "inputStack":"EM_Site4_stitched_SHIFT",
-    "LMstacks":["BIGREG_MARCH_21_MBP_deconvnew"],
-    "outputStack":"BIGREG_EM_Site4_stitched",
+    "inputStack":"REG_STI_FF_S03_DAPI_3",
+    "LMstacks":["Stitched_1_DAPI_1"],
+    "outputStack":"REG01_STI_FF_S03_DAPI_3",
     "renderHome":"/var/www/render",
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegProjects_Site4/"
+    "outputXMLdir":"/nas/data/M246930_Scnn1a_4_f1/processed/tilepairfiles/TrackEM_projects/"
 }
 class ImportEMRegistrationMultiProjects(TrakEM2RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -47,14 +47,27 @@ class ImportEMRegistrationMultiProjects(TrakEM2RenderModule):
         EMz = renderapi.stack.get_z_values_for_stack(self.args['inputStack'],render=self.render)
 
         tilespecsfiles = []
-        shiftTransform = AffineModel(B0=self.args['minX'],B1=self.args['minY'])
+
+        buffersize = self.args['buffersize']
+        self.args['minX'] = self.args['minX'] - buffersize
+        self.args['minY'] = self.args['minY'] - buffersize
+        self.args['maxX'] = self.args['maxX'] + buffersize
+        self.args['maxY'] = self.args['maxY'] + buffersize
+        #width = self.args['maxX']-self.args['minX']
+        #height = self.args['maxY']-self.args['minY']
+
+        print("This is buffersize: %d "%buffersize)
+
+        shiftTransform = AffineModel(B0=self.args['minX'] ,B1=self.args['minY'] )
+
+
 
         for z in EMz:
             infile = os.path.join(xmlDir,'%05d.xml'%z)
             outfile = os.path.join(xmlDir,'%05d.json'%z)
             newoutfile = os.path.join(xmlDir,'%05d-new.json'%z)
             self.convert_trakem2_project(infile,xmlDir,outfile)
-         
+
             newtilejson = json.load(open(outfile,'r'))
             newEMtilespecs = [TileSpec(json=tsj) for tsj in newtilejson]
             EMtilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(

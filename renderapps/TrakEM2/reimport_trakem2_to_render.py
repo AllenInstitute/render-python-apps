@@ -17,23 +17,24 @@ import marshmallow as mm
 example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
-        "owner":"KDM_SYN",
-        "project":"KDM_SYN_100430B_L5",
+        "port":80,
+        "owner":"Forrest",
+        "project":"M246930_Scnn1a_4_f1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    'minX':0,
-    'maxX':1417,
-    'minY':0,
-    'maxY':2017,
-    'minZ':0,
-    'maxZ':48,
-    'inputStack':'Stitched_YFP_1',
-    'outputStack':'TrakEM2_Aligned_YFP_1_TEST',
+    'minX':1565,
+    'maxX':3277,
+    'minY':9450,
+    'maxY':11198,
+    'minZ':20,
+    'maxZ':20,
+    'inputStack':'Registered_3_DAPI_3_CCtest',
+    'outputStack':'Registered_3_DAPI_3_CCtest',
     "doChunk":False,
-    "outputXMLdir":"/nas4/KDM-SYN-100430B-L5_Deconv/Curated_SJS_2017/Deconvolved_and_Ultraligned/alignment_intermediates/trakem2/test/",
-    "renderHome":"/pipeline/forrestrender/"
+    "outputXMLdir":"/nas/data/M246930_Scnn1a_4_f1/processed/registration_fix_20",
+    "renderHome":"/pipeline/render/"
 }
+
 
 class ReImportTrakEM2ToRender(TrakEM2RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
