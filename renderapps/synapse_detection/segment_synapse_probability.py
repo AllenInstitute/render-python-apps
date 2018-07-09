@@ -93,7 +93,7 @@ example_parameters= {
 #     "segment_tiff":"/nas3/data/M247514_Rorb_1/processed/Site3AlignStacks/glut_synapses14b_labels.tiff"
 # }
 class SegmentSynapsesParameters(RenderParameters):
-    scale = argschema.fields.Float(default=.03,description="renderScale to save")
+    scale = argschema.fields.Float(default=.03125,description="renderScale to save")
     stack_for_bounds = argschema.fields.Str(required=True,description="stack to get bounds from")
     syn_probability_file = argschema.fields.InputFile(required=True, description="path to probability map")
     output_file = argschema.fields.OutputFile(required=True,description="path to save segmentation results")
