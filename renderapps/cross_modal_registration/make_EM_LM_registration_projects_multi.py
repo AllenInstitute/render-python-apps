@@ -12,16 +12,20 @@ import marshmallow as mm
 example_json = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
-        "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "port":80,
+        "owner":"Kristina",
+        "project":"M4865_L4a",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "inputStack":"BIGREG_EM_Site4_stitched",
-    "LMstacks":["BIGREG_MARCH_21_PSD95","BIGREG_MARCH_21_MBP_deconvnew","BIGREG_MARCH_21_DAPI_1"],
+    "inputStack":"ACQ_MBP",
+    "LMstacks":["ACQ_DAPI_1","ACQ_GABA","ACQ_Gephyrin"],
     "outputStack":"BIGREG_EM_Site4",
-    "renderHome":"/var/www/render",
-    "outputXMLdir":"/nas3/data/M247514_Rorb_1/processed/EMLMRegMultiProjects_Site4b/"
+    "renderHome":"/pipeline/render",
+    "outputXMLdir":"/nas5/KristinaM_Gephyrin_SEM_data/KDM-SYN-180517/M4865_L4a_RegistrationProjects",
+    "minX":6349, 
+    "maxX":17052,
+    "minY":8774, 
+    "maxY":21607,
 }
 class makeEMLMRegistrationMultiProjects(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -61,7 +65,7 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
                 for ts in EMtilespecs:
                     ts.minint = 0
                     ts.maxint = 6000
-            createlayer_fromtilespecs(EMtilespecs, outfile,0,shiftx=-self.args['minX'],shifty=-self.args['minY'])
+            createlayer_fromtilespecs(EMtilespecs, outfile,0,shiftx=-self.args['minX'],shifty=-self.args['minY'],affineOnly=True)
             for i,LMstack in enumerate(LMstacks):
                 LMtilespecs = renderapi.tilespec.get_tile_specs_from_minmax_box(
                                 LMstack,
