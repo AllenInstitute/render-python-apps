@@ -17,8 +17,7 @@ import json
 ############## this is modified from notebook: http://ibs-forrestc-ux1:8888/notebooks/MakeSynaptogramsFromAnnotations.ipynb #####
 
 
-example_parameters = 
-{
+example_parameters = {
     "render":{
         "host": "ibs-forrestc-ux1",
         "port": 80,
@@ -27,51 +26,27 @@ example_parameters =
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
     
-    "global_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Take2Site4Annotation_MN_Take2Site4global.json",
-    "annotation_metadata_json":"/nas3/data/M247514_Rorb_1/annotation/junk3.json",
-    "fig_directory":"/nas3/data/M247514_Rorb_1/processed/Take2Site4Missing",
-    "synapses_to_make":['1126',
-                        '1276',
-                        '1302',
-                        '1352',
-                        '1380',
-                        '1386',
-                        '1490',
-                        '1510',
-                        '1554',
-                        '2693',
-                        '2695',
-                        '2697',
-                        '2699',
-                        '2701',
-                        '2703',
-                        '2705',
-                        '2707'],   
+    "global_annotation_file":"/nas/data/M246930_Scnn1a_4_f1/annotation/m246930_site5_annotation_MN_adjustZ_bb_Take2Site5_EMA_global.json",
+    "annotation_metadata_json":"/nas/data/M246930_Scnn1a_4_f1/SEMdata/processed/Synaptograms/annotationMetadata/m246930_Take2Site5_synaptogram_metadata.json",
+    "fig_directory":"/nas/data/M246930_Scnn1a_4_f1/SEMdata/processed/Synaptograms/Take2Site5_TdTeSyn",
+    "synapses_to_make":['1226','1326','1416','2171','2299','668','2707','2709','2711'],   
     "channel_stacks":[
                      {
-                            "stack":"Take2Site4Align_EMclahe"
+ 
+                            "stack":"EMSite5_take2_EMA"
                         },
                         {
-                            "stack":"Take2Site4Align_EMclahe"
+
+                            "stack":"EMSite5_take2_EMA"
                         },
                         {
                             "channel":"TdTomato",
-                            "stack":"Take2Site4Align_Session2",
-                            "maxIntensity":25000
-                        },
-                        {
-                            "channel":"PSD95",
-                            "stack":"Take2Site4Align_Session1",
+                            "stack":"Take2Site5_EMA_STI_DCV_FF_allSession_2",
                             "maxIntensity":10000
                         },
                         {
-                            "channel":"GABA",
-                            "stack":"Take2Site4Align_Session3",
-                            "maxIntensity":5000
-                        },
-                        {
                             "channel":"synapsin",
-                            "stack":"Take2Site4Align_Session3",
+                            "stack":"Take2Site5_manReg_EMA_STI_DCV_FF_allSession_3",
                             "maxIntensity":16000
                         }
                     ]
@@ -104,14 +79,13 @@ class MakeAnnotationSynaptogramParameters(RenderParameters):
 
     
     
-    def load_annotation_file(annotation_path):
+def load_annotation_file(annotation_path):
     with open(annotation_path,'r') as fp:
             annotation_d = json.load(fp)
     schema = AnnotationFile()
     annotations,errors = schema.load(annotation_d)        
     assert(len(errors)==0)
     return annotations
-
 
 def make_synaptogram(render,channel_stacks,savedir,al,border=400/3,borderz=2):
     oid = al['oid']
@@ -162,7 +136,8 @@ def make_synaptogram(render,channel_stacks,savedir,al,border=400/3,borderz=2):
     plt.rcParams['axes.facecolor'] = 'black'
     f,ax=plt.subplots(Nc,Nz,
                       figsize=(fig_width,int(fig_width*ratio)),
-                      gridspec_kw = {'wspace':0, 'hspace':0})
+                      gridspec_kw = {'wspace':0, 'hspace':0},
+                     facecolor='black')
     plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
     for c,chstack in enumerate(channel_stacks):
         for zi,z in enumerate(zvals):
@@ -188,11 +163,11 @@ def make_synaptogram(render,channel_stacks,savedir,al,border=400/3,borderz=2):
         zi = int(area['z']-minZ)
         for c in range(1,len(channel_stacks)):
             a = ax[c,zi]
-            a.plot(area['global_path'][:,0],area['global_path'][:,1],c='g',linewidth=3)
+            a.plot(area['global_path'][:,0],area['global_path'][:,1],c='Teal',linewidth=2)
     for c,chstack in enumerate(channel_stacks):
         chname = chstack.get('channel',chstack['stack'])
         
-        ax[c,0].text(minX,minY,chname,fontdict={'color':'w','weight':'bold'},fontsize=16)
+        ax[c,0].text(minX,minY,chname[0:4],fontdict={'color':'SLATEGRAY','weight':'bold'},fontsize=14)
     #f.tight_layout(True)
     fname = os.path.join(savedir,'{}.png'.format(oid))
     f.savefig(fname)
@@ -201,6 +176,7 @@ def make_synaptogram(render,channel_stacks,savedir,al,border=400/3,borderz=2):
     plt.close()
     del(f)
     return d
+
 
 class MakeAnnotationSynaptograms(RenderModule):
     default_schema = MakeAnnotationSynaptogramParameters

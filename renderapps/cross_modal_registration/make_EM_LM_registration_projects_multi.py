@@ -16,16 +16,23 @@ import marshmallow as mm
 example_json = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
-        "owner":"Forrest",
-        "project":"M246930_Scnn1a_4_f1",
+        "port":80,
+        "owner":"Antibody_testing_2018",
+        "project":"M362218_CSATlx3_NPY",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "inputStack":"BIGEMSite2_take2Montage_fix",
-    "LMstacks":["BIGStitched_deconv_1_PSD95_dropped","BIGStitched_deconv_1_DAPI_1_dropped","BIGRegistered_Deconvolved_3_MBP"],
-    "outputStack":"BIGREG_EM_Site2",
+    "inputStack":"Stitched_1_NPY",
+    "LMstacks":["Stitched_1_DAPI_1"],
+    "outputStack":"Test_junk",
     "renderHome":"/var/www/render",
-    "outputXMLdir":"/nas/data/M246930_Scnn1a_4_f1/SEMdata/TrakEM_REG_Site2"
+    "outputXMLdir":"/nas3/data/M362218_CSATlx3_NPY/processed/CouncilFigureTrackEM_projects/",
+    "minX":2270,
+    "minY":1658,
+    "minZ":405,
+    "maxZ":409,
+    "maxX":3692,
+    "maxY":3301
+
 }
 class makeEMLMRegistrationMultiProjects(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -43,7 +50,7 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
 
 
 	#buffersize = 3000
-    buffersize = self.args['buffersize']
+        buffersize = self.args['buffersize']
 	self.args['minX'] = self.args['minX'] - buffersize
 	self.args['minY'] = self.args['minY'] - buffersize
 	self.args['maxX'] = self.args['maxX'] + buffersize
@@ -87,8 +94,8 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
                                 render=self.render)
                 if 'PSD' in LMstack:
                     for ts in LMtilespecs:
-                        ts.minint = 0
-                        ts.maxint = 1500
+                        ts.minint = 1500
+                        ts.maxint = 8000
                 if 'MBP' in LMstack:
                     for ts in LMtilespecs:
                         ts.minint = 0
@@ -96,7 +103,7 @@ class makeEMLMRegistrationMultiProjects(RenderModule):
                 if 'DAPI' in LMstack:
                     for ts in LMtilespecs:
                         ts.minint = 0
-                        ts.maxint = 6000
+                        ts.maxint = 4000
 
                 createlayer_fromtilespecs(LMtilespecs, outfile,i+1,shiftx=-self.args['minX'],shifty=-self.args['minY'],affineOnly=True)
             createfooters(outfile)

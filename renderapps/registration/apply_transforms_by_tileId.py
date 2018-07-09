@@ -16,14 +16,14 @@ import numpy as np
 example_json={
         "render":{
             "host":"ibs-forrestc-ux1",
-            "port":8080,
+            "port":80,
             "owner":"Forrest",
-            "project":"M247514_Rorb_1",
+            "project":"M246930_Scnn1a_4_f1",
             "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
         },
-        "alignedStack":"Site3Align2_EM",
-        "inputStack":"Site3Align_EM_clahe_mm",
-        "outputStack":"Site3Align2_EM_clahe_mm",
+        "alignedStack":"Fine_Aligned_Deconvolved_1_DAPI_1_filtered",
+        "inputStack":"REG_STI_DCV_FF_Session1",
+        "outputStack":"FA_STI_DCV_FF_Session1",
         "pool_size":20
     }
 
@@ -37,14 +37,11 @@ class ApplyTransformParameters(RenderParameters):
     pool_size =  Int(required=True,default=20,
         description='number of parallel threads')
 
-#define a function for a single z value
-def process_z(render,alignedStack,inputStack,outputStack, z):
-
-
+def process_tilespecs(aligned_tilespecs,input_tilespecs):
 
     #use the function to make jsons for aligned and input stacks
-    aligned_tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,alignedStack,z)
-    input_tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,inputStack,z)
+    #aligned_tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,alignedStack,z)
+    #input_tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,inputStack,z)
     
     #keep a list of tilespecs to output
     output_tilespecs = []
@@ -59,13 +56,12 @@ def process_z(render,alignedStack,inputStack,outputStack, z):
             al_ts = al_ts[0]
             #modify its transforms to be the corresponding aligned transforms
             ts.tforms = al_ts.tforms
+            #modify the z values to get the new z value
+            ts.z = al_ts.z
             #add it to the list of output tilespecs
             output_tilespecs.append(ts)
 
-    output_json_filepath = tempfile.mktemp(suffix='.json')
-    with open(output_json_filepath,'w') as fp:
-        renderapi.utils.renderdump(output_tilespecs,fp)
-    return output_json_filepath
+    return output_tilespecs
 
 class ApplyTransforms(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -74,23 +70,30 @@ class ApplyTransforms(RenderModule):
         super(ApplyTransforms,self).__init__(schema_type=schema_type,*args,**kwargs)
     def run(self):
         self.logger.debug(self.args)
-
+        
+        aligned_tilespecs =renderapi.tilespec.get_tile_specs_from_stack(self.args['alignedStack'],render=self.render)
+        input_tilespecs = renderapi.tilespec.get_tile_specs_from_stack(self.args['inputStack'],render=self.render)
+        output_tilespecs = process_tilespecs(aligned_tilespecs,input_tilespecs)
+        
+        #OLD CODE WAS RUN BY MATCHING Z VALUES... NEW CODE WORKS GLOBALLY.. WILL BREAK FOR LARGE STACKS.
         #STEP 2: get z values that exist in aligned stack
-        zvalues=self.render.run(renderapi.stack.get_z_values_for_stack,self.args['alignedStack'])
-        zvalues_input = self.render.run(renderapi.stack.get_z_values_for_stack,self.args['inputStack'])
-        zvalues = np.intersect1d(np.array(zvalues),np.array(zvalues_input))
-
+        #zvalues=self.render.run(renderapi.stack.get_z_values_for_stack,self.args['alignedStack'])
+        #zvalues_input = self.render.run(renderapi.stack.get_z_values_for_stack,self.args['inputStack'])
+        #zvalues = np.intersect1d(np.array(zvalues),np.array(zvalues_input))
         #STEP 3: go through z in a parralel way
         # at each z, call render to produce json files to pass into the stitching jar
         # run the stitching jar to produce a new json for that z
         #call the creation of this in a parallel way
-        mypartial = partial(process_z,self.render,self.args['alignedStack'],self.args['inputStack'],self.args['outputStack'])
-        with renderapi.client.WithPool(self.args['pool_size']) as pool:
-            jsonFilePaths = pool.map(mypartial,zvalues)
+        #mypartial = partial(process_z,self.render,self.args['alignedStack'],self.args['inputStack'],self.args['outputStack'])
+        #with renderapi.client.WithPool(self.args['pool_size']) as pool:
+        #    jsonFilePaths = pool.map(mypartial,zvalues)
 
         #upload the resulting stack to render
         self.render.run(renderapi.stack.create_stack,self.args['outputStack'])
-        self.render.run(renderapi.client.import_jsonfiles_parallel,self.args['outputStack'], jsonFilePaths)
+        self.render.run(renderapi.client.import_tilespecs_parallel,
+                        self.args['outputStack'],
+                        output_tilespecs,
+                        pool_size=self.args['pool_size'])
         self.render.run(renderapi.stack.set_stack_state,self.args['outputStack'],state='COMPLETE')
 if __name__ == "__main__":
     mod = ApplyTransforms(input_data = example_json)

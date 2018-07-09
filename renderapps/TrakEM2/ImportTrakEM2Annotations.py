@@ -174,13 +174,14 @@ class ImportTrakEM2Annotations(TrakEM2RenderModule):
             pot_render_tilespecs = self.render.run(renderapi.tilespec.get_tile_specs_from_z,
                                                    self.args['EMstack'],
                                                    ts.z)
-            mml=ts.ip.get(0,None)
-            if mml is None:
-                mml = ts.channels[0].ip[0]
+            try:
+                mml=ts.ip.get(0)
+            except KeyError:
+                mml = ts.channels[0].ip.get(0)
                 
                 
-            filepath = (os.path.split(mml.imageUrl)[1]).split('_flip')[0]
-            pot_filepaths = [(os.path.split(t.ip[0].imageUrl)[1]).split(
+            filepath = (os.path.split(mml['imageUrl'])[1]).split('_flip')[0]
+            pot_filepaths = [(os.path.split(t.ip.get(0)['imageUrl'])[1]).split(
                 '_flip')[0] for t in pot_render_tilespecs]
             render_tilespecs.append(next(t for t, fp in zip(
                 pot_render_tilespecs, pot_filepaths) if fp == filepath))

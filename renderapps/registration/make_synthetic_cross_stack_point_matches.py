@@ -11,14 +11,14 @@ import json
 example_json = {
     "render": {
         "host": "ibs-forrestc-ux1",
-        "port": 8080,
+        "port": 8988,
         "owner": "Forrest",
-        "project": "M247514_Rorb_1",
+        "project": "M246930_Scnn1a_4_f1",
         "client_scripts": "/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "tile_pair_file": "/nas3/data/M247514_Rorb_1/processed/tilepairfiles/LENS_DAPI1_DAPI2_tilepairs.json",
-    "matchcollection": "M247514_Rorb_1_DAPI2_TO_DAPI1_v2",
-    "local_transforms": 1
+    "tile_pair_file": "/nas/data/M246930_Scnn1a_4_f1/processed/tilepairfiles/REG_DAPI1_DAPI2_tilepairs.json",
+    "matchcollection": "M246930_Scnn1a_4_f1_DAPI2_TO_DAPI1",
+    "local_transforms": 0
 }
 
 
@@ -41,6 +41,35 @@ def define_local_grid(ts, num_points):
     xy = np.vstack([xx.ravel(), yy.ravel()]).T
     return xy
 
+def define_synthetic_point_matches(tsp,tsq,grid_size=8,local_transforms=0):
+    src_points = define_local_grid(tsp,grid_size)
+    src_points_global = renderapi.transform.estimate_dstpts(tsp.tforms,src_points)
+
+    if local_transforms>0:
+        src_points = renderapi.transform.estimate_dstpts(tsp.tforms[0:local_transforms],
+                                                                    src_points)
+    dst_points = src_points_global
+    for tform in reversed(tsq.tforms[local_transforms:]):
+        dst_points = tform.inverse_tform(dst_points)
+    good_xmin=dst_points[:,0]>0
+    good_ymin=dst_points[:,1]>0
+    good_xmax=dst_points[:,0]<tsq.width
+    good_ymax=dst_points[:,1]<tsq.height
+
+    all_good =(good_xmin)&(good_ymin)&(good_xmax)&(good_ymax)
+    dst_points = dst_points[all_good,:]
+    src_points = src_points[all_good,:]
+    match = {}
+    match['pId']=tsp.tileId
+    match['qId']=tsq.tileId
+    match['pGroupId']=tsp.layout.sectionId
+    match['qGroupId']=tsq.layout.sectionId
+    match['matches']={
+        'p':src_points.T.tolist(),
+        'q':dst_points.T.tolist(),
+        'w':np.ones(len(src_points)).tolist()
+    }
+    return match
 
 def make_synthetic_cross_stack_point_matches(render,
                                              p_stack,
@@ -53,34 +82,35 @@ def make_synthetic_cross_stack_point_matches(render,
     for pair in pairs:
         tsp = renderapi.tilespec.get_tile_spec(p_stack, pair['p']['id'], render=render)
         tsq = renderapi.tilespec.get_tile_spec(q_stack, pair['q']['id'], render=render)
-        src_points = define_local_grid(tsp,grid_size)
-        src_points_global = renderapi.transform.estimate_dstpts(tsp.tforms,src_points)
+        match = define_synthetic_point_matches(tsp,tsq,grid_size,local_transforms)
+#         src_points = define_local_grid(tsp,grid_size)
+#         src_points_global = renderapi.transform.estimate_dstpts(tsp.tforms,src_points)
 
-        if local_transforms>0:
-            src_points = renderapi.transform.estimate_dstpts(tsp.tforms[0:local_transforms],
-                                                                        src_points)
-        dst_points = src_points_global
-        for tform in reversed(tsq.tforms[local_transforms:]):
-            dst_points = tform.inverse_tform(dst_points)
-        good_xmin=dst_points[:,0]>0
-        good_ymin=dst_points[:,1]>0
-        good_xmax=dst_points[:,0]<tsq.width
-        good_ymax=dst_points[:,1]<tsq.height
+#         if local_transforms>0:
+#             src_points = renderapi.transform.estimate_dstpts(tsp.tforms[0:local_transforms],
+#                                                                         src_points)
+#         dst_points = src_points_global
+#         for tform in reversed(tsq.tforms[local_transforms:]):
+#             dst_points = tform.inverse_tform(dst_points)
+#         good_xmin=dst_points[:,0]>0
+#         good_ymin=dst_points[:,1]>0
+#         good_xmax=dst_points[:,0]<tsq.width
+#         good_ymax=dst_points[:,1]<tsq.height
 
-        all_good =(good_xmin)&(good_ymin)&(good_xmax)&(good_ymax)
-        dst_points = dst_points[all_good,:]
-        src_points = src_points[all_good,:]
+#         all_good =(good_xmin)&(good_ymin)&(good_xmax)&(good_ymax)
+#         dst_points = dst_points[all_good,:]
+#         src_points = src_points[all_good,:]
 
-        match = {}
-        match['pId']=pair['p']['id']
-        match['qId']=pair['q']['id']
-        match['pGroupId']=pair['p']['groupId']
-        match['qGroupId']=pair['q']['groupId']
-        match['matches']={
-            'p':src_points.T.tolist(),
-            'q':dst_points.T.tolist(),
-            'w':np.ones(len(src_points)).tolist()
-        }
+#         match = {}
+#         match['pId']=pair['p']['id']
+#         match['qId']=pair['q']['id']
+#         match['pGroupId']=pair['p']['groupId']
+#         match['qGroupId']=pair['q']['groupId']
+#         match['matches']={
+#             'p':src_points.T.tolist(),
+#             'q':dst_points.T.tolist(),
+#             'w':np.ones(len(src_points)).tolist()
+#         }
         
         render.run(renderapi.pointmatch.import_matches,matchcollection,[match])
 
