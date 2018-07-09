@@ -3,7 +3,7 @@ requests
 numpy
 pathos
 tifffile
-opencv-python-contrib
+opencv-contrib-python
 shapely
 rtree
 networkx
