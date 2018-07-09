@@ -7,7 +7,7 @@ RUN pip install -r requirements.txt
 RUN pip install setuptools --upgrade --disable-pip-version-check
 RUN pip install argschema --upgrade --disable-pip-version-check
 RUN pip install jupyter
-RUN apt-get install libspatialindex-dev -y
+RUN apt-get update && apt-get install libspatialindex-dev -y
 RUN conda install nomkl
 COPY . /usr/local/render-python-apps
 
