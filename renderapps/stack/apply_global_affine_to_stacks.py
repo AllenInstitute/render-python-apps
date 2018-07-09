@@ -14,20 +14,20 @@ import json
 example_parameters = {
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
+        "port":80,
         "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "project":"M246930_Scnn1a_4_f1",
         "client_scripts":"/var/www/render/render-ws-java-client/src/main/scripts"
     },
-    "input_stacks":["LENS_REG_MARCH_21_DAPI_3_deconvnew","jhgjhg"],
-    "output_prefix":"BIG",
+    "input_stacks":["ROT_FA_STI_DCV_FF_Session1","ROT_FA_STI_DCV_FF_Session2","ROT_FA_STI_DCV_FF_Session3"],
+    "output_prefix":"BIG_",
     "transformId":"expand_lm_to_em_and_rotate",
-    "M00":33.333,
-    "M10":0.0,
-    "M01":0.0,
-    "M11":33.333,
-    "B0": 0,  
-    "B1": 0,
+    "M00":0,
+    "M10":33.333,
+    "M01":-33.333,
+    "M11":0,
+    "B0": 304867,  
+    "B1": 8776,
     "pool_size":2
 }
 
@@ -54,7 +54,8 @@ class ApplyAffineMultiple(RenderModule):
 
             del params['input_stacks']
             del params['output_prefix']
-            del params['input_json']
+            if 'input_json' in params.keys():
+                del params['input_json']
             print params['input_stack']
             mod=ApplyAffine(input_data = params,args=[])
             mod.run()

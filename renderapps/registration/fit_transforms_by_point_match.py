@@ -46,7 +46,9 @@ class FitTransformsByPointMatchParameters(RenderParameters):
                          description = "type of transformation to fit")
     pool_size = Int(required=False, default=20,
                     description= 'degree of parallelism (default 20)')
-   
+    setz = Boolean(required=False, default = True,
+                   description="whether to change z's to the destination stack")
+    
 logger = logging.getLogger(__name__)
 
 def fit_transforms_by_pointmatch(render,
@@ -54,6 +56,7 @@ def fit_transforms_by_pointmatch(render,
                                  dst_stack,
                                  matchcollection,
                                  num_local_transforms,
+                                 setz,
                                  Transform):
     print src_stack,dst_stack,matchcollection,num_local_transforms
     tilespecs_p = renderapi.tilespec.get_tile_specs_from_stack(src_stack, render=render)
@@ -93,7 +96,10 @@ def fit_transforms_by_pointmatch(render,
                 final_tform = Transform()
                 final_tform.estimate(p_pts,dst_pts)
                 tsp.tforms=tsp.tforms[0:num_local_transforms]+[final_tform]
+                if setz == True:
+                    tsp.z = tsq.z
                 tilespecs_out.append(tsp)
+
         except IndexError as e:
             pass
         except StopIteration as e:
@@ -107,6 +113,7 @@ def fit_transforms_by_pointmatch(render,
         # print p_pts_global
         # if k==1:
         #     break
+        
 
     return tilespecs_out
 
@@ -130,17 +137,19 @@ class FitTransformsByPointMatch(RenderModule):
                                      self.args['dst_stack'],
                                      self.args['matchcollection'],
                                      self.args['num_local_transforms'],
+                                     self.args['setz'],
                                      Transform)
 
         outstack = self.args['output_stack']
 
         self.render.run(renderapi.stack.delete_stack, outstack)
         self.render.run(renderapi.stack.create_stack, outstack)
-
+        sv=self.render.run(renderapi.stack.get_stack_metadata, self.args['dst_stack'])
+        
         renderapi.client.import_tilespecs_parallel(outstack,tilespecs,
                                                     render=self.render,
                                                     close_stack=True)
-        
+        self.render.run(renderapi.stack.set_stack_metadata,outstack, sv)
         self.render.run(renderapi.stack.set_stack_state,
                         outstack, state='COMPLETE')
     

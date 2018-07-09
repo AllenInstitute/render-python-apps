@@ -53,7 +53,7 @@ def process_z(render,alignedStack,inputStack,outputStack, z):
     def get_tilespecs_and_framenumbers(render,stack,z):
         tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,stack,z)
 
-        framenumbers = [get_framenumber(ts.ip[0].imageUrl) for ts in tilespecs]
+        framenumbers = [get_framenumber(ts.ip.get(0)['imageUrl']) for ts in tilespecs]
         return tilespecs,framenumbers
 
     #use the function to make jsons for aligned and input stacks

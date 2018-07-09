@@ -12,14 +12,14 @@ import numpy as np
 example_input={
     "render":{
         "host":"ibs-forrestc-ux1",
-        "port":8080,
+        "port":80,
         "owner":"Forrest",
-        "project":"M247514_Rorb_1",
+        "project":"M246930_Scnn1a_4_f1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    "stack":"Take2Site4Align_EMclahe",
-    "input_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Take2Site4Annotation_MN_bb_local.json",
-   "output_annotation_file":"/nas3/data/M247514_Rorb_1/annotation/m247514_Take2Site4Annotation_MN_bb_Take2Site4Align_EMclahe_global.json"
+    "stack":"EMSite5_take2_EMA",
+    "input_annotation_file":"/nas3/data/M246930_Scnn1a_4_f1/annotation/m246930_site5_annotation_MN_adjustZ_bb_local.json",
+    "output_annotation_file":"/nas3/data/M246930_Scnn1a_4_f1/annotation/m246930_site5_annotation_MN_adjustZ_bb_EMSite5_take2_EMA_global.json"
 }
 
 

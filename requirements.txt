@@ -1,7 +1,6 @@
 render-python
 requests
 numpy
-pillow
 pathos
 tifffile
 opencv-python
@@ -13,4 +12,6 @@ matplotlib
 xmltodict
 argschema>1.15.5
 pyxb
-
+pillow>=4.3.0
+scikit-image
+lxml
