@@ -1,7 +1,7 @@
 import os
 from create_mipmaps import create_mipmaps
 import renderapi
-from renderapi.tilespec import MipMapLevel
+from renderapi.image_pyramid import MipMapLevel
 from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 from argschema.fields import Str, Boolean, Int
