@@ -1,18 +1,26 @@
 import os
 import renderapi
-from renderapi.tilespec import TileSpec, Layout, MipMapLevel
+from renderapi.tilespec import TileSpec, Layout
+from renderapi.image_pyramid import MipMap, ImagePyramid
 from renderapi.transform import AffineModel
-from create_mipmaps import create_mipmaps
+from renderapps.dataimport.create_mipmaps import create_mipmaps
 my_env = os.environ.copy()
 from ..module.render_module import RenderModule, RenderParameters
 from argschema.fields import InputFile, InputDir, Str, Int, Boolean
 import pandas as pd
 
 example_input={
-    #"statetableFile" : "/nas/data/M246930_Scnn1a_4_f1//scripts/statetable_ribbon_0_session_0_section_3",
-    #"projectDirectory" : "/nas/data/M246930_Scnn1a_4_f1/",
-    #"outputStackPrefix" : "Acquisition",
-    #"pool_size" : 20,
+    'render':{
+        'host':'10.128.24.33',
+        'port':80,
+        'owner':'Forrest',
+        'project':'M246930_Scnn1a_4_f1',
+        'client_scripts':'/shared/render/render-ws-java-client/src/main/scripts'
+    },
+    "statetableFile" : "/nas/data/M246930_Scnn1a_4_f1/scripts/statetable_ribbon_0_session_0_section_3",
+    "projectDirectory" : "/nas/data/M246930_Scnn1a_4_f1/",
+    "outputStackPrefix" : "TESTAcquisition",
+    "pool_size" : 20,
     "delete_stack" : False
 }
 
@@ -43,7 +51,7 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputSt
     mipmap_args = []
     tilespecpaths = []
     for ((ch,sess),chgroup) in df.groupby(['ch_name','session']):
-        print ch,sess
+        print(ch,sess)
 
         for ((rib,sect),group) in chgroup.groupby(['ribbon','section']):
             tilespeclist=[]
@@ -75,13 +83,14 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputSt
                                                 rotation = 0.0,
                                                 pixelsize = row.scale_x)
 
-                mipmap0 = MipMapLevel(level=0,imageUrl=row.full_path)
-                mipmaplevels=[mipmap0]
+                mipmap0 = MipMap(imageUrl=row.full_path)
+                image_pyramid = ImagePyramid()
+                image_pyramid[0] = mipmap0
                 filename = "%s_S%04d_F%04d_Z%02d.tif"%(row.ch_name,row.section,row.frame,0)
                 for i in range(1,4):
                     scUrl = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip0%d.jpg'%i)
-                    mml = MipMapLevel(level=i,imageUrl=scUrl)
-                    mipmaplevels.append(mml)
+                    mml = MipMap(imageUrl=scUrl)
+                    image_pyramid[i]=mml
 
                 tform = AffineModel(M00=row.a00,
                                          M01=row.a01,
@@ -95,7 +104,7 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputSt
                                      z=row.z,
                                      width=row.width,
                                      height=row.height,
-                                     mipMapLevels=mipmaplevels,
+                                     imagePyramid=image_pyramid,
                                      tforms=[tform],
                                      minint=minval,
                                      maxint=maxval,
@@ -127,8 +136,8 @@ class CreateFastStack(RenderModule):
         statetablefile = self.args['statetableFile']
         rootdir = self.args['projectDirectory']
 
-        print "This is delete stack : "
-        print self.args['delete_stack']
+        print("This is delete stack : ")
+        print(self.args['delete_stack'])
         #exit(0)
         df = pd.read_csv(statetablefile)
         ribbons = df.groupby('ribbon')
