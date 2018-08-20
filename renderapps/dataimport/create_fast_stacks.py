@@ -1,3 +1,7 @@
+ # Filter Cython warnings (See: https://stackoverflow.com/questions/40845304/runtimewarning-numpy-dtype-size-changed-may-indicate-binary-incompatibility )
+import warnings
+warnings.filterwarnings("ignore", message="numpy.dtype size changed")
+warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 import os
 import renderapi
 from renderapi.tilespec import TileSpec, Layout
@@ -11,14 +15,14 @@ import pandas as pd
 
 example_input={
     'render':{
-        'host':'10.128.24.33',
+        'host':'10.128.26.56',
         'port':80,
-        'owner':'Forrest',
-        'project':'M246930_Scnn1a_4_f1',
+        'owner':'Testing',
+        'project':'Test',
         'client_scripts':'/shared/render/render-ws-java-client/src/main/scripts'
     },
-    "statetableFile" : "/nas/data/M246930_Scnn1a_4_f1/scripts/statetable_ribbon_0_session_0_section_3",
-    "projectDirectory" : "/nas/data/M246930_Scnn1a_4_f1/",
+    "statetableFile" : "/nas/data/M33/scripts/statetable_ribbon_4_session_1_section_2",
+    "projectDirectory" : "/nas/data/M33/",
     "outputStackPrefix" : "TESTAcquisition",
     "pool_size" : 20,
     "delete_stack" : False
