@@ -21,7 +21,7 @@ def create_mipmaps(inputImage,outputDirectory='.',mipmaplevels=[1,2,3],outputfor
         dwnImage = im.resize(newsize)
         outpath = os.path.join(outputDirectory,inputFileName[0:-4]+'_mip%02d.'%level+outputformat)
         dwnImage.save(outpath)
-        print outpath,level,newsize
+        print(outpath,level,newsize)
 
         
 if __name__ == '__main__':
@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     
-    print 'outdir',args.outputDirectory
+    print('outdir',args.outputDirectory)
     if args.outputDirectory is None:
         args.outputDirectory = os.path.split(args.inputImage)[0]
         if len(args.outputDirectory)==0:
