@@ -165,7 +165,7 @@ class CreateFastStack(RenderModule):
             mydf = ribbon.groupby('session')
             for session, session_df in mydf:
                 outputStack = self.args['outputStackPrefix'] + \
-                    '_Session%d' % (session)
+                    'Session%d' % (session)
 
                 self.logger.info("creating tilespecs and cmds....")
                 tilespecpaths, mipmap_args = make_tilespec_from_statetable(
