@@ -1,7 +1,7 @@
 import os
 from create_mipmaps import create_mipmaps
 import renderapi
-from renderapi.tilespec import MipMapLevel
+from renderapi.image_pyramid import MipMap
 from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 from argschema.fields import Str, Boolean, Int
@@ -38,7 +38,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack):
         tilespecs = render.run(renderapi.tilespec.get_tile_specs_from_z,inputStack,z)
 
         for i,tilespec in enumerate(tilespecs):
-            mml = tilespec.ip.mipMapLevels[0]
+            mml = tilespec.ip[0]
 
             old_url = mml.imageUrl
             filepath=str(old_url).lstrip('file:')
@@ -60,8 +60,8 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack):
             downdir2 = downdir.replace(" ", "%20")
             for i in range(1, 4):
                 scUrl = 'file:' + os.path.join(downdir2,filename[0:-4]+'_mip0%d.jpg'%i)
-                mml = MipMapLevel(level=i,imageUrl=scUrl)
-                tilespec.ip.update(mml)
+                mml = MipMap(imageUrl=scUrl)
+                tilespec.ip[i]=mml
 
         tempjson = tempfile.NamedTemporaryFile(
             suffix=".json", mode='r', delete=False)
