@@ -20,6 +20,7 @@ example_input = {
     },
     "statetableFile": "/nas2/data/M335503_Ai139_smallvol/scripts/statetable_ribbon_5_session_1_section_1",
     "projectDirectory": "/nas2/data/M335503_Ai139_smallvol",
+    "dataOutputFolder": "processed",
     "outputStackPrefix": "TESTAcquisition",
     "pool_size": 20,
     "delete_stack": False
@@ -31,6 +32,9 @@ class CreateFastStacksParameters(RenderParameters):
                                description='state table file')
     projectDirectory = InputDir(required=True,
                                 description='path to project root')
+    dataOutputFolder = Str(required=False,
+                                default="processed",
+                                description='Subfolder containing processed data')
     reference_channel = Str(required=False,
                             default="DAPI",
                             description="will take the first channel which contains these letters and make it the reference image")
@@ -42,7 +46,7 @@ class CreateFastStacksParameters(RenderParameters):
                            description='flag to decide whether stack should be deleted before new upload')
 
 
-def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outputStack, reference_channel='dapi', minval=0, maxval=50000):
+def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outputStack, dataOutputFolder="processed", reference_channel='dapi', minval=0, maxval=50000):
     df = df[df['zstack'] == 0]
     #ribbons = df.groupby('ribbon')
     # zoffset=0
@@ -69,12 +73,12 @@ def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outpu
                 for ind, row in frame_group.iterrows():
                     filepath = row.full_path
                     fileparts = filepath.split(os.path.sep)[1:]
-                    tilespecdir = rootdir + "/processed/downsamp_tilespec/" + \
+                    tilespecdir = rootdir + "/" + dataOutputFolder + "/downsamp_tilespec/" + \
                         fileparts[5]+"/"+fileparts[6]+"/"+fileparts[7]
                     if not os.path.isdir(tilespecdir):
                         os.makedirs(tilespecdir)
-                    downdir = rootdir+"/processed/downsamp_images/" + \
-                        fileparts[5]+"/"+fileparts[6]+"/"+fileparts[7]
+                    downdir = rootdir + "/" + dataOutputFolder + "/downsamp_images/" + \
+                        fileparts[5] + "/" + fileparts[6] + "/"+fileparts[7]
 
                     if not os.path.exists(downdir):
                         os.makedirs(downdir)
@@ -155,6 +159,7 @@ class CreateFastStack(RenderModule):
         statetablefile = self.args['statetableFile']
         rootdir = self.args['projectDirectory']
         reference_channel = self.args['reference_channel']
+        dataOutputFolder = self.args['dataOutputFolder']
         print("This is delete stack : ")
         print(self.args['delete_stack'])
         # exit(0)
@@ -165,11 +170,11 @@ class CreateFastStack(RenderModule):
             mydf = ribbon.groupby('session')
             for session, session_df in mydf:
                 outputStack = self.args['outputStackPrefix'] + \
-                    'Session%d' % (session)
+                    '_Session%d' % (session)
 
                 self.logger.info("creating tilespecs and cmds....")
                 tilespecpaths, mipmap_args = make_tilespec_from_statetable(
-                    session_df, rootdir, outputProject, outputOwner, outputStack, reference_channel)
+                    session_df, rootdir, outputProject, outputOwner, outputStack, dataOutputFolder, reference_channel)
                 self.logger.info("importing tilespecs into render....")
                 self.logger.info("creating downsampled images ...")
                 with renderapi.client.WithPool(self.args['pool_size']) as pool:
