@@ -11,6 +11,7 @@ pandas
 matplotlib
 xmltodict
 argschema>1.15.5
+EMaligner==0.3.4
 boto3
 botocore
 pyxb
