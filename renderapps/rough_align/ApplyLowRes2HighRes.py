@@ -113,7 +113,7 @@ def process_z(render,stack,lowres_stack,output_stack,prealigned_stack,output_dir
 			print "f2"
 			d1 = t.to_dict()
 			print "f3"
-			print d1['mipmapLevels'][0]['imageUrl']
+			#print d1['mipmapLevels'][0]['imageUrl']
 			d1['z'] = newz
 			t.from_dict(d1)
 			allts.append(t)
