@@ -15,9 +15,7 @@ from renderapi.tilespec import TileSpec, Layout
 from renderapi.channel import Channel
 from renderapi.image_pyramid import MipMap, ImagePyramid
 import tifffile
-
-
-
+import errno
 
 
 # modified and fixed by Sharmishtaa Seshamani, Leila, tk and Forrest.
@@ -35,7 +33,6 @@ example_parameters = {
     'pool_size': 20,
     'scale': 0.05
 }
-
 
 class MakeDownsampleSectionStackParameters(RenderParameters):
     input_stack = Str(required=True,
@@ -98,7 +95,12 @@ def process_z(render, stack, output_dir, scale, project, tagstr, Z):
     if os.path.exists(tilespecdir):
         print ("Path Exists: " + tilespecdir)
     else:
-        os.makedirs(tilespecdir)
+        try:
+           os.makedirs(tilespecdir)
+        except OSError, e :
+            if e.errno != errno.EEXIST:
+                raise  # raises the error again
+
 
     [q, r] = divmod(z, 1000)
     s = int(r/100)
@@ -109,8 +111,12 @@ def process_z(render, stack, output_dir, scale, project, tagstr, Z):
     print("checking for: " + directory)
     print(os.path.exists(directory))
     if not os.path.exists(directory):
-        os.makedirs(directory)
-        print(os.path.exists(directory))
+        try:
+            os.makedirs(directory)
+            print(os.path.exists(directory))
+        except OSError, e :
+            if e.errno != errno.EEXIST:
+                raise  # raises the error again
     else:
         print ("did not make directory: " + directory)
 
@@ -185,7 +191,12 @@ class MakeDownsampleSectionStack(RenderModule):
 
         directoryname = os.path.dirname(self.args['numsectionsfile'])
         if not os.path.isdir(directoryname):
-            os.makedirs(directoryname)
+            try:
+                os.makedirs(directoryname)
+            except OSError, e :
+                if e.errno != errno.EEXIST:
+                   raise  # raises the error again
+
 
         f = open(self.args['numsectionsfile'], 'w')
         f.write("%d" % len(zvalues))
