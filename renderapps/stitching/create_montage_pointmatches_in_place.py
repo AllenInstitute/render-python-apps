@@ -150,8 +150,9 @@ def process_tile_pair_json_file(r,matchcollection,stack,owner,tile_pair_json_fil
 #            newpair['matches']['w']=np.ones(len(xx)).tolist()
 #            pairs.append(newpair)
 
-    resp=r.run(renderapi.pointmatch.import_matches,matchcollection,json.dumps(pairs))
     print "Putting %d pairs in %s"%(len(pairs),matchcollection)
+    #print (pairs)
+    resp=r.run(renderapi.pointmatch.import_matches,matchcollection,json.dumps(pairs))
 
 
 class CreateMontagePointMatch(RenderModule):
