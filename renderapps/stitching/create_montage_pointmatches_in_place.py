@@ -152,7 +152,7 @@ def process_tile_pair_json_file(r,matchcollection,stack,owner,tile_pair_json_fil
 
     print "Putting %d pairs in %s"%(len(pairs),matchcollection)
     #print (pairs)
-    resp=r.run(renderapi.pointmatch.import_matches,matchcollection,json.dumps(pairs))
+    resp=r.run(renderapi.pointmatch.import_matches,matchcollection, pairs)
 
 
 class CreateMontagePointMatch(RenderModule):
@@ -175,8 +175,8 @@ class CreateMontagePointMatch(RenderModule):
         minZ = self.args.get('minZ',np.min(zvalues))
         maxZ = self.args.get('maxZ',np.max(zvalues))
         zvalues = np.array(zvalues)
-        zvalues = zvalues[zvalues>minZ]
-        zvalues = zvalues[zvalues<maxZ]
+        zvalues = zvalues[zvalues >= minZ]
+        zvalues = zvalues[zvalues <= maxZ]
 
         kwargs = self.render.make_kwargs()
         make_tile_part = partial(make_tile_pair_json,self.render,self.args['stack'],kwargs['project'],kwargs['owner'],kwargs['host'],kwargs['port'],json_dir)
