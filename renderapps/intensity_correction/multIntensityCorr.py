@@ -54,8 +54,7 @@ def intensity_corr(img,ff):
         return result_int
 
 def getImage(ts):
-    d = ts.to_dict()
-    img0 = tifffile.imread(d['mipmapLevels'][0]['imageUrl'])
+    img0 = tifffile.imread(ts.ip[0].imageUrl)
     (N,M)=img0.shape
     return N,M,img0
 
@@ -66,19 +65,15 @@ def process_tile(C,dirout, stackname,input_ts):
     Res = intensity_corr(I,C)
     if not os.path.exists(dirout):
         os.makedirs(dirout)
-    d = input_ts.to_dict()
-    [head,tail] = os.path.split(d['mipmapLevels'][0]['imageUrl'])
+    [head,tail] = os.path.split(input_ts.ip[0].imageUrl)
     outImage = "%s/%s_%04d_%s"%(dirout,stackname,input_ts.z,tail)
     tifffile.imsave(outImage,I)
 
+    ip = renderapi.image_pyramid.ImagePyramid()
+    ip[0] = renderapi.image_pyramid.MipMap(imageUrl=outImage)
+    input_ts.ip = ip
 
-    output_ts = input_ts
-    d = output_ts.to_dict()
-    for i in range(1,len(d['mipmapLevels'])):
-        del d['mipmapLevels'][i]
-    d['mipmapLevels'][0]['imageUrl'] = outImage
-    output_ts.from_dict(d)
-    return output_ts
+    return input_ts
 
 class MultIntensityCorr(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
