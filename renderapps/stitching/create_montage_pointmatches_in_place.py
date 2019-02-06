@@ -19,7 +19,7 @@ example_parameters={
     "minZ":0,
     "maxZ":101,
     "delta":5000,
-    "dataRoot":"/nas3/data/"
+    "dataRoot":"/nas3/data/MyProject/processed/MyTest/"
 }
 
 class CreateMontagePointMatchParameters(RenderParameters):
@@ -32,7 +32,7 @@ class CreateMontagePointMatchParameters(RenderParameters):
     maxZ = Int(required=False,
         description='min Z to consider (default min in stack)')
     dataRoot = Str(required = True,
-        description='max Z to consider (default max in stack)')
+        description='Folder for saving json files')
     delta = Int(required=False,default=150,
         metadata ={'description':'number of pixels between artificial matches'})
     pool_size = Int(required=False,default=20,
@@ -164,8 +164,7 @@ class CreateMontagePointMatch(RenderModule):
         print mod.args
 
         stack = self.args['stack']
-        json_dir = os.path.join(self.args['dataRoot'],
-            '%s/processed/point_match_in_place'%self.args['render']['project'])
+        json_dir = os.path.join(self.args['dataRoot'],'point_match_in_place')
 
         if not os.path.isdir(json_dir):
             os.makedirs(json_dir)
@@ -203,6 +202,5 @@ class CreateMontagePointMatch(RenderModule):
         #     break
 
 if __name__ == "__main__":
-    #mod = CreateMontagePointMatch(input_data=example_parameters)
     mod = CreateMontagePointMatch(schema_type=CreateMontagePointMatchParameters)
     mod.run()
