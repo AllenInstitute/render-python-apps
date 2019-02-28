@@ -11,10 +11,10 @@ pandas
 matplotlib
 xmltodict
 argschema>1.15.5
-EMaligner==0.3.4
 boto3
 botocore
 pyxb
 pillow>=4.3.0
 scikit-image
 lxml
+git+https://github.com/AllenInstitute/EM_aligner_python
