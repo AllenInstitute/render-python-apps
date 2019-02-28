@@ -17,4 +17,3 @@ pyxb
 pillow>=4.3.0
 scikit-image
 lxml
-git+https://github.com/AllenInstitute/EM_aligner_python
