@@ -100,6 +100,8 @@ class CalculateRegistrationParameters(RenderParameters):
         description="TileId to register")
     pool_size = argschema.fields.Int(required=False,default=20,
         description='number of parallel processes (default 20)')
+    output_dir = argschema.fields.Str(required=False, default = "/nas5/ForSharmi/registrationtest",
+        description='Directory to write gross image files')
 
 
 def get_transform_distance(tform1,tform2):
@@ -526,8 +528,7 @@ def get_pairs_for_tileIds(pairs,tileIds):
 
     return newpairs
 
-def calculate_gross_registration_render(render, referenceStack, stack, sc, project, z):
-    output_dir = '/nas5/ForSharmi/registrationtest'
+def calculate_gross_registration_render(render, referenceStack, stack, sc, project, z, output_dir):
     tagstr = 'scaled'
     jsonfiles1 = []
     jsonfiles2 = []
@@ -580,6 +581,7 @@ class CalculateRegistration(RenderModule):
         useGross = self.args['useGross']
         matchcollection =self.args['matchcollection']
         project = self.args['render']['project']
+        output_dir = self.args['output_dir']
 
 
         print ("hello testing calculate registration")
@@ -587,7 +589,7 @@ class CalculateRegistration(RenderModule):
         print ("This is len tile id: %d"%len(self.args['tileId']))
 
         #downsample sections for gross alignment
-        M = calculate_gross_registration_render(self.render, referenceStack, stack, sc, project, z)
+        M = calculate_gross_registration_render(self.render, referenceStack, stack, sc, project, z, output_dir)
         M =M.invert()
         print (M)
         
