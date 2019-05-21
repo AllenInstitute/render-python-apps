@@ -102,7 +102,10 @@ class CalculateRegistrationParameters(RenderParameters):
         description='number of parallel processes (default 20)')
     output_dir = argschema.fields.Str(required=False, default = "/nas5/ForSharmi/registrationtest",
         description='Directory to write gross image files')
-
+    grossRefStack = argschema.fields.Str(required=False, default = "tempGrossStack1",
+        description='Temp stack name for lowres reference stack')
+    grossStack = argschema.fields.Str(required=False, default = "tempGrossStack2",
+        description='Temp stack name for lowres stack')
 
 def get_transform_distance(tform1,tform2):
     #just checking the translation distance
@@ -528,7 +531,7 @@ def get_pairs_for_tileIds(pairs,tileIds):
 
     return newpairs
 
-def calculate_gross_registration_render(render, referenceStack, stack, sc, project, z, output_dir):
+def calculate_gross_registration_render(render, referenceStack, stack, sc, project, z, output_dir, grossRefStack, grossStack):
     tagstr = 'scaled'
     jsonfiles1 = []
     jsonfiles2 = []
@@ -538,8 +541,6 @@ def calculate_gross_registration_render(render, referenceStack, stack, sc, proje
     tilespecfile2 = downsample_z(render,stack,output_dir,sc,project,tagstr,[z,z])
     jsonfiles2.append(tilespecfile2)
 
-    grossRefStack = "tempGrossStack1"
-    grossStack = "tempGrossStack2"
     renderapi.stack.create_stack(grossRefStack,render=render)
     renderapi.client.import_jsonfiles_parallel(grossRefStack,jsonfiles1,render=render)
     renderapi.stack.create_stack(grossStack,render=render)
@@ -582,6 +583,8 @@ class CalculateRegistration(RenderModule):
         matchcollection =self.args['matchcollection']
         project = self.args['render']['project']
         output_dir = self.args['output_dir']
+        grossRefStack = self.args['grossRefStack']
+        grossStack = self.args['grossStack']
 
 
         print ("hello testing calculate registration")
@@ -589,7 +592,8 @@ class CalculateRegistration(RenderModule):
         print ("This is len tile id: %d"%len(self.args['tileId']))
 
         #downsample sections for gross alignment
-        M = calculate_gross_registration_render(self.render, referenceStack, stack, sc, project, z, output_dir)
+        M = calculate_gross_registration_render(self.render, referenceStack, stack, sc, project, z,
+            output_dir, grossRefStack, grossStack)
         M =M.invert()
         print (M)
         
