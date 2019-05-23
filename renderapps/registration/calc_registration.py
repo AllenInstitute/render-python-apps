@@ -51,7 +51,7 @@ example_parameters  = {
     "percentSaturated": 0.7,
     "initialSigma": 2.5,
     "tileId": "",
-    "pool_size": 20
+    "pool_size": 4
     #"contrastEnhance" : false,
     #"tileDistance" : 1000
 }
@@ -62,6 +62,10 @@ class CalculateRegistrationParameters(RenderParameters):
         description="Stack to Register to")
     stack = argschema.fields.Str(required=True,
         description='Stack to Register')
+    referenceStackChannel = argschema.fields.Str(required=False, default="",
+        description="Channel on reference stack to use for registration")
+    stackChannel = argschema.fields.Str(required=False, default="",
+        description='Channel on stack to use for registration')
     outputStack = argschema.fields.Str(required=True,
         description="Output Stack to save results")
     matchcollection = argschema.fields.Str(required=True,
@@ -106,6 +110,7 @@ class CalculateRegistrationParameters(RenderParameters):
         description='Temp stack name for lowres reference stack')
     grossStack = argschema.fields.Str(required=False, default = "tempGrossStack2",
         description='Temp stack name for lowres stack')
+    
 
 def get_transform_distance(tform1,tform2):
     #just checking the translation distance
@@ -124,7 +129,7 @@ def register_with_NCC(I1,I2):
     print(A[0])
 
     
-def downsample_z(render,stack,output_dir,scale,project,tagstr,Z):
+def downsample_z(render,stack,output_dir,scale,project,tagstr,Z,channel):
 
     z = Z[0]
     newz = Z[1]
@@ -176,12 +181,13 @@ def downsample_z(render,stack,output_dir,scale,project,tagstr,Z):
     filename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'%03d'%q,"%d"%s,'%s.tif'%str(float(z)))
 
     #if not os.path.isfile(filename):
-    renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, format='tif', doFilter=False, fillWithNoise=False)
+    renderapi.client.renderSectionClient(stack, output_dir, [z], scale=str(scale), render=render, channel=channel, format='tif', doFilter=False, fillWithNoise=False)
 
     tilespecs = renderapi.tilespec.get_tile_specs_from_z(stack,z,render=render)
     t = tilespecs[0]
     d = t.to_dict()
     print(d)
+    d['channels'] = []
     d['mipmapLevels']['0']['imageUrl'] = filename
     d['minIntensity'] = 0
     d['maxIntensity'] = 255
@@ -426,6 +432,7 @@ def upload_tilespecs_and_extract(render,tempStack,tilespecs,steps,SIFTminScale,S
 
     except (Exception):
         print "No point matches found"
+        raise
 
 def pmclient_register(render,stack,referenceStack,steps, filterflag,SIFTminScale,SIFTmaxScale,matchcollection,pair):
     ts1 = renderapi.tilespec.get_tile_spec(stack,pair['p']['id'],render=render)
@@ -452,6 +459,7 @@ def pmclient_register(render,stack,referenceStack,steps, filterflag,SIFTminScale
 
     except (Exception):
         print "No point matches found"
+        raise
     
     #renderapi.stack.delete_stack(tempStack,render=render)
 
@@ -519,6 +527,7 @@ def register_tiles(render,
         except(Exception):
             #tsp = next(ts for ts in tilespecs_p if ts.tileId == pid)
             #tilespecs_res.append(tsp)
+            raise
             print ('Not adding tilespec')
 
     return tilespecs_res,final_tform
@@ -531,14 +540,14 @@ def get_pairs_for_tileIds(pairs,tileIds):
 
     return newpairs
 
-def calculate_gross_registration_render(render, referenceStack, stack, sc, project, z, output_dir, grossRefStack, grossStack):
+def calculate_gross_registration_render(render, referenceStack, referenceStackChannel, stack, stackChannel, sc, project, z, output_dir, grossRefStack, grossStack, filterflag):
     tagstr = 'scaled'
     jsonfiles1 = []
     jsonfiles2 = []
-    tilespecfile1 = downsample_z(render,referenceStack,output_dir,sc,project,tagstr,[z,z])
+    tilespecfile1 = downsample_z(render,referenceStack,output_dir,sc,project,tagstr,[z,z], referenceStackChannel)
     jsonfiles1.append(tilespecfile1)
 
-    tilespecfile2 = downsample_z(render,stack,output_dir,sc,project,tagstr,[z,z])
+    tilespecfile2 = downsample_z(render,stack,output_dir,sc,project,tagstr,[z,z], stackChannel)
     jsonfiles2.append(tilespecfile2)
 
     renderapi.stack.create_stack(grossRefStack,render=render)
@@ -548,7 +557,7 @@ def calculate_gross_registration_render(render, referenceStack, stack, sc, proje
 
     M = convert_M2tform([[1.0 ,0.0, 0.0],[0.0, 1.0, 0.0]])
     pairs = find_overlapping_tiles (render,grossRefStack,grossStack,z,M,0.0)
-    pmclient_register(render,grossStack,grossRefStack,3, False,0.3,1.0,"grossRegmatches",pairs[0])
+    pmclient_register(render,grossStack,grossRefStack,3,filterflag,0.3,1.0,"grossRegmatches",pairs[0])
     tilespecs,tform = register_tiles(render,grossStack,grossRefStack,
                                      "grossRegmatches",
                                      1,
@@ -565,9 +574,10 @@ class CalculateRegistration(RenderModule):
         super(CalculateRegistration,self).__init__(schema_type=schema_type,*args,**kwargs)
 
     def run(self):
-
         referenceStack = self.args['referenceStack']
         stack = self.args['stack']
+        referenceStackChannel = self.args['referenceStackChannel']
+        stackChannel = self.args['stackChannel']
         outputStack = self.args['outputStack']
         sc = self.args['scale']
         z = self.args['section']
@@ -586,18 +596,15 @@ class CalculateRegistration(RenderModule):
         grossRefStack = self.args['grossRefStack']
         grossStack = self.args['grossStack']
 
-
-        print ("hello testing calculate registration")
-
         print ("This is len tile id: %d"%len(self.args['tileId']))
 
         #downsample sections for gross alignment
-        M = calculate_gross_registration_render(self.render, referenceStack, stack, sc, project, z,
-            output_dir, grossRefStack, grossStack)
+        M = calculate_gross_registration_render(self.render, referenceStack, referenceStackChannel, stack, stackChannel, sc, project, z,
+            output_dir, grossRefStack, grossStack, filterflag)
         M =M.invert()
         print (M)
         
-        #exit(0)
+        exit(0)
 
         #S = renderapi.stack.get_stack_sectionData(stack,render = self.render)
         #print S[0]
@@ -639,20 +646,18 @@ class CalculateRegistration(RenderModule):
             print("No tile pairs to register!")
             exit(0)
 
-        #exit(0)
         #calculate point matches
         mypartial = partial(pmclient_register,self.render,stack,referenceStack,steps,filterflag, SIFTminScale,SIFTmaxScale,matchcollection)
         with renderapi.client.WithPool(pool_size) as pool:
             pool.map(mypartial,pairs)
-            
-        #exit(0)
 
         tilespecs,finaltform = register_tiles(self.render,stack,referenceStack,
                                          matchcollection,
                                          1,
                                          RigidModel,pairs,M,useGross)
         
-        tilespecs = adjust_outliers(tilespecs,M)
+        # The outlier code does not work currently.
+        # tilespecs = adjust_outliers(tilespecs,M)
 
         upload_tilespecs(self.render,outputStack,tilespecs)
 
