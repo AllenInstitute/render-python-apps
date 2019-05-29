@@ -19,18 +19,12 @@ from skimage.feature import register_translation
 
 example_parameters  = {
     "render":{
-        #"host":"ibs-forrestc-ux1",
         "host": "10.128.24.33",
         "port":80,
         "owner":"Small_volumes_2018",
-        #"project": "M362218_CSATlx3_small_volume",
         "project":"M367240_D_SSTPV_smallvol",
-        #"owner": "Forrest",
-        #"project": "M247514_Rorb_1",
         "client_scripts":"/pipeline/render/render-ws-java-client/src/main/scripts"
     },
-    #"referenceStack": "RT_STI_FF_S01_DAPI_1",
-    #"stack": "RT_STI_FF_S03_DAPI_3",
     "matchcollection":"REG_FF_S03_DAPI3_to_S01_DAPI1",
     "referenceStack": "RT_STI_FF_S01_DAPI_1",
     "stack": "RT_STI_FF_S03_DAPI_3",
@@ -53,7 +47,7 @@ example_parameters  = {
     "tileId": "",
     "pool_size": 4
     #"contrastEnhance" : false,
-    #"tileDistance" : 1000
+    #"tileDistance" : 1000 
 }
 
 
@@ -157,13 +151,9 @@ def downsample_z(render,stack,output_dir,scale,project,tagstr,Z,channel):
 
     #bb = renderapi.image.get_bb_image(stack, z, stackbounds['minX'], stackbounds['minY'], width, height, scale, render=render)
 
-    print "This is z: "
-    print z
-    print "These are stack bounds!"
-    print stackbounds
-    print "These are section bounds!"
-    print sectionbounds
-
+    print("This is z: %d" % z)
+    print("Stackbounds: %s" % stackbounds)
+    print("Sectionbounds: %s" % sectionbounds)
 
     tilespecdir = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'tilespecs_%s'%tagstr)
     if os.path.exists(tilespecdir):
@@ -207,8 +197,7 @@ def downsample_z(render,stack,output_dir,scale,project,tagstr,Z,channel):
 
 
 
-def find_tile_pair(render,ref_stack,ts,M):
-
+def find_tile_pair(render, ref_stack, ts, M):
     ts_geom = tilespec_to_bounding_box_polygon(ts)
 
     width = ts.width
@@ -245,7 +234,7 @@ def find_overlapping_tiles (render,referenceStack,stack,z,M,overlap_thresh):
     for ts in all_ts:
         ts.tforms.append(M) #apply the gross registration
         pair,overlap = find_tile_pair(render,referenceStack,ts,M)
-        print pair['p']['id'],pair['q']['id'],overlap
+        print(pair['p']['id'], pair['q']['id'], overlap)
         if overlap > overlap_thresh:
             pairs.append(pair)
     return pairs
@@ -434,34 +423,29 @@ def upload_tilespecs_and_extract(render,tempStack,tilespecs,steps,SIFTminScale,S
         print "No point matches found"
         raise
 
-def pmclient_register(render,stack,referenceStack,steps, filterflag,SIFTminScale,SIFTmaxScale,matchcollection,pair):
+def pmclient_register(render,stack,stackChannel,referenceStack,referenceStackChannel,steps,filterflag,SIFTminScale,SIFTmaxScale,matchcollection,pair):
     ts1 = renderapi.tilespec.get_tile_spec(stack,pair['p']['id'],render=render)
     ts2 = renderapi.tilespec.get_tile_spec(referenceStack,pair['q']['id'],render=render)
-    #tempStack = "%s_%s_%s_%s"%(stack,referenceStack,pair['p']['id'],pair['q']['id'])
     tempStack = "%s_%s"%(pair['p']['id'],pair['q']['id'])
     ts1.z = 0
     ts2.z = 1
     tilespecs = [ts1,ts2]
     tileIds = [pair['p']['id'],pair['q']['id']]
-    
-    #upload_tilespecs_and_extract(render,tempStack,tilespecs,steps,SIFTminScale,SIFTmaxScale, matchcollection,tileIds,filterflag)
-
-    
-    s = SiftPointMatchOptions(SIFTsteps=steps,SIFTminScale=SIFTminScale,SIFTmaxScale=SIFTmaxScale)
-
+  
+    s = SiftPointMatchOptions(SIFTsteps=steps,SIFTminScale=SIFTminScale,SIFTmaxScalex=SIFTmaxScale,renderScale=0.5)
 
     try:
         p = pointMatchClient(stack, matchcollection, [tileIds], stack2=referenceStack,
                     filter=filterflag,
                     excludeAllTransforms=True,
+                    stackChannels=stackChannel,
+                    stack2Channels=referenceStackChannel,
                     sift_options=s,
                     render=render)
 
     except (Exception):
         print "No point matches found"
         raise
-    
-    #renderapi.stack.delete_stack(tempStack,render=render)
 
 
 def dump_images(render,pair,stack,referenceStack):
@@ -557,7 +541,7 @@ def calculate_gross_registration_render(render, referenceStack, referenceStackCh
 
     M = convert_M2tform([[1.0 ,0.0, 0.0],[0.0, 1.0, 0.0]])
     pairs = find_overlapping_tiles (render,grossRefStack,grossStack,z,M,0.0)
-    pmclient_register(render,grossStack,grossRefStack,3,filterflag,0.3,1.0,"grossRegmatches",pairs[0])
+    pmclient_register(render,grossStack,None,grossRefStack,None,3,filterflag,0.3,1.0,"grossRegmatches",pairs[0])
     tilespecs,tform = register_tiles(render,grossStack,grossRefStack,
                                      "grossRegmatches",
                                      1,
@@ -604,39 +588,27 @@ class CalculateRegistration(RenderModule):
         M =M.invert()
         print (M)
         
-        exit(0)
-
         #S = renderapi.stack.get_stack_sectionData(stack,render = self.render)
         #print S[0]
 
         #S = renderapi.stack.get_stack_sectionData(referenceStack,render = self.render)
         #print S[0]
 
-
-        #calculate gross registration
-        
-        #M = calculate_gross_registration(self.render,referenceStack,stack,z,sc)
-        #M = M.invert()
-
-        #print (M)
-        #exit(0)
         #find overlapping pairs
         print("Now finding overlapping tile pairs...............")
         pairs = find_overlapping_tiles (self.render,referenceStack,stack,z,M,0.5)
         #pairs = find_overlapping_tiles_hack (self.render,referenceStack,stack,z,M,0.5)
 
-
-	if (pointx > 0) & (pointy > 0) :
-        #print pointx, pointy
-        	point = [pointx,pointy]
-        	print(pointx,pointy)
-        	offset = 10
-        	ts = renderapi.tilespec.get_tile_specs_from_minmax_box(stack,z,point[0]-offset, point[0] + offset, point[1] - offset, point[1] + offset, render=self.render)
-        	tileIds = []
-        	for t in ts:
-            		tileIds.append(t.tileId)
-        	pairs = get_pairs_for_tileIds(pairs,tileIds)
-        	print tileIds
+        # EAP: Do we need this? It seems like an alternate way to find overlapping data.
+        if (pointx > 0) & (pointy > 0) :
+            point = [pointx,pointy]
+            print(point)
+            offset = 10
+            ts = renderapi.tilespec.get_tile_specs_from_minmax_box(stack,z,point[0]-offset, point[0] + offset, point[1] - offset, point[1] + offset, render=self.render)
+            tileIds = []
+            for t in ts:
+                    tileIds.append(t.tileId)
+            pairs = get_pairs_for_tileIds(pairs,tileIds)
 
         for p in pairs:
             print p['p']['id'],p['q']['id']
@@ -646,15 +618,16 @@ class CalculateRegistration(RenderModule):
             print("No tile pairs to register!")
             exit(0)
 
+
         #calculate point matches
-        mypartial = partial(pmclient_register,self.render,stack,referenceStack,steps,filterflag, SIFTminScale,SIFTmaxScale,matchcollection)
+        mypartial = partial(pmclient_register,self.render,stack,stackChannel,referenceStack,referenceStackChannel,steps,filterflag, SIFTminScale,SIFTmaxScale,matchcollection)
         with renderapi.client.WithPool(pool_size) as pool:
             pool.map(mypartial,pairs)
 
         tilespecs,finaltform = register_tiles(self.render,stack,referenceStack,
-                                         matchcollection,
-                                         1,
-                                         RigidModel,pairs,M,useGross)
+                                        matchcollection,
+                                        1,
+                                        RigidModel,pairs,M,useGross)
         
         # The outlier code does not work currently.
         # tilespecs = adjust_outliers(tilespecs,M)
