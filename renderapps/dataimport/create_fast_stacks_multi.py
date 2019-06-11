@@ -46,7 +46,7 @@ class CreateFastStacksParameters(RenderParameters):
                            description='flag to decide whether stack should be deleted before new upload')
 
 
-def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outputStack, dataOutputFolder="processed", reference_channel='dapi', minval=0, maxval=50000):
+def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outputStack, dataOutputFolder="processed", reference_channel='DAPI', minval=0, maxval=50000):
     df = df[df['zstack'] == 0]
     #ribbons = df.groupby('ribbon')
     # zoffset=0
@@ -65,9 +65,6 @@ def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outpu
             tilespeclist = []
             z = 0
             for frame, frame_group in group.groupby('frame'):
-
-
-
                 channels = []
                 reference_ip = None
                 for ind, row in frame_group.iterrows():
@@ -104,6 +101,9 @@ def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outpu
                     if reference_channel in row.ch_name:
                         reference_ip = ip
                         
+                if reference_ip == None:
+                    raise Exception("Reference channel %s not found; aborting." % reference_channel)
+                        
                 layout = Layout(sectionId=row.ribbon*1000+row.section,
                                 scopeId='Leica',
                                 cameraId='zyla',
@@ -130,7 +130,6 @@ def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outpu
                                              minint=minval,
                                              maxint=maxval,
                                              layout=layout))
-
             json_file = os.path.join(
                 tilespecdir, outputProject+'_'+outputOwner+'_'+outputStack+'_%04d.json' % z)
             fd = open(json_file, "w")
