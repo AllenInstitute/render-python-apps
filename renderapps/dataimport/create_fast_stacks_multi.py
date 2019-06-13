@@ -93,13 +93,17 @@ def make_tilespec_from_statetable(df, rootdir, outputProject, outputOwner, outpu
                             os.path.join(
                                 downdir, filename[0:-4]+'_mip0%d.jpg' % i)
                         ip[i] = MipMap(imageUrl=scUrl)
-                    channels.append(Channel(name=row.ch_name,
+                    newch = Channel(name=row.ch_name,
                                             ip=ip,
                                             minIntensity=minval,
-                                            maxIntensity=maxval))
+                                            maxIntensity=maxval)
 
                     if reference_channel in row.ch_name:
+                        # Use the reference_channel as the primary image, and as the first channel to be the "default" for render.
+                        channels.insert(0, newch)
                         reference_ip = ip
+                    else:
+                        channels.append(newch)
                         
                 if reference_ip == None:
                     raise Exception("Reference channel %s not found; aborting." % reference_channel)
