@@ -134,8 +134,8 @@ def downsample_z(render,stack,output_dir,scale,project,tagstr,Z,channel):
           str(z)]
 
 
-    print args
-    print project
+    print(args)
+    print(project)
 
     stackbounds = renderapi.stack.get_stack_bounds(stack,render=render)
     sectionbounds = renderapi.stack.get_bounds_from_z(stack,z,render=render)
@@ -157,7 +157,7 @@ def downsample_z(render,stack,output_dir,scale,project,tagstr,Z,channel):
 
     tilespecdir = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'tilespecs_%s'%tagstr)
     if os.path.exists(tilespecdir):
-		print "Path Exists!"
+		print("Path Exists!")
     else:
 		os.makedirs(tilespecdir)
 
@@ -189,7 +189,7 @@ def downsample_z(render,stack,output_dir,scale,project,tagstr,Z,channel):
     t.from_dict(d)
     allts = [t]
     tilespecfilename = os.path.join(output_dir,project,stack,'sections_at_%s'%str(scale),'tilespecs_%s'%tagstr,'tilespec_%04d.json'%z)
-    print tilespecfilename
+    print(tilespecfilename)
     fp = open(tilespecfilename,'w')
     json.dump([ts.to_dict() for ts in allts] ,fp,indent=4)
     fp.close()
@@ -312,7 +312,7 @@ def compute_SIFT(img1,img2,outImg,sc):
     M[0][2] = M[0][2]/sc
     M[1][2] = M[1][2]/sc
 
-    print M
+    print(M)
     return convert_M2tform(M)
 
 
@@ -343,9 +343,9 @@ def process_tile(render,stack,referenceStack,pairs,index):
     #cv2.imwrite("tilestack.tif",I1)
     #cv2.imwrite("tilerefstack.tif",I2)
     ts = renderapi.tilespec.get_tile_spec(stack, pair['p']['id'],render=render)
-    print ts.tforms
+    print(ts.tforms)
     #print M
-    print type(ts.tforms)
+    print(type(ts.tforms))
     #print type(M)
     #ts.tforms.append(M)
     return ts
@@ -420,7 +420,7 @@ def upload_tilespecs_and_extract(render,tempStack,tilespecs,steps,SIFTminScale,S
                     render=render)
 
     except (Exception):
-        print "No point matches found"
+        print("No point matches found")
         raise
 
 def pmclient_register(render,stack,stackChannel,referenceStack,referenceStackChannel,steps,filterflag,SIFTminScale,SIFTmaxScale,matchcollection,pair):
@@ -444,7 +444,7 @@ def pmclient_register(render,stack,stackChannel,referenceStack,referenceStackCha
                     render=render)
 
     except (Exception):
-        print "No point matches found"
+        print("No point matches found")
         raise
 
 
@@ -462,7 +462,7 @@ def register_tiles(render,
                                  matchCollection,
                                  num_local_transforms,
                                  Transform,pairs,M,useGross):
-    print src_stack,dst_stack,matchCollection,num_local_transforms
+    print(src_stack,dst_stack,matchCollection,num_local_transforms)
     tilespecs_p = renderapi.tilespec.get_tile_specs_from_stack(src_stack, render=render)
     tilespecs_q = renderapi.tilespec.get_tile_specs_from_stack(dst_stack, render=render)
     tilespecs_res = []
@@ -611,7 +611,7 @@ class CalculateRegistration(RenderModule):
             pairs = get_pairs_for_tileIds(pairs,tileIds)
 
         for p in pairs:
-            print p['p']['id'],p['q']['id']
+            print(p['p']['id'],p['q']['id'])
 
 
         if len(pairs) < 1:
