@@ -508,11 +508,11 @@ def register_tiles(render,
                 tsp.tforms=[final_tform] + tsq.tforms[0:num_local_transforms]
                 #tsp.tforms=[convert_M2tform(ransacM)] + tsq.tforms[0:num_local_transforms]
             tilespecs_res.append(tsp)
-        except(Exception):
+        except Exception as e:
             #tsp = next(ts for ts in tilespecs_p if ts.tileId == pid)
             #tilespecs_res.append(tsp)
-            raise
-            print ('Not adding tilespec')
+            print(e)
+            print ('Not adding tilespecs for: ', pair)
 
     return tilespecs_res,final_tform
 
